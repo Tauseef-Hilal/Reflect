@@ -9,6 +9,7 @@ from discord.ext.commands import Cog
 from .bot import ICodeBot
 from .constants.color import Colors
 from .constants.emoji import EmojiGroup
+from .utils import get_bump_timestamp
 
 
 class CommandGroup(Cog):
@@ -168,3 +169,52 @@ class CommandGroup(Cog):
             url="https://emoji.gg/assets/emoji/1030-stand-with-ukraine.png")
 
         await ctx.respond(embed=embed)
+
+    @slash_command(name="update-bump-timer")
+    async def _update_reminder(self, ctx: ApplicationContext) -> None:
+        """
+        Fix error in bump timer
+
+        Args:
+            ctx (ApplicationContext)    
+        """
+
+        emojis: EmojiGroup = self.BOT.emoji_group
+        emoji: Emoji = emojis.get_emoji('loading_gears')
+
+        res: Interaction = await ctx.respond(
+            embed=Embed(
+                title=f"Updating bump timer {emoji}",
+                color=Colors.GOLD
+            )
+        )
+        msg: Message = await res.original_message()
+
+        if self.BOT.bump_timer_on:
+            emoji = emojis.get_emoji("red_cross")
+            
+            await msg.edit(
+                embed=Embed(
+                    title=f"Error updating bump timer {emoji}",
+                    description="Bump timer is already running",
+                    color=Colors.RED
+                )
+            )
+            
+            await msg.delete(delay=2)
+            return
+
+        previous_bump_time = get_bump_timestamp()
+        delta = (datetime.now() - previous_bump_time).seconds
+
+        delay = 0 if delta >= 60 else (60 - delta)
+        self.BOT.dispatch("bump_done", delay)
+
+        emoji = emojis.get_emoji("done")
+        await msg.edit(
+            embed=Embed(
+                title=f"Bump reminder updated {emoji}",
+                color=Colors.GREEN
+            )
+        )
+        await msg.delete(delay=2)
