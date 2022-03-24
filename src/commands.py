@@ -117,7 +117,7 @@ class CommandGroup(Cog):
         emojis: EmojiGroup = self.BOT.emoji_group
         res: Interaction = await ctx.respond(
             embed=Embed(
-                title=f"Updating emojis {emojis.get_emoji('loading_jump')}",
+                title=f"Updating emojis {emojis.get_emoji('loading_dots')}",
                 color=Colors.GOLD
             )
         )
