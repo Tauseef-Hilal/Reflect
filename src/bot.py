@@ -18,19 +18,17 @@ class ICodeBot(Bot):
 
         logging.info(msg=f"Logged in as {self.user}")
 
+        # Create constants.emoji.EmojiGroup instance
         logging.info(msg="Initializing EmojiGroup")
         self.emoji_group = EmojiGroup(self)
 
-    async def on_message(self, message: Message) -> None:
+    async def _animated_emojis(self, message: Message) -> None:
         """
-        Called when some user sends a messsage in the server
+        Animated Emojis Without Nitro
 
         Args:
-            message (Message): Message sent by the user
+            message (Message): Message with emojis
         """
-
-        if message.webhook_id:
-            return
 
         emoji = None
         temp = []
@@ -65,3 +63,19 @@ class ICodeBot(Bot):
             await webhook.send(content=message.content,
                                username=message.author.display_name, avatar_url=message.author.display_avatar)
             await message.delete()
+
+    async def on_message(self, message: Message) -> None:
+        """
+        Called when some user sends a messsage in the server
+
+        Args:
+            message (Message): Message sent by a user
+        """
+
+        # Return if it's a Webhook
+        if message.webhook_id:
+            return
+
+        # AEWN: Animated Emojis Without Nitro
+        if message.content.count(":") > 1:
+            await self._animated_emojis(message)
