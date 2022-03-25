@@ -2,13 +2,21 @@ import asyncio
 import logging
 from datetime import datetime
 
-from discord import AllowedMentions, Interaction, Message
-from discord import ApplicationContext, Embed, slash_command
+from discord import (
+    AllowedMentions,
+    Interaction,
+    Message,
+    ApplicationContext,
+    Embed,
+    slash_command
+)
 from discord.ext.commands import Cog
+
 
 from .bot import ICodeBot
 from .utils.color import Colors
 from .utils.emoji import EmojiGroup
+from .utils.constants import ANNOUNCEMENTS_CHANNEL_ID
 
 
 class CommandGroup(Cog):
@@ -96,7 +104,7 @@ class CommandGroup(Cog):
                           timestamp=datetime.now(),
                           color=Colors.GREEN)
 
-            if ctx.channel_id == 923530976947224596:
+            if ctx.channel_id == ANNOUNCEMENTS_CHANNEL_ID:
                 embed = embed.set_footer(text="iCODE Staff",
                                          icon_url=self.BOT.user.avatar)
 
