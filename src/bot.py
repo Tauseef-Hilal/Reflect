@@ -1,20 +1,41 @@
 import logging
 import asyncio
-import datetime
+from datetime import datetime
 
-from discord import Activity, Bot, Embed, Emoji, Game, Message, Role, TextChannel, Webhook
+from discord import (
+    ApplicationContext,
+    Bot,
+    Embed,
+    Emoji,
+    Game,
+    Message,
+    Role,
+    Status,
+    TextChannel,
+    Webhook
+)
 
-from .constants.emoji import EmojiGroup
-from .constants.color import Colors
-from .utils import update_bump_timestamp
+from .utils.color import Colors
+from .utils.emoji import EmojiGroup
+from .utils.bump_timer import BumpTimer
 
 
 class ICodeBot(Bot):
     """
     The BOT made for 'iCODE' Discord server.
     """
-    emoji_group: EmojiGroup
-    bump_timer_on = False
+
+    def __init__(self, description=None, maintenance=False, *args, **options):
+        """
+        Instantiate iCODE Bot
+
+        Args:
+            description (str, optional): Bot description. Defaults to None.
+            maintenance (bool, optional): Whether the bot is under maintenance. Defaults to False.
+        """
+        super().__init__(description, *args, **options)
+
+        self.MAINTENANCE_MODE = maintenance
 
     async def on_ready(self) -> None:
         """
@@ -23,11 +44,32 @@ class ICodeBot(Bot):
 
         logging.info(msg=f"Logged in as {self.user}")
 
-        # Create constants.emoji.EmojiGroup instance
+        # Create EmojiGroup instance
         logging.info(msg="Initializing EmojiGroup")
         self.emoji_group = EmojiGroup(self)
-        
-        await self.change_presence(activity=Game(name="Discord.PY"))
+
+        # Create BumpTimer instance
+        logging.info(msg="Initializing BumpTimer")
+        self.bump_timer = BumpTimer()
+
+        # ---
+        if self.MAINTENANCE_MODE:
+            self.MAINTENANCE_CHANNEL = self.get_channel(955540726513565756)
+
+            await self.change_presence(
+                status=Status.do_not_disturb,
+                activity=Game(name="| Under Maintenance")
+            )
+        else:
+            # Start timer
+            previous_bump_time = self.bump_timer.get_bump_time()
+            delta = (datetime.now() - previous_bump_time).total_seconds()
+
+            delay = 0 if delta >= 7200 else (7200 - delta)
+            self.dispatch("bump_done", int(delay))
+
+            # Set status
+            await self.change_presence(activity=Game(name="/emojis | .py"))
 
     async def on_bump_done(self, delay: int) -> None:
         """
@@ -37,9 +79,9 @@ class ICodeBot(Bot):
             channel (TextChannel): The channel to which bump reminder 
                                    will be sent
         """
-        self.bump_timer_on = True
+        self.bump_timer.running = True
         await asyncio.sleep(delay=delay)
-        self.bump_timer_on = False
+        self.bump_timer.running = False
 
         channel: TextChannel = self.get_channel(923529458508529674)
         bumper: Role = channel.guild.get_role(956603384968925245)
@@ -54,6 +96,27 @@ class ICodeBot(Bot):
             )
         )
 
+    async def on_maintenance(self, ctx: ApplicationContext) -> None:
+        """
+        Called when a member runs a command in maintenance mode
+
+        Args:
+            ctx (ApplicationContext)
+        """
+
+        emoji: Emoji = self.emoji_group.get_emoji("warning")
+
+        await ctx.respond(
+            content=ctx.author.mention,
+            embed=Embed(
+                title=f"Maintenance Break {emoji}",
+                description="iCODE is under maintenance. Commands will work\n"
+                            f"only in {self.MAINTENANCE_CHANNEL} channel.",
+                color=Colors.GOLD
+            ),
+            delete_after=5
+        )
+
     async def on_message(self, message: Message) -> None:
         """
         Called when some user sends a messsage in the server
@@ -62,12 +125,17 @@ class ICodeBot(Bot):
             message (Message): Message sent by a user
         """
 
+        # Warn if it's maintenance mode
+        if (self.MAINTENANCE_MODE and
+                message.channel != self.MAINTENANCE_CHANNEL):
+            return
+
         # Check if it's a Webhook
         if message.webhook_id:
             # Check if the message is from Disboard
             if message.author.id == 302050872383242240:
                 if "Bump done" in message.embeds[0].description:
-                    update_bump_timestamp(datetime.datetime.now())
+                    self.bump_timer.update_bump_time(datetime.now())
                     self.dispatch("bump_done", 7200)
             return
 
