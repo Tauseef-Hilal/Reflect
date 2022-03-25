@@ -12,26 +12,28 @@ def usage() -> None:
     """
     Print usage
     """
-    
+
     print("USAGE: python3 run.py [ maintenance:[on | off] ]")
     sys.exit()
+
 
 def main() -> None:
     """
         Main
     """
     MAINTENANCE = False
-    
+
+    # Determine MAINTENANCE value
     if len(sys.argv) > 2:
         usage()
     elif sys.argv[-1] == "maintenance:on":
         MAINTENANCE = True
-        
+
     # Set Up Logging
     FORMAT = "[%(name)s] => [%(levelname)s] : %(message)s"
     if MAINTENANCE:
         FORMAT = "(MAINTENANCE-MODE) " + FORMAT
-        
+
     logging.basicConfig(level=logging.INFO, format=FORMAT)
 
     # Initialize

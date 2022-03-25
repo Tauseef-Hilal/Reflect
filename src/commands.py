@@ -50,7 +50,6 @@ class CommandGroup(Cog):
             self.BOT.dispatch("maintenance", ctx)
             return
 
-        logging.info(f"Echo to {ctx.author.name}")
         await ctx.respond(embed=Embed(title=message, color=Colors.BLUE))
 
     @slash_command(name="embed")
@@ -74,11 +73,14 @@ class CommandGroup(Cog):
 
         try:
             res: Interaction = await ctx.respond(
-                embed=Embed(title="Embed Title",
-                            description="Please provide a title for the embed",
-                            color=Colors.BLUE)
+                embed=Embed(
+                    title="Embed Title",
+                    description="Please provide a title for the embed",
+                    color=Colors.BLUE
+                )
             )
             msg1: Message = await res.original_message()
+
             title: Message = await self.BOT.wait_for("message",
                                                      check=check,
                                                      timeout=60.0)
@@ -140,6 +142,7 @@ class CommandGroup(Cog):
 
         logging.info("Updating server emojis")
 
+        # Send `loading` embed
         emojis: EmojiGroup = self.BOT.emoji_group
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -149,11 +152,13 @@ class CommandGroup(Cog):
         )
         res_msg: Message = await res.original_message()
 
+        # Update emoji_group
         self.BOT.emoji_group.update_emojis()
 
         # For fun
         await asyncio.sleep(1)
 
+        # Send `done` embed
         await res_msg.edit(
             embed=Embed(
                 title=f"Emojis updated {emojis.get_emoji('done')}",
@@ -177,6 +182,7 @@ class CommandGroup(Cog):
             self.BOT.dispatch("maintenance", ctx)
             return
 
+        # Create embed
         embed = Embed(
             title="Server Emojis",
             description="Everyone can use below listed emojis!",
@@ -184,22 +190,27 @@ class CommandGroup(Cog):
             color=Colors.GOLD
         )
 
+        # Add normal emojis to the embed
         emoji_group = self.BOT.emojis
         emojis = [f"{emoji} • `:{emoji.name}:`"
                   for emoji in emoji_group if not emoji.animated]
 
         embed = embed.add_field(name="Normal Emojis", value="\n".join(emojis))
 
+        # Add animated emojis to the embed
         emojis = [f"{emoji} • `:{emoji.name}:`"
                   for emoji in emoji_group if emoji.animated]
 
         embed = embed.add_field(name="Animated Emojis",
                                 value="\n".join(emojis))
 
+        # Set embed footer
         embed.set_footer(text=ctx.author.display_name,
                          icon_url=ctx.author.display_avatar)
 
+        # Set embed thumbnail
         embed.set_thumbnail(
             url="https://emoji.gg/assets/emoji/1030-stand-with-ukraine.png")
 
+        # Send embed
         await ctx.respond(embed=embed)

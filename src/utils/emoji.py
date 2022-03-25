@@ -9,15 +9,17 @@ class EmojiGroup:
     def __init__(self, bot: Bot) -> None:
         """
         Initialize and add instance attributes
-        
+
         Attribute name is Emoji.name
         Attribute value is Emoji.id
         """
 
         self.BOT = bot
 
+        # Iterate through the server emojis
         emoji: Emoji
         for emoji in self.BOT.emojis:
+            # Set attr for each emoji
             setattr(self, emoji.name, emoji.id)
 
     def get_emoji(self, name: str) -> Emoji:
@@ -31,7 +33,7 @@ class EmojiGroup:
             Emoji: emoji for which emoji.name = name
         """
 
-        # Raise AttributeError if param: name does not  
+        # Raise AttributeError if param: name does not
         # match any of the instance attributes
         if not hasattr(self, name):
             raise AttributeError
@@ -49,7 +51,7 @@ class EmojiGroup:
             # Skip existing attributes
             if hasattr(self, emoji.name):
                 continue
-            
+
             # Create new attributes
             setattr(self, emoji.name, emoji.id)
 
