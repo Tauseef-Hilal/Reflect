@@ -111,12 +111,11 @@ class ICodeBot(Bot):
 
         self.dispatch("bump_done", int(delay))
 
-        # If the bot is running in maintenance mode,
-        if self.MAINTENANCE_MODE:
-            # set MAINTENANCE_CHANNEL attribute to maintenance channel
-            self.MAINTENANCE_CHANNEL = self.get_channel(MAINTENANCE_CHANNEL_ID)
+        # Set maintenance channel
+        self.MAINTENANCE_CHANNEL = self.get_channel(MAINTENANCE_CHANNEL_ID)
 
-            # set presence (status & activity)
+        # Set DND if the bot is running in maintenance mode,
+        if self.MAINTENANCE_MODE:
             await self.change_presence(
                 status=Status.do_not_disturb,
                 activity=Game(name="| Under Maintenance")
@@ -124,7 +123,7 @@ class ICodeBot(Bot):
 
         # Otherwise
         else:
-            # set presence (activity)
+            # Set Online (activity)
             await self.change_presence(activity=Game(name="/emojis | .py"))
 
     async def on_bump_done(self, delay: int) -> None:
@@ -315,58 +314,6 @@ class ICodeBot(Bot):
         Args:
             message (Message): Message sent by a user
         """
-            
-        if message.content == "!roles":
-            channel: TextChannel = self.get_channel(SELF_ROLES_CHANNEL_ID)
-
-            embed = Embed(
-                title="iCODE - Self Roles",
-                description="React to the message to get your roles.",
-                timestamp=datetime.now(),
-                color=Colors.GOLD
-            ).set_thumbnail(
-                url="https://emoji.gg/assets/emoji/6703_Recons.gif"
-            ).set_footer(
-                text=f"{self.user.display_name} Staff",
-                icon_url=self.user.display_avatar
-            )
-
-            # Add normal emojis to the embed
-            langs = ["python",
-                     "javascript",
-                     "dartlang",
-                     "clang",
-                     "cpp",
-                     "typescript",
-                     "clojure",
-                     "csharp",
-                     "java",
-                     "ruby"]
-            roles = []
-            emojis = []
-            for lang in langs:
-                emoji = self.emoji_group.get_emoji(lang)
-                emojis.append(emoji)
-                roles.append(
-                    f"{emoji} • {emoji.name.title() if emoji.name != 'dartlang' else emoji.name[:4].title()}")
-
-            embed = embed.add_field(
-                name=" • Programming Languages",
-                value="\n".join(roles),
-                inline=False
-            )
-
-            emoji = self.emoji_group.get_emoji("ukraine")
-            embed = embed.add_field(
-                name=" • Other Roles",
-                value=f"{emoji} • Server Bumper"
-            )
-
-            msg: Message = await channel.send(embed=embed)
-            for e in emojis:
-                await msg.add_reaction(e)
-
-            await msg.add_reaction(emoji)
 
         # Check if the message is from Disboard
         if message.author.id == DISBOARD_ID:
@@ -400,7 +347,9 @@ class ICodeBot(Bot):
         for word in message.content.split():
 
             # Check if some word is wrapped in between colons
-            if word[0] == word[-1] == ":" and len(word) > 2 and word not in temp:
+            if word[0] == word[-1] == ":" and \
+                    len(word) > 2 and \
+                    word not in temp:
 
                 try:
                     # Try to get the emoji with name `word`

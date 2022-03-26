@@ -4,13 +4,16 @@ from datetime import datetime
 
 from discord import (
     AllowedMentions,
+    Game,
     Interaction,
     Message,
     ApplicationContext,
     Embed,
+    Status,
+    TextChannel,
     slash_command
 )
-from discord.ext.commands import Cog
+from discord.ext import commands
 
 
 from .bot import ICodeBot
@@ -19,7 +22,7 @@ from .utils.emoji import EmojiGroup
 from .utils.constants import ANNOUNCEMENTS_CHANNEL_ID
 
 
-class CommandGroup(Cog):
+class CommandGroup(commands.Cog):
     """
     Group of slash commands
     """
@@ -34,6 +37,20 @@ class CommandGroup(Cog):
         super().__init__()
         self.BOT = bot
 
+    def _under_maintenance(self, channel: TextChannel) -> bool:
+        """
+        Check if the bot is under maintenance
+
+        Args:
+            channel (TextChannel): The channel from which a cmd was run
+
+        Returns:
+            bool: True if under maintenance
+        """
+
+        return (self.BOT.MAINTENANCE_MODE and
+                channel != self.BOT.MAINTENANCE_CHANNEL)
+
     @slash_command(name="echo")
     async def _echo(self, ctx: ApplicationContext, message: str) -> None:
         """
@@ -44,9 +61,9 @@ class CommandGroup(Cog):
             message (str): Message sent by some user
         """
 
-        # Return if under maintenance mode
-        if (self.BOT.MAINTENANCE_MODE and
-                ctx.channel != self.BOT.MAINTENANCE_CHANNEL):
+        # Fire maintenance event if under maintenance
+        # and ctx.channel is not maintenance channel
+        if self._under_maintenance(ctx.channel):
             self.BOT.dispatch("maintenance", ctx)
             return
 
@@ -61,9 +78,9 @@ class CommandGroup(Cog):
             ctx (ApplicationContext)
         """
 
-        # Return if under maintenance mode
-        if (self.BOT.MAINTENANCE_MODE and
-                ctx.channel != self.BOT.MAINTENANCE_CHANNEL):
+        # Fire maintenance event if under maintenance
+        # and ctx.channel is not maintenance channel
+        if self._under_maintenance(ctx.channel):
             self.BOT.dispatch("maintenance", ctx)
             return
 
@@ -134,9 +151,9 @@ class CommandGroup(Cog):
             ctx (ApplicationContext)
         """
 
-        # Return if under maintenance mode
-        if (self.BOT.MAINTENANCE_MODE and
-                ctx.channel != self.BOT.MAINTENANCE_CHANNEL):
+        # Fire maintenance event if under maintenance
+        # and ctx.channel is not maintenance channel
+        if self._under_maintenance(ctx.channel):
             self.BOT.dispatch("maintenance", ctx)
             return
 
@@ -176,9 +193,9 @@ class CommandGroup(Cog):
             ctx (ApplicationContext)
         """
 
-        # Return if under maintenance mode
-        if (self.BOT.MAINTENANCE_MODE and
-                ctx.channel != self.BOT.MAINTENANCE_CHANNEL):
+        # Fire maintenance event if under maintenance
+        # and ctx.channel is not maintenance channel
+        if self._under_maintenance(ctx.channel):
             self.BOT.dispatch("maintenance", ctx)
             return
 
@@ -209,8 +226,93 @@ class CommandGroup(Cog):
                          icon_url=ctx.author.display_avatar)
 
         # Set embed thumbnail
-        embed.set_thumbnail(
-            url="https://emoji.gg/assets/emoji/1030-stand-with-ukraine.png")
+        embed.set_thumbnail(url=self.BOT.emoji_group.get_emoji("ukraine").url)
 
         # Send embed
         await ctx.respond(embed=embed)
+
+    @slash_command(name="toggle-maintenance-mode")
+    @commands.is_owner()
+    async def _toggle_maintenance_mode(self, ctx: ApplicationContext) -> None:
+        """
+        Turn maintenance mode on or off
+
+        Args:
+            ctx (ApplicationContext)
+        """
+
+        emoji = self.BOT.emoji_group.get_emoji("loading_dots")
+
+        # Respond with an embed and toggle maintenance mode
+        if self.BOT.MAINTENANCE_MODE:
+            res: Interaction = await ctx.respond(
+                embed=Embed(
+                    title=f"Disabling maintenance mode {emoji}",
+                    color=Colors.GOLD,
+                )
+            )
+
+            # Change presence
+            await self.BOT.change_presence(activity=Game(name="/emojis | .py"))
+
+        else:
+            res: Interaction = await ctx.respond(
+                embed=Embed(
+                    title=f"Enabling maintenance mode {emoji}",
+                    color=Colors.GOLD,
+                )
+            )
+
+            # Change presence
+            await self.BOT.change_presence(
+                status=Status.do_not_disturb,
+                activity=Game(name="| Under Maintenance")
+            )
+
+        # Toggle maintenance mode
+        self.BOT.MAINTENANCE_MODE = not self.BOT.MAINTENANCE_MODE
+        await asyncio.sleep(1)
+
+        # Prompt completion
+        emoji = self.BOT.emoji_group.get_emoji("done")
+        msg: Message = await res.original_message()
+
+        await msg.edit(
+            embed=Embed(
+                title=f"Toggled maintenance mode {emoji}",
+                color=Colors.GREEN
+            ),
+            delete_after=2
+        )
+
+    @_toggle_maintenance_mode.error
+    async def _toggle_maintenance_mode_error(
+        self,
+        ctx: commands.Context,
+        error: commands.CommandError
+    ) -> None:
+        """
+        Handle error in toggle-maintenance-mode cmd
+
+        Args:
+            ctx (commands.Context)
+            error (commands.CommandError)
+        """
+
+        emoji = self.BOT.emoji_group.get_emoji("red_cross")
+
+        if isinstance(error, commands.NotOwner):
+            embed = Embed(
+                title=f"Permission Error {emoji}",
+                description="You don't have the permission"
+                            " to run this command",
+                color=Colors.RED
+            )
+        else:
+            logging.error(error)
+            embed = Embed(
+                title=f"Internal Error {emoji}",
+                color=Colors.RED
+            )
+
+        await ctx.respond(embed=embed, delete_after=3)
