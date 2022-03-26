@@ -36,7 +36,9 @@ class EmojiGroup:
         # Raise AttributeError if param: name does not
         # match any of the instance attributes
         if not hasattr(self, name):
-            raise AttributeError
+            raise AttributeError(
+                f"Object of type EmojiGroup has no attribute {name}"
+            )
 
         # Others return the Emoji with the given name
         return self.BOT.get_emoji(getattr(self, name))

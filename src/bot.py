@@ -11,17 +11,32 @@ from discord import (
     Game,
     Member,
     Message,
+    PartialEmoji,
+    RawReactionActionEvent,
     Role,
     Status,
     TextChannel,
     Webhook,
 )
 
+
+from .utils.env import ICODE_GUILD_ID
 from .utils.color import Colors
 from .utils.emoji import EmojiGroup
 from .utils.bump_timer import BumpTimer
 from .utils.constants import (
-    GENERAL_CHAT_CHANNEL_ID,
+    CPP_ROLE_ID,
+    RUBY_ROLE_ID,
+    JAVA_ROLE_ID,
+    DART_ROLE_ID,
+    CLANG_ROLE_ID,
+    PYTHON_ROLE_ID,
+    CSHARP_ROLE_ID,
+    CLOJURE_ROLE_ID,
+    BUMPER_ROLE_ID,
+    ICODIAN_ROLE_ID,
+    JAVASCRIPT_ROLE_ID,
+    TYPESCRIPT_ROLE_ID,
     WELCOME_MESSAGES,
     FAREWELL_MESSAGES,
     CONSOLE_CHANNEL_ID,
@@ -29,8 +44,8 @@ from .utils.constants import (
     SELF_ROLES_CHANNEL_ID,
     MAINTENANCE_CHANNEL_ID,
     INTRODUCTION_CHANNEL_ID,
+    GENERAL_CHAT_CHANNEL_ID,
     SERVER_RULES_CHANNEL_ID,
-    BUMPER_ROLE_ID,
     DISBOARD_ID,
 )
 
@@ -67,6 +82,35 @@ class ICodeBot(Bot):
         logging.info(msg="Initializing BumpTimer")
         self.bump_timer = BumpTimer()
 
+        # Set up reaction roles
+        logging.info("Setting up reaction roles")
+
+        # self.GUILD = self.get_guild(ICODE_GUILD_ID)
+        self.GUILD = self.guilds[0]
+        self.REACTION_ROLES = {
+            "cpp": self.GUILD.get_role(CPP_ROLE_ID),
+            "java": self.GUILD.get_role(JAVA_ROLE_ID),
+            "ruby": self.GUILD.get_role(RUBY_ROLE_ID),
+            "clang": self.GUILD.get_role(CLANG_ROLE_ID),
+            "python": self.GUILD.get_role(PYTHON_ROLE_ID),
+            "csharp": self.GUILD.get_role(CSHARP_ROLE_ID),
+            "dartlang": self.GUILD.get_role(DART_ROLE_ID),
+            "ukraine": self.GUILD.get_role(BUMPER_ROLE_ID),
+            "clojure": self.GUILD.get_role(CLOJURE_ROLE_ID),
+            "javascript": self.GUILD.get_role(JAVASCRIPT_ROLE_ID),
+            "typescript": self.GUILD.get_role(TYPESCRIPT_ROLE_ID)
+        }
+
+        # Start bump timer
+        logging.info("Getting previous bump time")
+        previous_bump_time = self.bump_timer.get_bump_time()
+        logging.info(f"Previous bump time: {previous_bump_time}")
+
+        delta = (datetime.now() - previous_bump_time).total_seconds()
+        delay = 0 if delta >= 7200 else (7200 - delta)
+
+        self.dispatch("bump_done", int(delay))
+
         # If the bot is running in maintenance mode,
         if self.MAINTENANCE_MODE:
             # set MAINTENANCE_CHANNEL attribute to maintenance channel
@@ -80,16 +124,6 @@ class ICodeBot(Bot):
 
         # Otherwise
         else:
-            # start bump timer
-            logging.info("Getting previous bump time")
-            previous_bump_time = self.bump_timer.get_bump_time()
-            logging.info(f"Previous bump time: {previous_bump_time}")
-
-            delta = (datetime.now() - previous_bump_time).total_seconds()
-            delay = 0 if delta >= 7200 else (7200 - delta)
-
-            self.dispatch("bump_done", int(delay))
-
             # set presence (activity)
             await self.change_presence(activity=Game(name="/emojis | .py"))
 
@@ -98,7 +132,7 @@ class ICodeBot(Bot):
         Called when a user bumps the server
 
         Args:
-            channel (TextChannel): The channel to which bump reminder 
+            channel (TextChannel): The channel to which bump reminder
                                    will be sent
         """
 
@@ -155,6 +189,51 @@ class ICodeBot(Bot):
             delete_after=5
         )
 
+    async def on_raw_reaction_add(
+            self,
+            payload: RawReactionActionEvent
+    ) -> None:
+        """
+        Called when a user reacts to some msg
+
+        Args:
+            payload (RawReactionActionEvent)
+        """
+
+        if payload.message_id == 957283616541536317:
+            emoji: PartialEmoji = payload.emoji
+
+            try:
+                role: Role = self.REACTION_ROLES[emoji.name]
+            except KeyError:
+                pass
+            else:
+                await payload.member.add_roles(role)
+
+    async def on_raw_reaction_remove(
+        self,
+        payload: RawReactionActionEvent
+    ) -> None:
+        """
+        Called when a user removes a reaction from some msg
+
+        Args:
+            payload (RawReactionActionEvent)
+        """
+
+        if payload.message_id == 957283616541536317:
+            emoji: PartialEmoji = payload.emoji
+
+            try:
+                role: Role = self.REACTION_ROLES[emoji.name]
+            except KeyError:
+                pass
+            else:
+                member: Member = self.GUILD.get_member(payload.user_id)
+
+                if member:
+                    await member.remove_roles(role)
+
     async def on_member_join(self, member: Member) -> None:
         """
         Called when a new member joins
@@ -169,6 +248,10 @@ class ICodeBot(Bot):
         intro_channel: TextChannel = self.get_channel(INTRODUCTION_CHANNEL_ID)
         rules_channel: TextChannel = self.get_channel(SERVER_RULES_CHANNEL_ID)
         roles_channel: TextChannel = self.get_channel(SELF_ROLES_CHANNEL_ID)
+
+        # Give iCodian role to member
+        role: Role = console.guild.get_role(ICODIAN_ROLE_ID)
+        await member.add_roles(role)
 
         # Send embed with random welcome msg to receiver channel
         await console.send(
@@ -232,20 +315,65 @@ class ICodeBot(Bot):
         Args:
             message (Message): Message sent by a user
         """
+            
+        if message.content == "!roles":
+            channel: TextChannel = self.get_channel(SELF_ROLES_CHANNEL_ID)
 
-        # Check if it's a Webhook
-        if message.webhook_id:
-            # Check if the message is from Disboard
-            if message.author.id == DISBOARD_ID:
-                if "Bump done" in message.embeds[0].description:
-                    logging.info("Updating bump time")
-                    self.bump_timer.update_bump_time(datetime.now())
-                    self.dispatch("bump_done", 7200)
-            return
+            embed = Embed(
+                title="iCODE - Self Roles",
+                description="React to the message to get your roles.",
+                timestamp=datetime.now(),
+                color=Colors.GOLD
+            ).set_thumbnail(
+                url="https://emoji.gg/assets/emoji/6703_Recons.gif"
+            ).set_footer(
+                text=f"{self.user.display_name} Staff",
+                icon_url=self.user.display_avatar
+            )
 
-        # Warn if it's maintenance mode
-        if (self.MAINTENANCE_MODE and
-                message.channel != self.MAINTENANCE_CHANNEL):
+            # Add normal emojis to the embed
+            langs = ["python",
+                     "javascript",
+                     "dartlang",
+                     "clang",
+                     "cpp",
+                     "typescript",
+                     "clojure",
+                     "csharp",
+                     "java",
+                     "ruby"]
+            roles = []
+            emojis = []
+            for lang in langs:
+                emoji = self.emoji_group.get_emoji(lang)
+                emojis.append(emoji)
+                roles.append(
+                    f"{emoji} • {emoji.name.title() if emoji.name != 'dartlang' else emoji.name[:4].title()}")
+
+            embed = embed.add_field(
+                name=" • Programming Languages",
+                value="\n".join(roles),
+                inline=False
+            )
+
+            emoji = self.emoji_group.get_emoji("ukraine")
+            embed = embed.add_field(
+                name=" • Other Roles",
+                value=f"{emoji} • Server Bumper"
+            )
+
+            msg: Message = await channel.send(embed=embed)
+            for e in emojis:
+                await msg.add_reaction(e)
+
+            await msg.add_reaction(emoji)
+
+        # Check if the message is from Disboard
+        if message.author.id == DISBOARD_ID:
+            if "Bump done" in message.embeds[0].description:
+                logging.info("Updating bump time")
+                self.bump_timer.update_bump_time(datetime.now())
+                self.dispatch("bump_done", 7200)
             return
 
         # AEWN: Animated Emojis Without Nitro
@@ -263,7 +391,12 @@ class ICodeBot(Bot):
         emoji = None
         temp = []
 
-        # Iterate through all the words in the msg
+        # Return if under maintenance
+        if (self.MAINTENANCE_MODE and
+                message.channel != self.MAINTENANCE_CHANNEL):
+            return
+
+            # Iterate through all the words in the msg
         for word in message.content.split():
 
             # Check if some word is wrapped in between colons
