@@ -81,7 +81,10 @@ class ICodeBot(Bot):
         # Otherwise
         else:
             # start bump timer
+            logging.info("Getting previous bump time")
             previous_bump_time = self.bump_timer.get_bump_time()
+            logging.info(f"Previous bump time: {previous_bump_time}")
+
             delta = (datetime.now() - previous_bump_time).total_seconds()
             delay = 0 if delta >= 7200 else (7200 - delta)
 
@@ -100,8 +103,12 @@ class ICodeBot(Bot):
         """
 
         # Sleep for `delay` number of seconds
+        logging.info(f"Setting timer for {delay} second(s)")
         self.bump_timer.running = True
+
         await asyncio.sleep(delay=delay)
+
+        logging.info("Timer complete")
         self.bump_timer.running = False
 
         # Set up receiver channel
@@ -114,6 +121,8 @@ class ICodeBot(Bot):
         reminder: Emoji = self.emoji_group.get_emoji("reminder")
 
         # Send embed to the receiver channel
+        logging.info(f"Sending reminder to {channel} channel")
+
         await channel.send(
             content=f"{bumper.mention}",
             embed=Embed(
@@ -224,18 +233,19 @@ class ICodeBot(Bot):
             message (Message): Message sent by a user
         """
 
-        # Warn if it's maintenance mode
-        if (self.MAINTENANCE_MODE and
-                message.channel != self.MAINTENANCE_CHANNEL):
-            return
-
         # Check if it's a Webhook
         if message.webhook_id:
             # Check if the message is from Disboard
             if message.author.id == DISBOARD_ID:
                 if "Bump done" in message.embeds[0].description:
+                    logging.info("Updating bump time")
                     self.bump_timer.update_bump_time(datetime.now())
                     self.dispatch("bump_done", 7200)
+            return
+
+        # Warn if it's maintenance mode
+        if (self.MAINTENANCE_MODE and
+                message.channel != self.MAINTENANCE_CHANNEL):
             return
 
         # AEWN: Animated Emojis Without Nitro
