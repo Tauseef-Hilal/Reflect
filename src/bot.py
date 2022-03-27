@@ -109,7 +109,7 @@ class ICodeBot(Bot):
         logging.info(f"Previous bump time: {previous_bump_time}")
 
         delta = (datetime.now() - previous_bump_time).total_seconds()
-        delay = 0 if delta >= 20 else (20 - delta)
+        delay = 0 if delta >= 7200 else (7200 - delta)
 
         self.dispatch("bump_done", int(delay))
 
