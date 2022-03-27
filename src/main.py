@@ -21,19 +21,9 @@ def main() -> None:
     """
         Main
     """
-    MAINTENANCE = False
-
-    # Determine MAINTENANCE value
-    if len(sys.argv) > 2:
-        usage()
-    elif sys.argv[-1] == "maintenance:on":
-        MAINTENANCE = True
 
     # Set Up Logging
     FORMAT = "[%(name)s] => [%(levelname)s] : %(message)s"
-    if MAINTENANCE:
-        FORMAT = "(MAINTENANCE-MODE) " + FORMAT
-
     logging.basicConfig(level=logging.INFO, format=FORMAT)
 
     # Initialize
@@ -41,7 +31,6 @@ def main() -> None:
 
     BOT = ICodeBot(
         description="The BOT made for iCODE Discord server.",
-        maintenance=MAINTENANCE,
         intents=INTENTS,
         debug_guilds=[ICODE_GUILD_ID]
     )

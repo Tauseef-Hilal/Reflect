@@ -19,11 +19,13 @@ from discord import (
     Webhook,
 )
 
-
-from .utils.env import ICODE_GUILD_ID
 from .utils.color import Colors
 from .utils.emoji import EmojiGroup
 from .utils.bump_timer import BumpTimer
+from .utils.env import (
+    ICODE_GUILD_ID,
+    MONGO_DB_URI
+)
 from .utils.constants import (
     CPP_ROLE_ID,
     RUBY_ROLE_ID,
@@ -80,7 +82,7 @@ class ICodeBot(Bot):
 
         # Create BumpTimer instance
         logging.info(msg="Initializing BumpTimer")
-        self.bump_timer = BumpTimer()
+        self.bump_timer = BumpTimer(host=MONGO_DB_URI)
 
         # Set up reaction roles
         logging.info("Setting up reaction roles")
@@ -107,7 +109,7 @@ class ICodeBot(Bot):
         logging.info(f"Previous bump time: {previous_bump_time}")
 
         delta = (datetime.now() - previous_bump_time).total_seconds()
-        delay = 0 if delta >= 7200 else (7200 - delta)
+        delay = 0 if delta >= 20 else (20 - delta)
 
         self.dispatch("bump_done", int(delay))
 
@@ -137,12 +139,9 @@ class ICodeBot(Bot):
 
         # Sleep for `delay` number of seconds
         logging.info(f"Setting timer for {delay} second(s)")
-        self.bump_timer.running = True
 
         await asyncio.sleep(delay=delay)
-
         logging.info("Timer complete")
-        self.bump_timer.running = False
 
         # Set up receiver channel
         channel: TextChannel = self.get_channel(TERMINAL_CHANNEL_ID)

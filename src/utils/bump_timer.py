@@ -1,46 +1,42 @@
 import datetime
+import pymongo
 
 
-class BumpTimer:
+class BumpTimer(pymongo.MongoClient):
     """
     Feature: Bump Reminder
     """
 
-    running = False
+    def __init__(self, host, **kwargs) -> None:
+        """
+        Initialize
+
+        Args:
+            host (str): MONGO_DB URI
+        """
+        super().__init__(host, **kwargs)
+        self.DB = self["bump_time"]
+        self.COLLECTION = self.DB["bump"]
 
     def update_bump_time(self, timestamp: datetime.datetime) -> None:
         """
-        Write new bump time to /data/reminder.txt
+        Update bump time
 
         Args:
             timestamp (datetime): Data to write to the file
         """
 
-        # Write timestamp to /data/reminder.txt
-        with open("data/reminder.txt", "w") as file:
-            file.write(str(timestamp))
+        self.COLLECTION.update_one(
+            self.COLLECTION.find_one(),
+            {"$set": {"timestamp": timestamp}}
+        )
 
     def get_bump_time(self) -> datetime.datetime:
         """
-        Read timestamp of previous bump from /data/reminder.txt
+        Read timestamp of previous bump 
 
         Returns:
             datetime.datetime: Most recent bump time
         """
 
-        # Read timestamp from /data/reminder.txt
-        with open("data/reminder.txt") as file:
-            datetime_str = file.read()
-
-        # Separate date and time
-        date, time = datetime_str.split()
-
-        # Create a list containing year, month and day
-        date = date.split("-")
-        date = list(map(int, date))
-
-        # Create a list containing hour, minute, second, microsecond
-        time = time.replace(".", ":").split(":")
-        time = list(map(int, time))
-
-        return datetime.datetime(*date, *time)
+        return self.COLLECTION.find_one()["timestamp"]
