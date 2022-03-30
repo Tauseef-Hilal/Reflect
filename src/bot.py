@@ -38,6 +38,7 @@ from .utils.constants import (
     BUMPER_ROLE_ID,
     ICODIAN_ROLE_ID,
     JAVASCRIPT_ROLE_ID,
+    STAFF_CHANNEL_ID,
     TYPESCRIPT_ROLE_ID,
     WELCOME_MESSAGES,
     FAREWELL_MESSAGES,
@@ -113,8 +114,9 @@ class ICodeBot(Bot):
 
         self.dispatch("bump_done", int(delay))
 
-        # Set maintenance channel
+        # Set maintenance and staff channel
         self.MAINTENANCE_CHANNEL = self.get_channel(MAINTENANCE_CHANNEL_ID)
+        self.STAFF_CHANNEL = self.get_channel(STAFF_CHANNEL_ID)
 
         # Set DND if the bot is running in maintenance mode,
         if self.MAINTENANCE_MODE:
@@ -127,42 +129,6 @@ class ICodeBot(Bot):
         else:
             # Set Online (activity)
             await self.change_presence(activity=Game(name="/emojis | .py"))
-
-    async def on_bump_done(self, delay: int) -> None:
-        """
-        Called when a user bumps the server
-
-        Args:
-            channel (TextChannel): The channel to which bump reminder
-                                   will be sent
-        """
-
-        # Sleep for `delay` number of seconds
-        logging.info(f"Setting timer for {delay} second(s)")
-
-        await asyncio.sleep(delay=delay)
-        logging.info("Timer complete")
-
-        # Set up receiver channel
-        channel: TextChannel = self.get_channel(TERMINAL_CHANNEL_ID)
-
-        # Get bumper role
-        bumper: Role = channel.guild.get_role(BUMPER_ROLE_ID)
-
-        # Get `reminder` emoji
-        reminder: Emoji = self.emoji_group.get_emoji("reminder")
-
-        # Send embed to the receiver channel
-        logging.info(f"Sending reminder to {channel} channel")
-
-        await channel.send(
-            content=f"{bumper.mention}",
-            embed=Embed(
-                title=f"Bump Reminder {reminder}",
-                description="Help grow this server. Run `/bump`",
-                color=Colors.GOLD
-            )
-        )
 
     async def on_maintenance(self, ctx: ApplicationContext) -> None:
         """
@@ -303,6 +269,42 @@ class ICodeBot(Bot):
                     member.display_name
                 ),
                 color=Colors.RED
+            )
+        )
+
+    async def on_bump_done(self, delay: int) -> None:
+        """
+        Called when a user bumps the server
+
+        Args:
+            channel (TextChannel): The channel to which bump reminder
+                                   will be sent
+        """
+
+        # Sleep for `delay` number of seconds
+        logging.info(f"Setting timer for {delay} second(s)")
+
+        await asyncio.sleep(delay=delay)
+        logging.info("Timer complete")
+
+        # Set up receiver channel
+        channel: TextChannel = self.get_channel(TERMINAL_CHANNEL_ID)
+
+        # Get bumper role
+        bumper: Role = channel.guild.get_role(BUMPER_ROLE_ID)
+
+        # Get `reminder` emoji
+        reminder: Emoji = self.emoji_group.get_emoji("reminder")
+
+        # Send embed to the receiver channel
+        logging.info(f"Sending reminder to {channel} channel")
+
+        await channel.send(
+            content=f"{bumper.mention}",
+            embed=Embed(
+                title=f"Bump Reminder {reminder}",
+                description="Help grow this server. Run `/bump`",
+                color=Colors.GOLD
             )
         )
 

@@ -6,14 +6,18 @@ from discord import (
     AllowedMentions,
     Game,
     Interaction,
+    Member,
     Message,
     ApplicationContext,
     Embed,
+    Permissions,
     Status,
-    TextChannel,
+    TextChannel
+)
+from discord.ext.commands import (
+    Cog,
     slash_command
 )
-from discord.ext import commands
 
 
 from .bot import ICodeBot
@@ -22,7 +26,7 @@ from .utils.emoji import EmojiGroup
 from .utils.constants import ANNOUNCEMENTS_CHANNEL_ID
 
 
-class CommandGroup(commands.Cog):
+class CommandGroup(Cog):
     """
     Group of slash commands
     """
@@ -50,6 +54,38 @@ class CommandGroup(commands.Cog):
 
         return (self.BOT.MAINTENANCE_MODE and
                 channel != self.BOT.MAINTENANCE_CHANNEL)
+
+    async def _has_permissions(self, ctx: ApplicationContext, **perms) -> bool:
+        """
+        Check whether a member has required permissions to
+        run a specific command
+
+        Returns:
+            bool: True if the member has all of the perms
+        """
+
+        channel: TextChannel = ctx.channel
+        permissions: Permissions = channel.permissions_for(ctx.author)
+
+        missing = [perm for perm, value in perms.items()
+                   if getattr(permissions, perm) != value]
+
+        if not missing:
+            return True
+
+        # Show error message to the member
+        emoji = self.BOT.emoji_group.get_emoji("red_cross")
+        await ctx.respond(
+            embed=Embed(
+                title=f"Permission Error {emoji}",
+                description="You do not have the permission"
+                            " to run this command",
+                color=Colors.RED
+            ),
+            delete_after=3
+        )
+
+        return False
 
     @slash_command(name="echo")
     async def _echo(self, ctx: ApplicationContext, message: str) -> None:
@@ -232,7 +268,6 @@ class CommandGroup(commands.Cog):
         await ctx.respond(embed=embed)
 
     @slash_command(name="toggle-maintenance-mode")
-    @commands.is_owner()
     async def _toggle_maintenance_mode(self, ctx: ApplicationContext) -> None:
         """
         Turn maintenance mode on or off
@@ -241,9 +276,12 @@ class CommandGroup(commands.Cog):
             ctx (ApplicationContext)
         """
 
-        emoji = self.BOT.emoji_group.get_emoji("loading_dots")
+        # Check
+        if not await self._has_permissions(ctx, **{"administrator": True}):
+            return
 
         # Respond with an embed and toggle maintenance mode
+        emoji = self.BOT.emoji_group.get_emoji("loading_dots")
         if self.BOT.MAINTENANCE_MODE:
             res: Interaction = await ctx.respond(
                 embed=Embed(
@@ -284,35 +322,124 @@ class CommandGroup(commands.Cog):
             ),
             delete_after=2
         )
+        logging.info("Toggled maintenance mode")
 
-    @_toggle_maintenance_mode.error
-    async def _toggle_maintenance_mode_error(
+    @slash_command(name="purge")
+    async def _purge(
         self,
-        ctx: commands.Context,
-        error: commands.CommandError
+        ctx: ApplicationContext,
+        count: str
     ) -> None:
         """
-        Handle error in toggle-maintenance-mode cmd
+        Delete a specified number of messages
 
         Args:
-            ctx (commands.Context)
-            error (commands.CommandError)
+            ctx (ApplicationContext):
+            count (MessageCountConverter): Number of messages to delete
         """
 
-        emoji = self.BOT.emoji_group.get_emoji("red_cross")
+        # Check
+        if not await self._has_permissions(ctx, **{"manage_messages": True}):
+            return
 
-        if isinstance(error, commands.NotOwner):
-            embed = Embed(
-                title=f"Permission Error {emoji}",
-                description="You don't have the permission"
-                            " to run this command",
-                color=Colors.RED
-            )
+        if count == "all":
+            count = -1
         else:
-            logging.error(error)
+            try:
+                count = int(count)
+            except ValueError:
+                emoji = self.BOT.emoji_group.get_emoji("red_cross")
+                await ctx.respond(
+                    embed=Embed(
+                        title=f"Invalid arguments {emoji}",
+                        description="`count` must be an integer in [-1, ∞)"
+                                    " or string `all`",
+                        color=Colors.RED
+                    ),
+                    delete_after=3
+                )
+                return
+
+        emoji = self.BOT.emoji_group.get_emoji("loading_dots")
+        res: Interaction = await ctx.respond(
+            embed=Embed(
+                title=f"Fetching messages {emoji}",
+                color=Colors.GOLD
+            )
+        )
+
+        channel: TextChannel = ctx.channel
+        messages = await channel.history(
+            limit=None if count == -1 else count + 1
+        ).flatten()
+
+        await res.edit_original_message(
+            embed=Embed(
+                title=f"Deleting {len(messages) - 1} messages {emoji}",
+                color=Colors.GOLD
+            )
+        )
+
+        for msg in messages[1:]:
+            await msg.delete()
+
+        emoji = self.BOT.emoji_group.get_emoji("done")
+        await res.edit_original_message(
+            embed=Embed(
+                title=f"Messages deleted {emoji}",
+                color=Colors.GREEN
+            ),
+            delete_after=2
+        )
+
+    @slash_command(name="kick")
+    async def _kick(
+            self,
+            ctx: ApplicationContext,
+            member: Member,
+            reason: str = ""
+    ) -> None:
+        """
+        Kick a memeber from the guild
+
+        Args:
+            ctx (ApplicationContext)
+            member (Member): Member to be kicked
+        """
+
+        # Check for permissions
+        if not await self._has_permissions(ctx, **{"kick_members": True}):
+            return
+
+        if not member == ctx.guild.owner:
+            await member.kick(reason=reason)
+
+            emoji = self.BOT.emoji_group.get_emoji("rules")
             embed = Embed(
-                title=f"Internal Error {emoji}",
+                title=f"Moderation log {emoji}",
+                description=f"{member} was kicked out by {ctx.author}\n"
+                            f"Reason: {reason if reason else 'None provided'}",
                 color=Colors.RED
+            ).set_thumbnail(url=emoji.url)
+
+            await ctx.respond(embed=embed, delete_after=4)
+            await self.BOT.STAFF_CHANNEL.send(embed=embed)
+        else:
+            emoji = self.BOT.emoji_group.get_emoji("red_cross")
+            await ctx.respond(
+                embed=Embed(
+                    title=f"Permission error {emoji}",
+                    description=f"You can't kick the owner",
+                    color=Colors.RED
+                ),
+                delete_after=3
             )
 
-        await ctx.respond(embed=embed, delete_after=3)
+            emoji = self.BOT.emoji_group.get_emoji("warning")
+            await self.BOT.STAFF_CHANNEL.send(
+                embed=Embed(
+                    title=f"Alert",
+                    description=f"{member} tried to kick the owner!",
+                    color=Colors.RED
+                ).set_thumbnail(url=emoji.url)
+            )
