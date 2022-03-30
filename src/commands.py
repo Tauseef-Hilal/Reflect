@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from discord import (
     AllowedMentions,
@@ -11,6 +11,7 @@ from discord import (
     ApplicationContext,
     Embed,
     Permissions,
+    Role,
     Status,
     TextChannel
 )
@@ -23,7 +24,7 @@ from discord.ext.commands import (
 from .bot import ICodeBot
 from .utils.color import Colors
 from .utils.emoji import EmojiGroup
-from .utils.constants import ANNOUNCEMENTS_CHANNEL_ID
+from .utils.constants import ANNOUNCEMENTS_CHANNEL_ID, BUMPER_ROLE_ID
 
 
 class CommandGroup(Cog):
@@ -328,7 +329,8 @@ class CommandGroup(Cog):
     async def _purge(
         self,
         ctx: ApplicationContext,
-        count: str
+        count: str,
+        from_user: Member = None
     ) -> None:
         """
         Delete a specified number of messages
@@ -369,9 +371,20 @@ class CommandGroup(Cog):
         )
 
         channel: TextChannel = ctx.channel
-        messages = await channel.history(
-            limit=None if count == -1 else count + 1
-        ).flatten()
+        limit = None if count == -1 else count + 1
+
+        if from_user:
+            counter = 0
+            messages = []
+            async for msg in channel.history(limit=None):
+                if msg.author == from_user or counter == 0:
+                    messages.append(msg)
+                    counter += 1
+
+                if counter == limit:
+                    break
+        else:
+            messages = await channel.history(limit=limit).flatten()
 
         await res.edit_original_message(
             embed=Embed(
@@ -416,7 +429,7 @@ class CommandGroup(Cog):
 
             emoji = self.BOT.emoji_group.get_emoji("rules")
             embed = Embed(
-                title=f"Moderation log {emoji}",
+                title=f"Moderation log",
                 description=f"{member} was kicked out by {ctx.author}\n"
                             f"Reason: {reason if reason else 'None provided'}",
                 color=Colors.RED
@@ -443,3 +456,202 @@ class CommandGroup(Cog):
                     color=Colors.RED
                 ).set_thumbnail(url=emoji.url)
             )
+
+    @slash_command(name="ban")
+    async def _ban(
+            self,
+            ctx: ApplicationContext,
+            member: Member,
+            reason: str = ""
+    ) -> None:
+        """
+        Ban a memeber from the guild
+
+        Args:
+            ctx (ApplicationContext)
+            member (Member): Member to be kicked
+        """
+
+        # Check for permissions
+        if not await self._has_permissions(ctx, **{"ban_members": True}):
+            return
+
+        if not member == ctx.guild.owner:
+            await member.ban(delete_message_days=0, reason=reason)
+
+            emoji = self.BOT.emoji_group.get_emoji("rules")
+            embed = Embed(
+                title=f"Moderation log",
+                description=f"{member} was banned by {ctx.author}\n"
+                            f"Reason: {reason if reason else 'None provided'}",
+                color=Colors.RED
+            ).set_thumbnail(url=emoji.url)
+
+            await ctx.respond(embed=embed, delete_after=4)
+            await self.BOT.STAFF_CHANNEL.send(embed=embed)
+        else:
+            emoji = self.BOT.emoji_group.get_emoji("red_cross")
+            await ctx.respond(
+                embed=Embed(
+                    title=f"Permission error {emoji}",
+                    description=f"You can't ban the owner",
+                    color=Colors.RED
+                ),
+                delete_after=3
+            )
+
+            emoji = self.BOT.emoji_group.get_emoji("warning")
+            await self.BOT.STAFF_CHANNEL.send(
+                embed=Embed(
+                    title=f"Alert",
+                    description=f"{member} tried to ban the owner!",
+                    color=Colors.RED
+                ).set_thumbnail(url=emoji.url)
+            )
+
+    @slash_command(name="timeout")
+    async def _timeout(
+            self,
+            ctx: ApplicationContext,
+            member: Member,
+            duration: int,
+            reason: str = ""
+    ) -> None:
+        """
+        Timeout a memeber from the guild
+
+        Args:
+            ctx (ApplicationContext)
+            member (Member): Member to be kicked
+        """
+
+        # Check for permissions
+        if not await self._has_permissions(ctx, **{"ban_members": True}):
+            return
+
+        if member.timed_out:
+            emoji = self.BOT.emoji_group.get_emoji("red_cross")
+            await ctx.respond(
+                embed=Embed(
+                    title=f"Command error {emoji}",
+                    description="The member is already timed out"
+                )
+            )
+            return
+
+        if not member == ctx.guild.owner:
+            await member.timeout_for(
+                duration=timedelta(minutes=duration),
+                reason=reason
+            )
+
+            emoji = self.BOT.emoji_group.get_emoji("rules")
+            embed = Embed(
+                title=f"Moderation log",
+                description=f"{member} was timed out by {ctx.author} for "
+                            f"{duration} minutes\n"
+                            f"Reason: {reason if reason else 'None provided'}",
+                color=Colors.RED
+            ).set_thumbnail(url=emoji.url)
+
+            await ctx.respond(embed=embed, delete_after=4)
+            await self.BOT.STAFF_CHANNEL.send(embed=embed)
+        else:
+            emoji = self.BOT.emoji_group.get_emoji("red_cross")
+            await ctx.respond(
+                embed=Embed(
+                    title=f"Permission error {emoji}",
+                    description=f"You can't timeout the owner",
+                    color=Colors.RED
+                ),
+                delete_after=3
+            )
+
+            emoji = self.BOT.emoji_group.get_emoji("warning")
+            await self.BOT.STAFF_CHANNEL.send(
+                embed=Embed(
+                    title=f"Alert",
+                    description=f"{member} tried to timeout the owner!",
+                    color=Colors.RED
+                ).set_thumbnail(url=emoji.url)
+            )
+
+    @slash_command(name="lock")
+    async def _lock(self, ctx: ApplicationContext) -> None:
+        """
+        Lock current channel
+
+        Args:
+            ctx (ApplicationContext)
+        """
+
+        # Check for permissions
+        if not await self._has_permissions(ctx, **{"manage_permissions": 1}):
+            return
+
+        channel: TextChannel = ctx.channel
+        bumper: Role = self.BOT.GUILD.get_role(BUMPER_ROLE_ID)
+
+        if not channel.permissions_for(bumper).send_messages:
+            await ctx.respond(
+                embed=Embed(
+                    title="Channel is already locked",
+                    color=Colors.RED
+                ),
+                delete_after=2
+            )
+            return
+
+        await channel.set_permissions(
+            target=bumper,
+            send_messages=False
+        )
+
+        emoji = self.BOT.emoji_group.get_emoji("done")
+        await ctx.respond(
+            embed=Embed(
+                title=f"Channel locked {emoji}",
+                color=Colors.GREEN
+            ),
+            delete_after=2
+        )
+
+    @slash_command(name="unlock")
+    async def _unlock(self, ctx: ApplicationContext) -> None:
+        """
+        Unlock current channel
+
+        Args:
+            ctx (ApplicationContext)
+        """
+
+        # Check for permissions
+        if not await self._has_permissions(ctx, **{"manage_permissions": 1}):
+            return
+
+        channel: TextChannel = ctx.channel
+        bumper: Role = self.BOT.GUILD.get_role(BUMPER_ROLE_ID)
+
+        if channel.permissions_for(bumper).send_messages:
+            await ctx.respond(
+                embed=Embed(
+                    title="Channel is already unlocked",
+                    color=Colors.RED
+                ),
+                delete_after=2
+            )
+            return
+
+        await channel.set_permissions(
+            target=bumper,
+            send_messages=True
+        )
+
+        emoji = self.BOT.emoji_group.get_emoji("done")
+        await ctx.respond(
+            embed=Embed(
+                title=f"Channel unlocked {emoji}",
+                color=Colors.GREEN
+            ),
+            delete_after=2
+        )
