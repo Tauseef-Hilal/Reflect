@@ -748,15 +748,7 @@ class CommandGroup(Cog):
                 )
             )
         else:
-            # await ctx.send(content=f"```\n{output}\n```")
-            await ctx.send(
-                content=ctx.author.mention,
-                embed=Embed(
-                    title=f"Ouput",
-                    description=F"```\n{output}\n```",
-                    color=Colors.GREEN
-                )
-            )
+            await ctx.send(content=f"```py\n{output}\n```")
    
     # @slash_command(name="trivia")
     # async def _trivia(self, ctx: ApplicationContext) -> None:
