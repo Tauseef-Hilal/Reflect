@@ -2,6 +2,9 @@
     Constants other than env 
 """
 
+# FILTER
+BADWORDS_FILE = "data/badwords.txt"
+
 # Messages - on_member_join & on_member_remove
 WELCOME_MESSAGES = ["Welcome, **{}**. We hope you brought pizza.",
                     "Everyone welcome **{}**!",

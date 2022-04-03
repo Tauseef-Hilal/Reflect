@@ -21,8 +21,9 @@ from discord import (
 )
 
 from .utils.color import Colors
-from .utils.emoji import EmojiGroup
 from .utils.bump_timer import BumpTimer
+from .utils.emoji import EmojiGroup
+from .utils.filter import Filter
 from .utils.env import (
     ICODE_GUILD_ID,
     MONGO_DB_URI
@@ -81,6 +82,10 @@ class ICodeBot(Bot):
         # Create EmojiGroup instance
         logging.info(msg="Initializing EmojiGroup")
         self.emoji_group = EmojiGroup(self)
+
+        # Create Filter instance
+        logging.info(msg="Initializing Filter")
+        self.filter = Filter()
 
         # Create BumpTimer instance
         logging.info(msg="Initializing BumpTimer")
@@ -328,6 +333,21 @@ class ICodeBot(Bot):
         # AEWN: Animated Emojis Without Nitro
         if message.content.count(":") > 1 and not message.webhook_id:
             await self._animated_emojis(message)
+
+        # Check for profanity words
+        if self.filter.has_abusive_words(message.content):
+            emoji = self.emoji_group.get_emoji("warning")
+
+            await message.channel.send(
+                content=message.author.mention,
+                embed=Embed(
+                    title=f"Profanity words detected {emoji}",
+                    description="Khodaya sahal. Meyaani rasooli Khodaya,"
+                                " trath kuno chen yath dunyahas pewan!",
+                    color=Colors.RED
+                )
+            )
+            await message.delete()
 
     async def _animated_emojis(self, message: Message) -> None:
         """

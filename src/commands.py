@@ -1,8 +1,8 @@
 import asyncio
 import logging
+import sys
 from io import StringIO
 from datetime import datetime, timedelta
-import sys
 
 from discord import (
     AllowedMentions,
@@ -32,7 +32,7 @@ from discord.ui import (
 from .bot import ICodeBot
 from .utils.color import Colors
 from .utils.emoji import EmojiGroup
-from .utils.constants import ANNOUNCEMENTS_CHANNEL_ID, BUMPER_ROLE_ID
+from .utils.constants import ANNOUNCEMENTS_CHANNEL_ID
 
 
 class CommandGroup(Cog):
@@ -744,7 +744,8 @@ class CommandGroup(Cog):
                 )
             )
         else:
-            await ctx.send(content=f"```py\n{output}\n```")
+            await ctx.send(content=f"{ctx.author.mention}\n"
+                           f"```py\n{output}\n```")
 
     # @slash_command(name="trivia")
     # async def _trivia(self, ctx: ApplicationContext) -> None:
