@@ -345,46 +345,36 @@ class ICodeBot(Bot):
                 message.channel != self.MAINTENANCE_CHANNEL):
             return
 
-        # Improvement
+        # Insert space between two ::
         if "::" in message.content:
             message.content = message.content.replace("::", ": :")
 
-        pattern = r"(:\w*:)*"
+        # Check if an unanimated emoji was sent alone
+        if findall("(<:\w+:\d+>)+", message.content):
+            return
+
+        # Search for emojis
+        pattern = r"(:\w*:)+"
         res: list = findall(pattern, message.content)
 
         for word in res:
+            # Continue if already replaced
             if word in temp:
                 continue
 
             try:
+                # Get emoji
                 emoji = self.emoji_group.get_emoji(word[1:-1])
+
+                # Replace the word by its emoji
                 message.content = message.content.replace(word, str(emoji))
+
+                # Add the word to temp list to skip it in the next iterations
                 temp.append(word)
+
+            # Don't do anything if emoji was not found
             except AttributeError:
                 pass
-
-        # # Iterate through all the words in the msg
-        # for word in message.content.split():
-
-        #     # Check if some word is wrapped in between colons
-        #     if word[0] == word[-1] == ":" and \
-        #             len(word) > 2 and \
-        #             word not in temp:
-
-        #         try:
-        #             # Try to get the emoji with name `word`
-        #             emoji: Emoji = self.emoji_group.get_emoji(word[1:-1])
-
-        #             # Replace that word with emoji string
-        #             message.content = message.content.replace(word, str(emoji))
-
-        #             # Add the word to temp list so as to skip it
-        #             # in the next iterations
-        #             temp.append(word)
-
-        #         # Raise AttributeError if not successfull
-        #         except AttributeError:
-        #             pass
 
         # Check if there was an animated emoji in the msg
         if emoji:
