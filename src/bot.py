@@ -346,7 +346,7 @@ class ICodeBot(Bot):
             return
 
         # Insert space between two ::
-        if "::" in message.content:
+        while "::" in message.content:
             message.content = message.content.replace("::", ": :")
 
         # Check if an unanimated emoji was sent alone
