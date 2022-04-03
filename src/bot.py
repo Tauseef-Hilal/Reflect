@@ -2,6 +2,7 @@ import logging
 import asyncio
 from datetime import datetime
 from random import choice
+from re import findall
 
 from discord import (
     ApplicationContext,
@@ -325,7 +326,7 @@ class ICodeBot(Bot):
             return
 
         # AEWN: Animated Emojis Without Nitro
-        if message.content.count(":") > 1:
+        if message.content.count(":") > 1 and not message.webhook_id:
             await self._animated_emojis(message)
 
     async def _animated_emojis(self, message: Message) -> None:
@@ -344,28 +345,46 @@ class ICodeBot(Bot):
                 message.channel != self.MAINTENANCE_CHANNEL):
             return
 
-            # Iterate through all the words in the msg
-        for word in message.content.split():
+        # Improvement
+        if "::" in message.content:
+            message.content = message.content.replace("::", ": :")
 
-            # Check if some word is wrapped in between colons
-            if word[0] == word[-1] == ":" and \
-                    len(word) > 2 and \
-                    word not in temp:
+        pattern = r"(:\w*:)*"
+        res: list = findall(pattern, message.content)
 
-                try:
-                    # Try to get the emoji with name `word`
-                    emoji: Emoji = self.emoji_group.get_emoji(word[1:-1])
+        for word in res:
+            if word in temp:
+                continue
 
-                    # Replace that word with emoji string
-                    message.content = message.content.replace(word, str(emoji))
+            try:
+                emoji = self.emoji_group.get_emoji(word[1:-1])
+                message.content = message.content.replace(word, str(emoji))
+                temp.append(word)
+            except AttributeError:
+                pass
 
-                    # Add the word to temp list so as to skip it
-                    # in the next iterations
-                    temp.append(word)
+        # # Iterate through all the words in the msg
+        # for word in message.content.split():
 
-                # Raise AttributeError if not successfull
-                except AttributeError:
-                    pass
+        #     # Check if some word is wrapped in between colons
+        #     if word[0] == word[-1] == ":" and \
+        #             len(word) > 2 and \
+        #             word not in temp:
+
+        #         try:
+        #             # Try to get the emoji with name `word`
+        #             emoji: Emoji = self.emoji_group.get_emoji(word[1:-1])
+
+        #             # Replace that word with emoji string
+        #             message.content = message.content.replace(word, str(emoji))
+
+        #             # Add the word to temp list so as to skip it
+        #             # in the next iterations
+        #             temp.append(word)
+
+        #         # Raise AttributeError if not successfull
+        #         except AttributeError:
+        #             pass
 
         # Check if there was an animated emoji in the msg
         if emoji:
