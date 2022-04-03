@@ -599,9 +599,7 @@ class CommandGroup(Cog):
             return
 
         channel: TextChannel = ctx.channel
-        bumper: Role = self.bot.GUILD.get_role(BUMPER_ROLE_ID)
-
-        if not channel.permissions_for(bumper).send_messages:
+        if not channel.permissions_for(ctx.guild.default_role).send_messages:
             await ctx.respond(
                 embed=Embed(
                     description="Channel is already locked",
@@ -612,7 +610,7 @@ class CommandGroup(Cog):
             return
 
         await channel.set_permissions(
-            target=bumper,
+            target=ctx.guild.default_role,
             send_messages=False
         )
 
@@ -639,9 +637,7 @@ class CommandGroup(Cog):
             return
 
         channel: TextChannel = ctx.channel
-        bumper: Role = self.bot.GUILD.get_role(BUMPER_ROLE_ID)
-
-        if channel.permissions_for(bumper).send_messages:
+        if channel.permissions_for(ctx.guild.default_role).send_messages:
             await ctx.respond(
                 embed=Embed(
                     description="Channel is already unlocked",
@@ -652,7 +648,7 @@ class CommandGroup(Cog):
             return
 
         await channel.set_permissions(
-            target=bumper,
+            target=ctx.guild.default_role,
             send_messages=True
         )
 
@@ -749,7 +745,7 @@ class CommandGroup(Cog):
             )
         else:
             await ctx.send(content=f"```py\n{output}\n```")
-   
+
     # @slash_command(name="trivia")
     # async def _trivia(self, ctx: ApplicationContext) -> None:
     #     """
