@@ -366,26 +366,27 @@ class ICodeBot(Bot):
             return
 
         # Remove codeblocks from message
-        codeblocks: list = findall(r"(`.+`)+", message.content, flags=DOTALL)
+        msg = message.content
+        codeblocks: list = findall(r"(`.+`)+", msg, flags=DOTALL)
 
         BLOCK_ID_FORMAT = "[CB@{}thIdx]"
         for idx, block in enumerate(codeblocks):
-            message.content = message.content.replace(
+            msg = msg.replace(
                 block,
                 BLOCK_ID_FORMAT.format(idx),
                 1
             )
 
         # Insert space between two ::
-        while "::" in message.content:
-            message.content = message.content.replace("::", ": :")
+        while "::" in msg:
+            msg = msg.replace("::", ": :")
 
         # Check if an unanimated emoji was sent alone
-        if findall("(<:\w+:\d+>)+", message.content):
+        if findall("(<:\w+:\d+>)+", msg):
             return
 
         # Search for emojis
-        emojis: list = findall(r"(:\w*:)+", message.content)
+        emojis: list = findall(r"(:\w*:)+", msg)
 
         for word in emojis:
             # Continue if already replaced
@@ -397,7 +398,7 @@ class ICodeBot(Bot):
                 emoji = self.emoji_group.get_emoji(word[1:-1])
 
                 # Replace the word by its emoji
-                message.content = message.content.replace(word, str(emoji))
+                msg = msg.replace(word, str(emoji))
 
                 # Add the word to temp list to skip it in the next iterations
                 temp.append(word)
@@ -412,7 +413,7 @@ class ICodeBot(Bot):
 
         # Add codeblocks back to the message
         for idx, block in enumerate(codeblocks):
-            message.content = message.content.replace(
+            msg = msg.replace(
                 BLOCK_ID_FORMAT.format(idx),
                 block,
                 1
@@ -442,7 +443,7 @@ class ICodeBot(Bot):
 
         # Send webhook to the channel with username as the name
         # of msg author and avatar as msg author's avatar
-        await webhook.send(content=message.content,
+        await webhook.send(content=msg,
                            username=message.author.display_name,
                            avatar_url=message.author.display_avatar)
 

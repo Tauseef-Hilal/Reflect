@@ -699,6 +699,8 @@ class CommandGroup(Cog):
                 )
             )
             return
+        
+        print(codeblock.content)
 
         if not (codeblock.content.startswith("```py")
                 and codeblock.content.endswith("```")):
