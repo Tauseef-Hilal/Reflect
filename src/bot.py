@@ -2,7 +2,7 @@ import logging
 import asyncio
 from datetime import datetime
 from random import choice
-from re import findall
+from re import DOTALL, findall
 
 from discord import (
     ApplicationContext,
@@ -365,6 +365,17 @@ class ICodeBot(Bot):
                 message.channel != self.MAINTENANCE_CHANNEL):
             return
 
+        # Remove codeblocks from message
+        codeblocks: list = findall(r"(`.+`)+", message.content, flags=DOTALL)
+
+        BLOCK_ID_FORMAT = "[CB@{}thIdx]"
+        for idx, block in enumerate(codeblocks):
+            message.content = message.content.replace(
+                block,
+                BLOCK_ID_FORMAT.format(idx),
+                1
+            )
+
         # Insert space between two ::
         while "::" in message.content:
             message.content = message.content.replace("::", ": :")
@@ -374,10 +385,9 @@ class ICodeBot(Bot):
             return
 
         # Search for emojis
-        pattern = r"(:\w*:)+"
-        res: list = findall(pattern, message.content)
+        emojis: list = findall(r"(:\w*:)+", message.content)
 
-        for word in res:
+        for word in emojis:
             # Continue if already replaced
             if word in temp:
                 continue
@@ -396,35 +406,45 @@ class ICodeBot(Bot):
             except AttributeError:
                 pass
 
-        # Check if there was an animated emoji in the msg
-        if emoji:
-            # Get all webhooks currently in the msg channel
-            webhooks = await message.channel.webhooks()
+        # Return for no emoji
+        if not emoji:
+            return
 
-            # Check if there exists a webhook with id
-            # equal to bot's id. In that case, break
-            webhook: Webhook
-            for webhook in webhooks:
-                if webhook.user.id == self.user.id:
-                    break
+        # Add codeblocks back to the message
+        for idx, block in enumerate(codeblocks):
+            message.content = message.content.replace(
+                BLOCK_ID_FORMAT.format(idx),
+                block,
+                1
+            )
 
-            # Otherwise
-            else:
-                # Get msg author's avatar
-                avatar: bytes = await message.author.display_avatar.read()
+        # Get all webhooks currently in the msg channel
+        webhooks = await message.channel.webhooks()
 
-                # and create a new webhook for the channel
-                webhook: Webhook = await message.channel.create_webhook(
-                    name="iCODE-BOT",
-                    avatar=avatar,
-                    reason="Animated Emoji Usage"
-                )
+        # Check if there exists a webhook with id
+        # equal to bot's id. In that case, break
+        webhook: Webhook
+        for webhook in webhooks:
+            if webhook.user.id == self.user.id:
+                break
 
-            # Send webhook to the channel with username as the name
-            # of msg author and avatar as msg author's avatar
-            await webhook.send(content=message.content,
-                               username=message.author.display_name,
-                               avatar_url=message.author.display_avatar)
+        # Otherwise
+        else:
+            # Get msg author's avatar
+            avatar: bytes = await message.author.display_avatar.read()
 
-            # Delete the original msg
-            await message.delete()
+            # and create a new webhook for the channel
+            webhook: Webhook = await message.channel.create_webhook(
+                name="iCODE-BOT",
+                avatar=avatar,
+                reason="Animated Emoji Usage"
+            )
+
+        # Send webhook to the channel with username as the name
+        # of msg author and avatar as msg author's avatar
+        await webhook.send(content=message.content,
+                           username=message.author.display_name,
+                           avatar_url=message.author.display_avatar)
+
+        # Delete the original msg
+        await message.delete()
