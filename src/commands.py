@@ -371,6 +371,7 @@ class CommandGroup(Cog):
                 )
                 return
 
+        before = datetime.now()
         emoji = self.bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -379,36 +380,24 @@ class CommandGroup(Cog):
             )
         )
 
-        channel: TextChannel = ctx.channel
-        limit = None if count == -1 else count + 1
-
-        if from_user:
-            counter = 0
-            messages = []
-            async for msg in channel.history(limit=None):
-                if msg.author == from_user or counter == 0:
-                    messages.append(msg)
-                    counter += 1
-
-                if counter == limit:
-                    break
-        else:
-            messages = await channel.history(limit=limit).flatten()
-
         await res.edit_original_message(
             embed=Embed(
-                description=f"Deleting {len(messages) - 1} messages {emoji}",
+                description=f"Deleting {abs(count)} message(s) {emoji}",
                 color=Colors.GOLD
             )
         )
 
-        for msg in messages[1:]:
-            await msg.delete()
+        channel: TextChannel = ctx.channel
+        deleted: list[Message] = await channel.purge(
+            limit=None if count == -1 else count,
+            check=lambda msg: (msg.author == from_user) if from_user else True,
+            before=before
+        )
 
         emoji = self.bot.emoji_group.get_emoji("done")
         await res.edit_original_message(
             embed=Embed(
-                description=f"Messages deleted {emoji}",
+                description=f"{len(deleted)} message(s) deleted {emoji}",
                 color=Colors.GREEN
             ),
             delete_after=2
