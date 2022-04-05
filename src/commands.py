@@ -382,7 +382,7 @@ class CommandGroup(Cog):
 
         await res.edit_original_message(
             embed=Embed(
-                description=f"Deleting {abs(count)} message(s) {emoji}",
+                description=f"Deleting message(s) {emoji}",
                 color=Colors.GOLD
             )
         )
