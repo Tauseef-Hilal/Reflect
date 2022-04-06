@@ -1,23 +1,26 @@
-import logging
 import asyncio
-from datetime import datetime
+import logging
 from random import choice
-from re import DOTALL, findall
+from datetime import datetime
+from re import (
+    DOTALL,
+    findall
+)
 
 from discord import (
-    ApplicationContext,
     Bot,
+    Game,
+    Role,
     Embed,
     Emoji,
-    Game,
     Member,
-    Message,
-    PartialEmoji,
-    RawReactionActionEvent,
-    Role,
     Status,
-    TextChannel,
+    Message,
     Webhook,
+    TextChannel,
+    PartialEmoji,
+    ApplicationContext,
+    RawReactionActionEvent,
 )
 
 from .utils.color import Colors
@@ -25,7 +28,6 @@ from .utils.bump_timer import BumpTimer
 from .utils.emoji import EmojiGroup
 from .utils.filter import Filter
 from .utils.env import (
-    ICODE_GUILD_ID,
     MONGO_DB_URI
 )
 from .utils.constants import (
@@ -94,7 +96,6 @@ class ICodeBot(Bot):
         # Set up reaction roles
         logging.info("Setting up reaction roles")
 
-        # self.GUILD = self.get_guild(ICODE_GUILD_ID)
         self.GUILD = self.guilds[0]
         self.REACTION_ROLES = {
             "cpp": self.GUILD.get_role(CPP_ROLE_ID),
@@ -342,8 +343,7 @@ class ICodeBot(Bot):
                 content=message.author.mention,
                 embed=Embed(
                     title=f"Profanity words detected {emoji}",
-                    description="Khodaya sahal. Meyaani rasooli Khodaya,"
-                                " trath kuno chen yath dunyahas pewan!",
+                    description="Please avoid the usage of bad words!",
                     color=Colors.RED
                 )
             )
@@ -369,7 +369,7 @@ class ICodeBot(Bot):
         msg = message.content
         codeblocks: list = findall(r"(`.+`)+", msg, flags=DOTALL)
 
-        BLOCK_ID_FORMAT = "[CB@{}thIdx]"
+        BLOCK_ID_FORMAT = "<CodeBlock => @Index: {}>"
         for idx, block in enumerate(codeblocks):
             msg = msg.replace(
                 block,

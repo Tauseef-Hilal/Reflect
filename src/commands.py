@@ -1,31 +1,28 @@
+import sys
 import asyncio
 import logging
-import sys
 from io import StringIO
-from datetime import datetime, timedelta
+from datetime import (
+    datetime,
+    timedelta
+)
 
 from discord import (
-    AllowedMentions,
-    ButtonStyle,
     Game,
-    Interaction,
+    Embed,
+    Option,
+    Status,
     Member,
     Message,
-    ApplicationContext,
-    Embed,
     Permissions,
-    Role,
-    Status,
-    TextChannel
+    Interaction,
+    TextChannel,
+    AllowedMentions,
+    ApplicationContext
 )
 from discord.ext.commands import (
     Cog,
     slash_command
-)
-from discord.ui import (
-    View,
-    Button,
-    button
 )
 
 
@@ -55,7 +52,7 @@ class CommandGroup(Cog):
         Check if the bot is under maintenance
 
         Args:
-            channel (TextChannel): The channel from which a cmd was run
+            `channel` (TextChannel): The channel from which a cmd was run
 
         Returns:
             bool: True if under maintenance
@@ -67,22 +64,25 @@ class CommandGroup(Cog):
     async def _has_permissions(self, ctx: ApplicationContext, **perms) -> bool:
         """
         Check whether a member has required permissions to
-        run a specific command
+        run a command
 
         Returns:
             bool: True if the member has all of the perms
         """
 
+        # Get channel and permissions of the author in that channel
         channel: TextChannel = ctx.channel
         permissions: Permissions = channel.permissions_for(ctx.author)
 
+        # Find missing permissions
         missing = [perm for perm, value in perms.items()
                    if getattr(permissions, perm) != value]
 
+        # Return true if the author has all the required permissions
         if not missing:
             return True
 
-        # Show error message to the member
+        # Otherwise show error message to the member
         emoji = self.bot.emoji_group.get_emoji("red_cross")
         await ctx.respond(
             embed=Embed(
@@ -96,28 +96,12 @@ class CommandGroup(Cog):
 
         return False
 
-    @slash_command(name="echo")
-    async def _echo(self, ctx: ApplicationContext, message: str) -> None:
-        """
-        Echoes a message
-
-        Args:
-            ctx (ApplicationContext)
-            message (str): Message sent by some user
-        """
-
-        # Fire maintenance event if under maintenance
-        # and ctx.channel is not maintenance channel
-        if self._under_maintenance(ctx.channel):
-            self.bot.dispatch("maintenance", ctx)
-            return
-
-        await ctx.respond(embed=Embed(description=message, color=Colors.BLUE))
-
     @slash_command(name="embed")
     async def _embed(self, ctx: ApplicationContext) -> None:
         """
         Command for building embeds
+
+        (to be modified in future)
 
         Args:
             ctx (ApplicationContext)
@@ -338,8 +322,8 @@ class CommandGroup(Cog):
     async def _purge(
         self,
         ctx: ApplicationContext,
-        count: str,
-        from_user: Member = None
+        count: Option(str, "Number of messages to delete"),
+        from_user: Option(Member, "Delete a single user's messages") = None
     ) -> None:
         """
         Delete a specified number of messages
@@ -349,15 +333,18 @@ class CommandGroup(Cog):
             count (MessageCountConverter): Number of messages to delete
         """
 
-        # Check
+        # Check if the command invoker has the required permissions
         if not await self._has_permissions(ctx, **{"manage_messages": True}):
             return
 
+        # Determine the integer value of count
         if count == "all":
             count = -1
         else:
             try:
                 count = int(count)
+
+            # Send error message to the user if unsuccessful
             except ValueError:
                 emoji = self.bot.emoji_group.get_emoji("red_cross")
                 await ctx.respond(
@@ -371,7 +358,11 @@ class CommandGroup(Cog):
                 )
                 return
 
-        before = datetime.now()
+        # Record current time so that we delete only the messages
+        # which were sent befor this time
+        invoking_time = datetime.now()
+
+        # Just for fun
         emoji = self.bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -379,6 +370,7 @@ class CommandGroup(Cog):
                 color=Colors.GOLD
             )
         )
+        await asyncio.sleep(1)
 
         await res.edit_original_message(
             embed=Embed(
@@ -387,13 +379,15 @@ class CommandGroup(Cog):
             )
         )
 
+        # Delete the messages
         channel: TextChannel = ctx.channel
         deleted: list[Message] = await channel.purge(
             limit=None if count == -1 else count,
             check=lambda msg: (msg.author == from_user) if from_user else True,
-            before=before
+            before=invoking_time
         )
 
+        # Show success msg to user
         emoji = self.bot.emoji_group.get_emoji("done")
         await res.edit_original_message(
             embed=Embed(
@@ -407,8 +401,8 @@ class CommandGroup(Cog):
     async def _kick(
             self,
             ctx: ApplicationContext,
-            member: Member,
-            reason: str = ""
+            member: Option(Member, "The member to be kicked"),
+            reason: Option(str, "Reason for kick") = ""
     ) -> None:
         """
         Kick a memeber from the guild
@@ -422,9 +416,11 @@ class CommandGroup(Cog):
         if not await self._has_permissions(ctx, **{"kick_members": True}):
             return
 
+        # Kick the member if its not the owner
         if not member == ctx.guild.owner:
             await member.kick(reason=reason)
 
+            # Send log to staff channel
             emoji = self.bot.emoji_group.get_emoji("rules")
             embed = Embed(
                 title=f"Moderation log",
@@ -435,6 +431,8 @@ class CommandGroup(Cog):
 
             await ctx.respond(embed=embed, delete_after=4)
             await self.bot.STAFF_CHANNEL.send(embed=embed)
+
+        # Show error message if the member to be kicked is th owner
         else:
             emoji = self.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
@@ -446,6 +444,7 @@ class CommandGroup(Cog):
                 delete_after=3
             )
 
+            # Send log to staff channel
             emoji = self.bot.emoji_group.get_emoji("warning")
             await self.bot.STAFF_CHANNEL.send(
                 embed=Embed(
@@ -459,8 +458,8 @@ class CommandGroup(Cog):
     async def _ban(
             self,
             ctx: ApplicationContext,
-            member: Member,
-            reason: str = ""
+            member: Option(Member, "The member to be kicked"),
+            reason: Option(str, "Reason for ban") = ""
     ) -> None:
         """
         Ban a memeber from the guild
@@ -474,9 +473,11 @@ class CommandGroup(Cog):
         if not await self._has_permissions(ctx, **{"ban_members": True}):
             return
 
+        # Ban the member if not owner
         if not member == ctx.guild.owner:
             await member.ban(delete_message_days=0, reason=reason)
 
+            # Send log to the staff channel
             emoji = self.bot.emoji_group.get_emoji("rules")
             embed = Embed(
                 title=f"Moderation log",
@@ -487,6 +488,8 @@ class CommandGroup(Cog):
 
             await ctx.respond(embed=embed, delete_after=4)
             await self.bot.STAFF_CHANNEL.send(embed=embed)
+
+        # Otherwise show error message
         else:
             emoji = self.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
@@ -498,6 +501,7 @@ class CommandGroup(Cog):
                 delete_after=3
             )
 
+            # Send log to staff channel
             emoji = self.bot.emoji_group.get_emoji("warning")
             await self.bot.STAFF_CHANNEL.send(
                 embed=Embed(
@@ -511,9 +515,9 @@ class CommandGroup(Cog):
     async def _timeout(
             self,
             ctx: ApplicationContext,
-            member: Member,
-            duration: int,
-            reason: str = ""
+            member: Option(Member, "The member to be timed out"),
+            duration: Option(int, "Duration in minutes"),
+            reason: Option(str, "Reason for timeout") = ""
     ) -> None:
         """
         Timeout a memeber from the guild
@@ -527,6 +531,7 @@ class CommandGroup(Cog):
         if not await self._has_permissions(ctx, **{"ban_members": True}):
             return
 
+        # Show error message if the user is already timed out
         if member.timed_out:
             emoji = self.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
@@ -537,12 +542,14 @@ class CommandGroup(Cog):
             )
             return
 
+        # Timeout the user if not owner
         if not member == ctx.guild.owner:
             await member.timeout_for(
                 duration=timedelta(minutes=duration),
                 reason=reason
             )
 
+            # Send log to staff channel
             emoji = self.bot.emoji_group.get_emoji("rules")
             embed = Embed(
                 title=f"Moderation log",
@@ -554,6 +561,8 @@ class CommandGroup(Cog):
 
             await ctx.respond(embed=embed, delete_after=4)
             await self.bot.STAFF_CHANNEL.send(embed=embed)
+
+        # Otherwise show error message
         else:
             emoji = self.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
@@ -565,6 +574,7 @@ class CommandGroup(Cog):
                 delete_after=3
             )
 
+            # Send log to staff channel
             emoji = self.bot.emoji_group.get_emoji("warning")
             await self.bot.STAFF_CHANNEL.send(
                 embed=Embed(
@@ -587,22 +597,28 @@ class CommandGroup(Cog):
         if not await self._has_permissions(ctx, **{"manage_permissions": 1}):
             return
 
+        # Get the channel from which the command was invoked
         channel: TextChannel = ctx.channel
+
+        # Show error message if already locked
         if not channel.permissions_for(ctx.guild.default_role).send_messages:
+            emoji = self.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
                 embed=Embed(
-                    description="Channel is already locked",
+                    description=f"Channel is already locked {emoji}",
                     color=Colors.RED
                 ),
                 delete_after=2
             )
             return
 
+        # Otherwise lock the channel
         await channel.set_permissions(
             target=ctx.guild.default_role,
             send_messages=False
         )
 
+        # Show success message
         emoji = self.bot.emoji_group.get_emoji("done")
         await ctx.respond(
             embed=Embed(
@@ -625,22 +641,28 @@ class CommandGroup(Cog):
         if not await self._has_permissions(ctx, **{"manage_permissions": 1}):
             return
 
+        # Get the channel from which the command was invoked
         channel: TextChannel = ctx.channel
+
+        # Show error message if already unlocked
         if channel.permissions_for(ctx.guild.default_role).send_messages:
+            emoji = self.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
                 embed=Embed(
-                    description="Channel is already unlocked",
+                    description=f"Channel is already unlocked {emoji}",
                     color=Colors.RED
                 ),
                 delete_after=2
             )
             return
 
+        # Otherwise unlock the channel
         await channel.set_permissions(
             target=ctx.guild.default_role,
             send_messages=True
         )
 
+        # Send success message
         emoji = self.bot.emoji_group.get_emoji("done")
         await ctx.respond(
             embed=Embed(
@@ -669,12 +691,10 @@ class CommandGroup(Cog):
             self.bot.dispatch("maintenance", ctx)
             return
 
-        def check(message: Message) -> bool:
-            return (message.author == ctx.author and
-                    message.channel == ctx.channel)
-
+        # Wait for the user to send a codeblock
         try:
-            res: Interaction = await ctx.respond(
+            # Send an example
+            await ctx.respond(
                 embed=Embed(
                     description="Type the code you want to execute"
                                 " below inside a codeblock\n\n"
@@ -686,10 +706,15 @@ class CommandGroup(Cog):
                 )
             )
 
-            codeblock: Message = await self.bot.wait_for("message",
-                                                         check=check,
-                                                         timeout=300.0)
+            # Wait for the response
+            codeblock: Message = await self.bot.wait_for(
+                "message",
+                check=lambda msg: (msg.author == ctx.author
+                                   and msg.channel == ctx.channel),
+                timeout=300.0
+            )
 
+        # Show error message if timer exceeds timeout time
         except asyncio.TimeoutError:
             emoji = self.bot.emoji_group.get_emoji("red_cross")
             await ctx.send(
@@ -699,9 +724,8 @@ class CommandGroup(Cog):
                 )
             )
             return
-        
-        print(codeblock.content)
 
+        # Show error if its not a valid codeblock
         if not (codeblock.content.startswith("```py")
                 and codeblock.content.endswith("```")):
 
@@ -714,17 +738,25 @@ class CommandGroup(Cog):
             )
             return
 
+        # Prepare the codeblock for execution
         codeblock = codeblock.content.replace("```py", "")
         codeblock = codeblock.replace("```", "")
 
+        # Try to execute the codeblock
         try:
+            # Set output stream
             old_stdout = sys.stdout
             new_stdout = StringIO()
             sys.stdout = new_stdout
 
-            output = exec(codeblock)
+            # Execute the codeblock
+            exec(codeblock)
+
+            # Get output from the new_stdout
             output = new_stdout.getvalue()
             sys.stdout = old_stdout
+
+        # If error occurs, send the error message to the user
         except Exception as e:
             emoji = self.bot.emoji_group.get_emoji("red_cross")
             await ctx.send(
@@ -734,121 +766,8 @@ class CommandGroup(Cog):
                     color=Colors.RED
                 )
             )
+
+        # Send output for successful execution
         else:
             await ctx.send(content=f"{ctx.author.mention}\n"
                            f"```py\n{output}\n```")
-
-    # @slash_command(name="trivia")
-    # async def _trivia(self, ctx: ApplicationContext) -> None:
-    #     """
-    #     Get a random question
-
-    #     Args:
-    #         ctx (ApplicationContext)
-    #     """
-    #     options = ["create [5]",
-    #                "list(5)",
-    #                "[1] * 5",
-    #                "None of these"]
-    #     answer = "[1] * 5"
-
-    #     await ctx.respond(
-    #         embed=Embed(
-    #             title="Here is a challenge!",
-    #             description="Which of the following creates a list with 5 items?",
-    #             color=Colors.BLUE
-    #         ),
-    #         view=Options(ctx.channel, self.bot, options, answer)
-    #     )
-
-
-# class Option(Button):
-
-#     def __init__(self, parent: View, bot: ICodeBot, answer: str, **kwargs):
-#         """
-#         Initialize a button
-
-#         Args:
-#             answer (str): The answer to the question
-#         """
-#         super().__init__(**kwargs)
-
-#         self.parent = parent
-#         self.bot = bot
-#         self.answer = answer
-
-#     async def callback(self, interaction: Interaction) -> None:
-#         """
-#         On clicking the option
-
-#         Args:
-#             interaction (Interaction)
-#         """
-
-#         if self.label == self.answer:
-#             self.style = ButtonStyle.success
-
-#             emoji = self.bot.emoji_group.get_emoji("done")
-#             embed = Embed(
-#                 title=f"Good Job {emoji}",
-#                 description=f"The answer is `{self.answer}`",
-#                 color=Colors.GREEN
-#             )
-#         else:
-#             self.style = ButtonStyle.danger
-
-#             emoji = self.bot.emoji_group.get_emoji("red_cross")
-#             embed = Embed(
-#                 title=f"Thats a shame {emoji}",
-#                 description=f"The answer is `{self.answer}`",
-#                 color=Colors.RED
-#             )
-
-#         for child in self.parent.children:
-#             child.disabled = True
-
-#         await interaction.response.edit_message(view=self.parent)
-
-#         channel = interaction.channel
-#         await channel.send(embed=embed)
-
-
-# class Options(View):
-
-#     def __init__(
-#         self,
-#         channel: TextChannel,
-#         bot: ICodeBot,
-#         options: list,
-#         answer: str
-#     ) -> None:
-#         """
-#         Create buttons for different options
-
-#         Args:
-#             channel (TextChannel): The calling channel
-#             bot (ICodeBot): Discord bot
-#             options (list): Options for the questions
-#             answer (str): Questions answer
-#         """
-#         super().__init__(timeout=30)
-#         self.channel = channel
-
-#         # Create options
-#         for i in range(1, 5):
-#             btn = Option(
-#                 parent=self,
-#                 bot=bot,
-#                 answer=answer,
-#                 label=options.pop(),
-#                 style=ButtonStyle.primary,
-#                 row=i
-#             )
-#             self.add_item(btn)
-
-#     async def on_timeout(self) -> None:
-#         """
-#         Handle timeout event
-#         """
-
-#         pass

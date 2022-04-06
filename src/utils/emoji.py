@@ -27,7 +27,7 @@ class EmojiGroup:
         Get emojis
 
         Args:
-            name (str): Name of the emoji
+            `name` (str): Name of the emoji
 
         Returns:
             Emoji: emoji for which emoji.name = name

@@ -4,7 +4,10 @@ from discord import Intents
 
 from .bot import ICodeBot
 from .commands import CommandGroup
-from .utils.env import ICODE_GUILD_ID, BOT_TOKEN
+from .utils.env import (
+    ICODE_GUILD_ID,
+    BOT_TOKEN
+)
 
 
 def main() -> None:
@@ -16,7 +19,7 @@ def main() -> None:
     FORMAT = "[%(name)s] => [%(levelname)s] : %(message)s"
     logging.basicConfig(level=logging.INFO, format=FORMAT)
 
-    # Initialize
+    # Instantiate ICodeBot
     INTENTS = Intents.all()
 
     BOT = ICodeBot(
@@ -25,5 +28,8 @@ def main() -> None:
         debug_guilds=[ICODE_GUILD_ID]
     )
 
+    # Add application commands
     BOT.add_cog(CommandGroup(BOT))
+
+    # Run
     BOT.run(BOT_TOKEN)
