@@ -336,18 +336,15 @@ class ICodeBot(Bot):
             await self._animated_emojis(message)
 
         # Check for profanity words
-        if self.filter.has_abusive_words(message.content):
-            emoji = self.emoji_group.get_emoji("warning")
-
+        if word := self.filter.has_abusive_words(message.content):
             await message.channel.send(
                 content=message.author.mention,
                 embed=Embed(
-                    title=f"Profanity words detected {emoji}",
-                    description="Please avoid the usage of bad words!",
+                    description="Please try to limit the usage of "
+                                f"words like `{word}`.",
                     color=Colors.RED
                 )
             )
-            await message.delete()
 
     async def _animated_emojis(self, message: Message) -> None:
         """

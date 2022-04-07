@@ -20,7 +20,7 @@ class Filter:
         except FileNotFoundError:
             logging.error("Missing data/badwords.txt")
 
-    def has_abusive_words(self, text: str) -> bool:
+    def has_abusive_words(self, text: str) -> str:
         """
         Checks a piece of text for abusive words
 
@@ -28,7 +28,7 @@ class Filter:
             `text` (str): The text to check
 
         Returns:
-            bool: Whether the text has abusive words or not
+            str: The bad word which was used
         """
 
         # Split the text into a list of words
@@ -38,6 +38,6 @@ class Filter:
         # any is present in _BADWORDS
         for word in text:
             if word in self._BADWORDS:
-                return True
+                return word
 
-        return False
+        return ""
