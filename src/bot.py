@@ -367,10 +367,13 @@ class ICodeBot(Bot):
 
         # Remove codeblocks from message
         msg = message.content
-        codeblocks: list = findall(r"(`.+`)+", msg, flags=DOTALL)
+        codeblocks: list = findall(r"(`{1,3}.+?`{1,3})+", msg, flags=DOTALL)
 
         BLOCK_ID_FORMAT = "<CodeBlock => @Index: {}>"
         for idx, block in enumerate(codeblocks):
+            if block.split("`").count("") % 2 != 0:
+                continue
+
             msg = msg.replace(
                 block,
                 BLOCK_ID_FORMAT.format(idx),
@@ -406,6 +409,7 @@ class ICodeBot(Bot):
             # Don't do anything if emoji was not found
             except AttributeError:
                 pass
+        print("After:", msg)
 
         # Return for no emoji
         if not emoji:
