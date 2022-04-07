@@ -385,7 +385,7 @@ class ICodeBot(Bot):
             msg = msg.replace("::", ": :")
 
         # Check if an unanimated emoji was sent alone
-        if findall("(<:\w+:\d+>)+", msg):
+        if findall(r"(<:\w+:\d+>)+", msg):
             return
 
         # Search for emojis
