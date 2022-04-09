@@ -362,6 +362,12 @@ class ICodeBot(Bot):
                 message.channel != self.MAINTENANCE_CHANNEL):
             return
 
+        # Check if an unanimated emoji was sent alone
+        # or the author of the message is a nitro user
+        if findall(r"(<a?:\w+:\d+>)+", message.content):
+            return
+
+        print("Before:", message.content)
         # Remove codeblocks from message
         msg = message.content
         codeblocks: list = findall(r"(`{1,3}.+?`{1,3})+", msg, flags=DOTALL)
@@ -380,10 +386,6 @@ class ICodeBot(Bot):
         # Insert space between two ::
         while "::" in msg:
             msg = msg.replace("::", ": :")
-
-        # Check if an unanimated emoji was sent alone
-        if findall(r"(<:\w+:\d+>)+", msg):
-            return
 
         # Search for emojis
         emojis: list = findall(r"(:\w*:)+", msg)
