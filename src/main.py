@@ -3,7 +3,9 @@ import logging
 from discord import Intents
 
 from .bot import ICodeBot
-from .commands import CommandGroup
+from .commands.general import GeneralCommands
+from .commands.moderation import ModerationCommands
+from .commands.miscellaneous import MiscellaneousCommands
 from .utils.env import (
     ICODE_GUILD_ID,
     BOT_TOKEN
@@ -29,7 +31,9 @@ def main() -> None:
     )
 
     # Add application commands
-    BOT.add_cog(CommandGroup(BOT))
+    BOT.add_cog(GeneralCommands(BOT))
+    BOT.add_cog(ModerationCommands(BOT))
+    BOT.add_cog(MiscellaneousCommands(BOT))
 
     # Run
     BOT.run(BOT_TOKEN)
