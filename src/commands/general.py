@@ -7,6 +7,7 @@ from datetime import (
 from discord import (
     Embed,
     Message,
+    Option,
     Permissions,
     Interaction,
     TextChannel,
@@ -22,7 +23,7 @@ from discord.ext.commands import (
 from ..bot import ICodeBot
 from ..utils.color import Colors
 from ..utils.emoji import EmojiGroup
-from ..utils.constants import ANNOUNCEMENTS_CHANNEL_ID
+from ..utils.constants import ANNOUNCEMENTS_CHANNEL_ID, SUGGESTIONS_CHANNEL_ID
 
 
 def under_maintenance(bot, ctx: ApplicationContext) -> bool:
@@ -258,3 +259,64 @@ class GeneralCommands(Cog):
 
         # Send embed
         await ctx.respond(embed=embed)
+
+    @slash_command(name="suggest")
+    async def _suggest(
+        self,
+        ctx: ApplicationContext,
+        suggestion: Option(str, "Your suggestion")
+    ) -> None:
+        """
+        Make a suggestion
+
+        Args:
+            ctx (ApplicationContext)
+        """
+
+        # Maintenance check
+        if under_maintenance(self._bot, ctx):
+            return
+
+        # Respond
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
+        res: Interaction = await ctx.respond(
+            embed=Embed(
+                description=f"Sending suggestion {emoji}",
+                color=Colors.GOLD
+            ),
+        )
+
+        # Reactions to add
+        upvote = self._bot.emoji_group.get_emoji("upvote")
+        downvote = self._bot.emoji_group.get_emoji("downvote")
+
+        # Suggestions channel
+        channel: TextChannel = self._bot.get_channel(SUGGESTIONS_CHANNEL_ID)
+
+        # Send suggestion
+        msg: Message = await channel.send(
+            content="@everyone",
+            embed=Embed(
+                description=f"**{suggestion}**\n___",
+                color=Colors.GOLD,
+                timestamp=datetime.now()
+            ).set_footer(
+                text=ctx.author.display_name,
+                icon_url=ctx.author.display_avatar
+            ),
+            allowed_mentions=AllowedMentions.all()
+        )
+
+        # Add reactions
+        await msg.add_reaction(upvote)
+        await msg.add_reaction(downvote)
+
+        # Prompt success
+        emoji = self._bot.emoji_group.get_emoji("green_tick")
+        await res.edit_original_message(
+            embed=Embed(
+                description=f"Suggestion sent {emoji}",
+                color=Colors.GREEN
+            ),
+            delete_after=3
+        )
