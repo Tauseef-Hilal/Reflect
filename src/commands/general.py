@@ -295,7 +295,6 @@ class GeneralCommands(Cog):
 
         # Send suggestion
         msg: Message = await channel.send(
-            content="@everyone",
             embed=Embed(
                 description=f"**{suggestion}**\n___",
                 color=Colors.GOLD,
@@ -303,8 +302,7 @@ class GeneralCommands(Cog):
             ).set_footer(
                 text=ctx.author.display_name,
                 icon_url=ctx.author.display_avatar
-            ),
-            allowed_mentions=AllowedMentions.all()
+            )
         )
 
         # Add reactions
