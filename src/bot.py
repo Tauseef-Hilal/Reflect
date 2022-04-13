@@ -328,7 +328,7 @@ class ICodeBot(Bot):
 
         message.content += "\n\_\_\_\n__**Embed descriptions:**__\n"
         for embed in message.embeds:
-            message.content += embed.description
+            message.content += embed.description + " \n\_\_\n"
 
         # Send msg to staff channel
         await staff_channel.send(
