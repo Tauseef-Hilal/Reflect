@@ -315,6 +315,35 @@ class ICodeBot(Bot):
             )
         )
 
+    async def on_message_delete(self, message: Message) -> None:
+        """
+        Called when a message gets deleted
+
+        Args:
+            message (Message): The deleted message
+        """
+
+        # Get staff channel
+        staff_channel: TextChannel = self.get_channel(STAFF_CHANNEL_ID)
+
+        message.content += "\n\_\_\_\n__**Embed descriptions:**__\n"
+        for embed in message.embeds:
+            message.content += embed.description
+
+        # Send msg to staff channel
+        await staff_channel.send(
+            embed=Embed(
+                title=f"{message.author.display_name}'s message was deleted",
+                description="__**Message Content:**__\n"
+                            f"{message.content}\n___",
+                color=Colors.RED,
+                timestamp=datetime.now()
+            ).set_footer(
+                text="ModLogs",
+                icon_url=self.user.display_avatar
+            )
+        )
+
     async def on_message(self, message: Message) -> None:
         """
         Called when some user sends a messsage in the server
