@@ -31,6 +31,9 @@ class Filter:
             str: The bad word which was used
         """
 
+        # Setup
+        text = text.replace("`", "").replace("*", "")
+
         # Split the text into a list of words
         text = text.lower().split()
 
@@ -53,6 +56,9 @@ class Filter:
             str: The censored text. Empty string is returned if
             the text has no bad words
         """
+
+        # Setup
+        text = text.replace("`", "").replace("*", "")
 
         # Split the text into a list of words
         words = text.split()
