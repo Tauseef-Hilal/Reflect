@@ -41,3 +41,31 @@ class Filter:
                 return word
 
         return ""
+
+    def censor(self, text: str) -> str:
+        """
+        Censor a piece of text
+
+        Args:
+            `text` (str): The text to censor
+
+        Returns:
+            str: The censored text. Empty string is returned if
+            the text has no bad words
+        """
+
+        # Split the text into a list of words
+        words = text.lower().split()
+
+        # Iterate over the words and check if
+        # any is present in _BADWORDS
+        for word in words:
+            if word not in self._BADWORDS:
+                continue
+
+            if len(word) < 6:
+                text = text.replace(word[1:-1], "\*" * (len(word) - 2), 1)
+            else:
+                text = text.replace(word[2:-2], "\*" * (len(word) - 4), 1)
+
+        return text

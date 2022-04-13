@@ -336,15 +336,10 @@ class ICodeBot(Bot):
             await self._animated_emojis(message)
 
         # Check for profanity words
-        if word := self.filter.has_abusive_words(message.content):
-            await message.channel.send(
-                content=message.author.mention,
-                embed=Embed(
-                    description="Please try to limit the usage of "
-                                f"words like `{word}`.",
-                    color=Colors.RED
-                )
-            )
+        if self.filter.has_abusive_words(message.content):
+            message.content = self.filter.censor(message.content)
+            await self._send_webhook(message=message)
+            await message.delete()
 
     async def _animated_emojis(self, message: Message) -> None:
         """
@@ -422,6 +417,19 @@ class ICodeBot(Bot):
                 1
             )
 
+        # Send webhook
+        await self._send_webhook(message=message, mod_msg=msg)
+
+        # Delete the original msg
+        await message.delete()
+
+    async def _send_webhook(self, message: Message, mod_msg: str = "") -> None:
+        """
+        Send a webhook
+
+        Args:
+            message (Message): Message of a user
+        """
         # Get all webhooks currently in the msg channel
         webhooks = await message.channel.webhooks()
 
@@ -446,9 +454,6 @@ class ICodeBot(Bot):
 
         # Send webhook to the channel with username as the name
         # of msg author and avatar as msg author's avatar
-        await webhook.send(content=msg,
+        await webhook.send(content=mod_msg if mod_msg else message.content,
                            username=message.author.display_name,
                            avatar_url=message.author.display_avatar)
-
-        # Delete the original msg
-        await message.delete()
