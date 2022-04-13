@@ -53,8 +53,7 @@ class Filter:
             `text` (str): The text to censor
 
         Returns:
-            str: The censored text. Empty string is returned if
-            the text has no bad words
+            str: The censored text.
         """
 
         # Setup

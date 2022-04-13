@@ -326,22 +326,24 @@ class ICodeBot(Bot):
         # Get staff channel
         staff_channel: TextChannel = self.get_channel(STAFF_CHANNEL_ID)
 
-        message.content += "\n\_\_\_\n__**Embed descriptions:**__\n"
-        for embed in message.embeds:
-            message.content += embed.description + " \n\_\_\n"
-
-        # Send msg to staff channel
-        await staff_channel.send(
-            embed=Embed(
+        embeds = message.embeds
+        embeds.insert(
+            0,
+            Embed(
                 title=f"{message.author.display_name}'s message was deleted",
-                description="__**Message Content:**__\n"
-                            f"{message.content}\n___",
+                description="__**Message Content:**__\n\_\_\_"
+                f"{message.content}",
                 color=Colors.RED,
                 timestamp=datetime.now()
             ).set_footer(
-                text="ModLogs",
+                text="Message embeds are listed below",
                 icon_url=self.user.display_avatar
             )
+        )
+
+        # Send msg to staff channel
+        await staff_channel.send(
+            embeds=embeds
         )
 
     async def on_message(self, message: Message) -> None:
