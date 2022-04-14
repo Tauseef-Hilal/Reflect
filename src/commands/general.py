@@ -217,52 +217,6 @@ class GeneralCommands(Cog):
             delete_after=2
         )
 
-    @slash_command(name="emojis")
-    async def _list_emojis(self, ctx: ApplicationContext) -> None:
-        """
-        List available emojis
-
-        Args:
-            ctx (ApplicationContext)
-        """
-
-        # Fire maintenance event if under maintenance
-        # and ctx.channel is not maintenance channel
-        if under_maintenance(self._bot, ctx):
-            return
-
-        # Create embed
-        embed = Embed(
-            title="Server Emojis",
-            description="Everyone can use below listed emojis!",
-            timestamp=datetime.now(),
-            color=Colors.GOLD
-        )
-
-        # Add normal emojis to the embed
-        emoji_group = self._bot.emojis
-        emojis = [f"{emoji} • `:{emoji.name}:`"
-                  for emoji in emoji_group if not emoji.animated]
-
-        embed = embed.add_field(name="Normal Emojis", value="\n".join(emojis))
-
-        # Add animated emojis to the embed
-        emojis = [f"{emoji} • `:{emoji.name}:`"
-                  for emoji in emoji_group if emoji.animated]
-
-        embed = embed.add_field(name="Animated Emojis",
-                                value="\n".join(emojis))
-
-        # Set embed footer
-        embed.set_footer(text=ctx.author.display_name,
-                         icon_url=ctx.author.display_avatar)
-
-        # Set embed thumbnail
-        embed.set_thumbnail(url=self._bot.emoji_group.get_emoji("ukraine").url)
-
-        # Send embed
-        await ctx.respond(embed=embed)
-
     @slash_command(name="suggest")
     async def _suggest(
         self,
