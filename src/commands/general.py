@@ -503,7 +503,7 @@ class GeneralCommands(Cog):
         # Third line
         card = card.add_field(
             name="Current Activity",
-            value=user.activity.name,
+            value=user.activity.name if user.activity else "None",
         )
         card = card.add_field(
             name="Account Created On",
