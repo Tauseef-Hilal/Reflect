@@ -331,8 +331,8 @@ class ICodeBot(Bot):
             0,
             Embed(
                 title=f"{message.author.display_name}'s message was deleted",
-                description="__**Message Content:**__\n\_\_\_"
-                f"{message.content}",
+                description="__**Message Content:**__"
+                f"{message.content}\n\_\_\_",
                 color=Colors.RED,
                 timestamp=datetime.now()
             ).set_footer(
