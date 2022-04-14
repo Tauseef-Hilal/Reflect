@@ -1,23 +1,12 @@
-import asyncio
-import logging
 from datetime import (
     datetime,
 )
 
 from discord import (
     Embed,
-    Guild,
     InteractionResponse,
-    Member,
-    Message,
-    Option,
-    Permissions,
-    Interaction,
     SelectMenu,
     SelectOption,
-    Status,
-    TextChannel,
-    AllowedMentions,
     ApplicationContext
 )
 from discord.ui import (
@@ -30,7 +19,7 @@ from discord.ext.commands import (
 )
 
 from ..bot import ICodeBot
-from ..utils.color import Colors
+
 
 class Help(Cog):
     """
@@ -57,8 +46,10 @@ class Help(Cog):
         """
 
         embed = Embed(
-            description=self._bot.description,
-            color=Colors.GOLD,
+            description=f"{self._bot.description}\n"
+                        "Choose a command group from the "
+                        "below select menu to get help",
+            color=ctx.author.color,
             timestamp=datetime.now()
         ).set_author(
             name="iCODE Usage Help",
@@ -91,7 +82,7 @@ class UsageView(View):
         self.ctx = ctx
 
     @select(
-        placeholder="Select command type",
+        placeholder="Select command group",
         min_values=1,
         max_values=1,
         options=[
@@ -127,7 +118,7 @@ class UsageView(View):
 
         embed = Embed(
             description=desc,
-            color=Colors.GOLD,
+            color=self.ctx.author.color,
         ).set_author(
             name="iCODE Usage Help",
             icon_url=self._bot.user.display_avatar

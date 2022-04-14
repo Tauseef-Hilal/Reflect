@@ -26,7 +26,7 @@ def main() -> None:
     INTENTS = Intents.all()
 
     BOT = ICodeBot(
-        description="The BOT made for iCODE Discord server.",
+        description="Hi! I'm a bot under development.",
         intents=INTENTS,
         debug_guilds=[ICODE_GUILD_ID]
     )
