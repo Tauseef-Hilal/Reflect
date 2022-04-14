@@ -79,7 +79,6 @@ class ICodeBot(Bot):
         """
         Called when the bot has finished logging in and setting things up
         """
-        await self.register_commands()
         logging.info(msg=f"Logged in as {self.user}")
 
         # Create EmojiGroup instance
