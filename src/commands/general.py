@@ -64,9 +64,15 @@ async def has_permissions(
     permissions: Permissions = channel.permissions_for(ctx.author)
 
     # Find missing permissions
-    missing = [perm for perm, value in perms.items()
-               if getattr(permissions, perm) != value]
-
+    try:
+        missing = []
+        for perm, value in perms.items():
+            if getattr(permissions, perm) != value:
+                missing.append(perm)
+    except AttributeError:
+        if not bot.is_owner(ctx.author):
+            missing.append(perm)
+            
     # Return true if the author has all the required permissions
     if not missing:
         return True
@@ -88,7 +94,7 @@ async def has_permissions(
 
 class GeneralCommands(Cog):
     """
-    Group of slash commands
+    General commands
     """
 
     def __init__(self, bot: ICodeBot) -> None:
@@ -101,7 +107,11 @@ class GeneralCommands(Cog):
         super().__init__()
         self._bot = bot
 
-    @slash_command(name="embed")
+    @slash_command(
+        name="embed",
+        description="Make an embedded message\n"
+                    "Usage: `/embed`"
+    )
     async def _embed(self, ctx: ApplicationContext) -> None:
         """
         Command for building embeds
@@ -175,10 +185,14 @@ class GeneralCommands(Cog):
             await msg2.delete()
             await desc.delete()
 
-    @slash_command(name="update-emojis")
+    @slash_command(
+        name="update-emojis",
+        description="Update server emojis\n"
+                    "Usage: `/update-emojis`"
+    )
     async def _update_emojis(self, ctx: ApplicationContext) -> None:
         """
-        Update server emojis. Run this command after adding new emojis
+        Update server emojis.
 
         Args:
             ctx (ApplicationContext)
@@ -217,7 +231,11 @@ class GeneralCommands(Cog):
             delete_after=2
         )
 
-    @slash_command(name="suggest")
+    @slash_command(
+        name="suggest",
+        description="Make a suggestion\n"
+                    "Usage: `/suggest <suggestion>`"
+    )
     async def _suggest(
         self,
         ctx: ApplicationContext,
@@ -276,7 +294,11 @@ class GeneralCommands(Cog):
             delete_after=3
         )
 
-    @slash_command(name="serverinfo")
+    @slash_command(
+        name="serverinfo",
+        description="Get information about the server\n"
+                    "Usage: `/serverinfo`"
+    )
     async def _serverinfo(self, ctx: ApplicationContext) -> None:
         """
         Get information about the server
@@ -386,7 +408,11 @@ class GeneralCommands(Cog):
         # Send embed
         await res.edit_original_message(embed=card)
 
-    @slash_command(name="icon")
+    @slash_command(
+        name="icon",
+        description="Get server icon\n"
+                    "Usage: `/icon`"
+    )
     async def _icon(self, ctx: ApplicationContext) -> None:
         """
         Get the icon of the server.
@@ -415,7 +441,11 @@ class GeneralCommands(Cog):
             )
         )
 
-    @slash_command(name="userinfo")
+    @slash_command(
+        name="userinfo",
+        description="Get information about a user\n"
+                    "Usage: `/userinfo [user]`"
+    )
     async def _userinfo(
         self,
         ctx: ApplicationContext,
@@ -516,7 +546,11 @@ class GeneralCommands(Cog):
 
         await res.edit_original_message(embed=card)
 
-    @slash_command(name="avatar")
+    @slash_command(
+        name="avatar",
+        description="Get a user's avatar\n"
+                    "Usage: `/avatar [user]`"
+    )
     async def _avatar(
         self,
         ctx: ApplicationContext,
@@ -558,7 +592,11 @@ class GeneralCommands(Cog):
             )
         )
 
-    @slash_command(name="membercount")
+    @slash_command(
+        name="membercount",
+        description="Get the number of members in the server\n"
+                    "Usage: `/membercount`"
+    )
     async def _membercount(self, ctx: ApplicationContext) -> None:
         """
         Get the number of members in this guild.

@@ -3,6 +3,7 @@ import logging
 from discord import Intents
 
 from .bot import ICodeBot
+from .commands.usage import Help
 from .commands.general import GeneralCommands
 from .commands.moderation import ModerationCommands
 from .commands.miscellaneous import MiscellaneousCommands
@@ -31,6 +32,7 @@ def main() -> None:
     )
 
     # Add application commands
+    BOT.add_cog(Help(BOT))
     BOT.add_cog(GeneralCommands(BOT))
     BOT.add_cog(ModerationCommands(BOT))
     BOT.add_cog(MiscellaneousCommands(BOT))

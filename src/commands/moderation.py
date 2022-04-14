@@ -28,7 +28,7 @@ from .general import (
 
 class ModerationCommands(Cog):
     """
-    Cog for moderation commmands
+    Moderation commands
     """
 
     def __init__(self, bot: ICodeBot) -> None:
@@ -41,7 +41,11 @@ class ModerationCommands(Cog):
         super().__init__()
         self._bot = bot
 
-    @slash_command(name="purge")
+    @slash_command(
+        name="purge",
+        description="Delete a specified number of messages\n"
+                    "Usage: `/purge <count> [from_user]`"
+    )
     async def _purge(
         self,
         ctx: ApplicationContext,
@@ -127,7 +131,11 @@ class ModerationCommands(Cog):
             delete_after=2
         )
 
-    @slash_command(name="kick")
+    @slash_command(
+        name="kick",
+        description="Kick a member from the guild\n"
+                    "Usage: `/kick <member> [reason]`"
+    )
     async def _kick(
             self,
             ctx: ApplicationContext,
@@ -191,11 +199,15 @@ class ModerationCommands(Cog):
                 ).set_thumbnail(url=emoji.url)
             )
 
-    @slash_command(name="ban")
+    @slash_command(
+        name="ban",
+        description="Ban a member from the guild\n"
+                    "Usage: `/Ban <member> [reason]`"
+    )
     async def _ban(
             self,
             ctx: ApplicationContext,
-            member: Option(Member, "The member to be kicked"),
+            member: Option(Member, "The member to be banned"),
             reason: Option(str, "Reason for ban") = ""
     ) -> None:
         """
@@ -255,7 +267,11 @@ class ModerationCommands(Cog):
                 ).set_thumbnail(url=emoji.url)
             )
 
-    @slash_command(name="timeout")
+    @slash_command(
+        name="timeout",
+        description="Timeout a member from the guild\n"
+                    "Usage: `/timeout <member> <duration> [reason]`"
+    )
     async def _timeout(
             self,
             ctx: ApplicationContext,
@@ -264,7 +280,7 @@ class ModerationCommands(Cog):
             reason: Option(str, "Reason for timeout") = ""
     ) -> None:
         """
-        Timeout a memeber from the guild
+        Timeout a member from the guild
 
         Args:
             ctx (ApplicationContext)
@@ -335,7 +351,11 @@ class ModerationCommands(Cog):
                 ).set_thumbnail(url=emoji.url)
             )
 
-    @slash_command(name="lock")
+    @slash_command(
+        name="lock",
+        description="Lock current channel\n"
+                    "Usage: `/lock`"
+    )
     async def _lock(self, ctx: ApplicationContext) -> None:
         """
         Lock current channel
@@ -386,7 +406,11 @@ class ModerationCommands(Cog):
             delete_after=2
         )
 
-    @slash_command(name="unlock")
+    @slash_command(
+        name="unlock",
+        description="Unlock current channel\n"
+                    "Usage: `/unlock`"
+    )
     async def _unlock(self, ctx: ApplicationContext) -> None:
         """
         Unlock current channel

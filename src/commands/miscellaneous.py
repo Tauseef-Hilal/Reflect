@@ -26,6 +26,9 @@ from .general import (
 
 
 class MiscellaneousCommands(Cog):
+    """
+    Miscellaneous commands    
+    """
 
     def __init__(self, bot: ICodeBot) -> None:
         """
@@ -37,7 +40,11 @@ class MiscellaneousCommands(Cog):
         super().__init__()
         self._bot = bot
 
-    @slash_command(name="toggle-maintenance-mode")
+    @slash_command(
+        name="toggle-maintenance-mode",
+        description="Turn maintenance mode on or off\n"
+                    "Usage: `/toggle-maintenance-mode`"
+    )
     async def _toggle_maintenance_mode(self, ctx: ApplicationContext) -> None:
         """
         Turn maintenance mode on or off
@@ -47,7 +54,7 @@ class MiscellaneousCommands(Cog):
         """
 
         # Check
-        if not await has_permissions(self._bot, ctx, **{"administrator": True}):
+        if not await has_permissions(self._bot, ctx, **{"bot_owner": True}):
             return
 
         # Respond with an embed and toggle maintenance mode
@@ -94,7 +101,11 @@ class MiscellaneousCommands(Cog):
         )
         logging.info("Toggled maintenance mode")
 
-    @slash_command(name="exec")
+    @slash_command(
+        name="exec",
+        description="Execute python code\n"
+                    "Usage: `/exec`"
+    )
     async def _exec(self, ctx: ApplicationContext) -> None:
         """
         Execute python code
@@ -108,7 +119,7 @@ class MiscellaneousCommands(Cog):
             not await has_permissions(
                 self._bot,
                 ctx,
-                **{"administrator": True}
+                **{"bot_owner": True}
             )
             or under_maintenance(self._bot, ctx)
         ):
