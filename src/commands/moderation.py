@@ -41,11 +41,7 @@ class ModerationCommands(Cog):
         super().__init__()
         self._bot = bot
 
-    @slash_command(
-        name="purge",
-        description="Delete a specified number of messages\n"
-                    "Usage: `/purge <count> [from_user]`"
-    )
+    @slash_command(name="purge")
     async def _purge(
         self,
         ctx: ApplicationContext,
@@ -131,11 +127,7 @@ class ModerationCommands(Cog):
             delete_after=2
         )
 
-    @slash_command(
-        name="kick",
-        description="Kick a member from the guild\n"
-                    "Usage: `/kick <member> [reason]`"
-    )
+    @slash_command(name="kick")
     async def _kick(
             self,
             ctx: ApplicationContext,
@@ -143,7 +135,7 @@ class ModerationCommands(Cog):
             reason: Option(str, "Reason for kick") = ""
     ) -> None:
         """
-        Kick a memeber from the guild
+        Kick a member from the guild
 
         Args:
             ctx (ApplicationContext)
@@ -199,11 +191,7 @@ class ModerationCommands(Cog):
                 ).set_thumbnail(url=emoji.url)
             )
 
-    @slash_command(
-        name="ban",
-        description="Ban a member from the guild\n"
-                    "Usage: `/Ban <member> [reason]`"
-    )
+    @slash_command(name="ban")
     async def _ban(
             self,
             ctx: ApplicationContext,
@@ -267,11 +255,7 @@ class ModerationCommands(Cog):
                 ).set_thumbnail(url=emoji.url)
             )
 
-    @slash_command(
-        name="timeout",
-        description="Timeout a member from the guild\n"
-                    "Usage: `/timeout <member> <duration> [reason]`"
-    )
+    @slash_command(name="timeout")
     async def _timeout(
             self,
             ctx: ApplicationContext,
@@ -351,11 +335,7 @@ class ModerationCommands(Cog):
                 ).set_thumbnail(url=emoji.url)
             )
 
-    @slash_command(
-        name="lock",
-        description="Lock current channel\n"
-                    "Usage: `/lock`"
-    )
+    @slash_command(name="lock")
     async def _lock(self, ctx: ApplicationContext) -> None:
         """
         Lock current channel
@@ -406,11 +386,7 @@ class ModerationCommands(Cog):
             delete_after=2
         )
 
-    @slash_command(
-        name="unlock",
-        description="Unlock current channel\n"
-                    "Usage: `/unlock`"
-    )
+    @slash_command(name="unlock")
     async def _unlock(self, ctx: ApplicationContext) -> None:
         """
         Unlock current channel

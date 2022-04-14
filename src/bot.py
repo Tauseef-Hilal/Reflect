@@ -28,6 +28,7 @@ from .utils.bump_timer import BumpTimer
 from .utils.emoji import EmojiGroup
 from .utils.filter import Filter
 from .utils.env import (
+    ICODE_GUILD_ID,
     MONGO_DB_URI
 )
 from .utils.constants import (
@@ -78,7 +79,7 @@ class ICodeBot(Bot):
         """
         Called when the bot has finished logging in and setting things up
         """
-
+        await self.register_commands()
         logging.info(msg=f"Logged in as {self.user}")
 
         # Create EmojiGroup instance
@@ -96,19 +97,22 @@ class ICodeBot(Bot):
         # Set up reaction roles
         logging.info("Setting up reaction roles")
 
-        self.GUILD = self.guilds[0]
+        self.ICODE_GUILD = await self.fetch_guild(ICODE_GUILD_ID)
+        if not self.ICODE_GUILD:
+            logging.warning("Couldn't find iCODE")
+
         self.REACTION_ROLES = {
-            "cpp": self.GUILD.get_role(CPP_ROLE_ID),
-            "java": self.GUILD.get_role(JAVA_ROLE_ID),
-            "ruby": self.GUILD.get_role(RUBY_ROLE_ID),
-            "clang": self.GUILD.get_role(CLANG_ROLE_ID),
-            "python": self.GUILD.get_role(PYTHON_ROLE_ID),
-            "csharp": self.GUILD.get_role(CSHARP_ROLE_ID),
-            "dartlang": self.GUILD.get_role(DART_ROLE_ID),
-            "ukraine": self.GUILD.get_role(BUMPER_ROLE_ID),
-            "clojure": self.GUILD.get_role(CLOJURE_ROLE_ID),
-            "javascript": self.GUILD.get_role(JAVASCRIPT_ROLE_ID),
-            "typescript": self.GUILD.get_role(TYPESCRIPT_ROLE_ID)
+            "cpp": self.ICODE_GUILD.get_role(CPP_ROLE_ID),
+            "java": self.ICODE_GUILD.get_role(JAVA_ROLE_ID),
+            "ruby": self.ICODE_GUILD.get_role(RUBY_ROLE_ID),
+            "clang": self.ICODE_GUILD.get_role(CLANG_ROLE_ID),
+            "python": self.ICODE_GUILD.get_role(PYTHON_ROLE_ID),
+            "csharp": self.ICODE_GUILD.get_role(CSHARP_ROLE_ID),
+            "dartlang": self.ICODE_GUILD.get_role(DART_ROLE_ID),
+            "ukraine": self.ICODE_GUILD.get_role(BUMPER_ROLE_ID),
+            "clojure": self.ICODE_GUILD.get_role(CLOJURE_ROLE_ID),
+            "javascript": self.ICODE_GUILD.get_role(JAVASCRIPT_ROLE_ID),
+            "typescript": self.ICODE_GUILD.get_role(TYPESCRIPT_ROLE_ID)
         }
 
         # Start bump timer
@@ -180,6 +184,7 @@ class ICodeBot(Bot):
                 pass
             else:
                 await payload.member.add_roles(role)
+                logging.info(f"Added {role} role to {payload.member}")
 
     async def on_raw_reaction_remove(
         self,
@@ -200,10 +205,12 @@ class ICodeBot(Bot):
             except KeyError:
                 pass
             else:
-                member: Member = self.GUILD.get_member(payload.user_id)
+                member: Member = await self.ICODE_GUILD \
+                    .fetch_member(payload.user_id)
 
                 if member:
                     await member.remove_roles(role)
+                    logging.info(f"Removed {role} role from {member}")
 
     async def on_member_join(self, member: Member) -> None:
         """
@@ -354,8 +361,9 @@ class ICodeBot(Bot):
             message (Message): Message sent by a user
         """
 
-        # Check if the message is from Disboard
-        if message.author.id == DISBOARD_ID:
+        # Update bump timer
+        if message.author.id == DISBOARD_ID \
+                and message.guild == self.ICODE_GUILD:
             if "Bump done" in message.embeds[0].description:
                 logging.info("Updating bump time")
                 self.bump_timer.update_bump_time(datetime.now())

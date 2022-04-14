@@ -131,9 +131,14 @@ class UsageView(View):
 
         emoji = self._bot.emoji_group.get_emoji("reply")
         for cmd in cog.get_commands():
+            options = " ".join(
+                [f"<{option.name}>" if option.required else f"[{option.name}]"
+                 for option in cmd.options]
+            )
             embed.add_field(
-                name=f"__/{cmd.qualified_name}__",
-                value=str(emoji) + cmd.description.replace("\n", f"\n{emoji}"),
+                name=f"__/{cmd}__",
+                value=f"{emoji} {cmd.description}\n"
+                f"{emoji} Usage: `/{cmd} {options}`",
                 inline=False
             )
 

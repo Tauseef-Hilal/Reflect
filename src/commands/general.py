@@ -70,7 +70,7 @@ async def has_permissions(
             if getattr(permissions, perm) != value:
                 missing.append(perm)
     except AttributeError:
-        if not bot.is_owner(ctx.author):
+        if not await bot.is_owner(ctx.author):
             missing.append(perm)
             
     # Return true if the author has all the required permissions
@@ -107,14 +107,10 @@ class GeneralCommands(Cog):
         super().__init__()
         self._bot = bot
 
-    @slash_command(
-        name="embed",
-        description="Make an embedded message\n"
-                    "Usage: `/embed`"
-    )
+    @slash_command(name="embed" )
     async def _embed(self, ctx: ApplicationContext) -> None:
         """
-        Command for building embeds
+        Build an embedded message
 
         (to be modified in future)
 
@@ -185,11 +181,7 @@ class GeneralCommands(Cog):
             await msg2.delete()
             await desc.delete()
 
-    @slash_command(
-        name="update-emojis",
-        description="Update server emojis\n"
-                    "Usage: `/update-emojis`"
-    )
+    @slash_command(name="update-emojis")
     async def _update_emojis(self, ctx: ApplicationContext) -> None:
         """
         Update server emojis.
@@ -231,11 +223,7 @@ class GeneralCommands(Cog):
             delete_after=2
         )
 
-    @slash_command(
-        name="suggest",
-        description="Make a suggestion\n"
-                    "Usage: `/suggest <suggestion>`"
-    )
+    @slash_command(name="suggest")
     async def _suggest(
         self,
         ctx: ApplicationContext,
@@ -294,11 +282,7 @@ class GeneralCommands(Cog):
             delete_after=3
         )
 
-    @slash_command(
-        name="serverinfo",
-        description="Get information about the server\n"
-                    "Usage: `/serverinfo`"
-    )
+    @slash_command(name="serverinfo")
     async def _serverinfo(self, ctx: ApplicationContext) -> None:
         """
         Get information about the server
@@ -400,7 +384,7 @@ class GeneralCommands(Cog):
             features += "\n"
 
         card = card.add_field(
-            name="Server Feat ures",
+            name="Server Features",
             value=features,
             inline=False
         )
@@ -408,11 +392,7 @@ class GeneralCommands(Cog):
         # Send embed
         await res.edit_original_message(embed=card)
 
-    @slash_command(
-        name="icon",
-        description="Get server icon\n"
-                    "Usage: `/icon`"
-    )
+    @slash_command(name="icon")
     async def _icon(self, ctx: ApplicationContext) -> None:
         """
         Get the icon of the server.
@@ -441,11 +421,7 @@ class GeneralCommands(Cog):
             )
         )
 
-    @slash_command(
-        name="userinfo",
-        description="Get information about a user\n"
-                    "Usage: `/userinfo [user]`"
-    )
+    @slash_command(name="userinfo")
     async def _userinfo(
         self,
         ctx: ApplicationContext,
@@ -546,11 +522,7 @@ class GeneralCommands(Cog):
 
         await res.edit_original_message(embed=card)
 
-    @slash_command(
-        name="avatar",
-        description="Get a user's avatar\n"
-                    "Usage: `/avatar [user]`"
-    )
+    @slash_command(name="avatar")
     async def _avatar(
         self,
         ctx: ApplicationContext,
@@ -592,14 +564,10 @@ class GeneralCommands(Cog):
             )
         )
 
-    @slash_command(
-        name="membercount",
-        description="Get the number of members in the server\n"
-                    "Usage: `/membercount`"
-    )
+    @slash_command(name="membercount")
     async def _membercount(self, ctx: ApplicationContext) -> None:
         """
-        Get the number of members in this guild.
+        Get the number of members in the guild.
 
         Args:
             ctx (ApplicationContext)

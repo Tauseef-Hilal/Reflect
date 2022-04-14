@@ -40,11 +40,7 @@ class MiscellaneousCommands(Cog):
         super().__init__()
         self._bot = bot
 
-    @slash_command(
-        name="toggle-maintenance-mode",
-        description="Turn maintenance mode on or off\n"
-                    "Usage: `/toggle-maintenance-mode`"
-    )
+    @slash_command(name="toggle-maintenance-mode")
     async def _toggle_maintenance_mode(self, ctx: ApplicationContext) -> None:
         """
         Turn maintenance mode on or off
@@ -101,11 +97,7 @@ class MiscellaneousCommands(Cog):
         )
         logging.info("Toggled maintenance mode")
 
-    @slash_command(
-        name="exec",
-        description="Execute python code\n"
-                    "Usage: `/exec`"
-    )
+    @slash_command(name="exec")
     async def _exec(self, ctx: ApplicationContext) -> None:
         """
         Execute python code

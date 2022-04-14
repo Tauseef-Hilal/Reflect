@@ -22,13 +22,16 @@ def main() -> None:
     FORMAT = "[%(name)s] => [%(levelname)s] : %(message)s"
     logging.basicConfig(level=logging.INFO, format=FORMAT)
 
-    # Instantiate ICodeBot
-    INTENTS = Intents.all()
+    # Setup intents
+    intents = Intents.default()
+    intents.members = True
+    intents.message_content = True
+    intents.presences = True
 
+    # Instantiate ICodeBot
     BOT = ICodeBot(
         description="Hi! I'm a bot under development.",
-        intents=INTENTS,
-        debug_guilds=[ICODE_GUILD_ID]
+        intents=intents
     )
 
     # Add application commands
