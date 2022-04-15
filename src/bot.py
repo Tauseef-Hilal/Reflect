@@ -421,7 +421,7 @@ class ICodeBot(Bot):
             msg = msg.replace("::", ": :")
 
         # Search for emojis
-        emojis: list = findall(r"(:\w*:)+", msg)
+        emojis: list = findall(r"(:[\w\-~]*:)+", msg)
 
         for word in emojis:
             # Continue if already replaced
@@ -433,18 +433,20 @@ class ICodeBot(Bot):
                 emoji = self.emoji_group.get_emoji(word[1:-1])
 
                 # Replace the word by its emoji
-                msg = msg.replace(word, str(emoji))
+                msg = msg.replace(word, str(emoji) if emoji else word)
 
                 # Add the word to temp list to skip it in the next iterations
-                temp.append(word)
+                if emoji:
+                    temp.append(word)
 
             # Don't do anything if emoji was not found
-            except AttributeError:
-                pass
+            except AttributeError as e:
+                logging.error(e)
+                
         print("After:", msg)
 
         # Return for no emoji
-        if not emoji:
+        if not temp:
             return
 
         # Add codeblocks back to the message

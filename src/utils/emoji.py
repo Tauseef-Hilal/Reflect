@@ -1,3 +1,4 @@
+import logging
 from discord import Emoji, Bot
 
 
@@ -18,9 +19,16 @@ class EmojiGroup:
 
         # Iterate through the server emojis
         emoji: Emoji
+        i = 0
         for emoji in self.BOT.emojis:
+            name = emoji.name
+            # Check if the emoji.name is already taken
+            while hasattr(self, name):
+                i += 1
+                name += f"-{i}"
+
             # Set attr for each emoji
-            setattr(self, emoji.name, emoji.id)
+            setattr(self, name, emoji.id)
 
     def get_emoji(self, name: str) -> Emoji:
         """
@@ -47,15 +55,30 @@ class EmojiGroup:
         """
         Update instance attributes
         """
+        
+        # Delete all emojis
+        bot = self.BOT
+        vars(self).clear()
+        
+        # Update emojis
+        self.__init__(bot)
 
-        emoji: Emoji
-        for emoji in self.BOT.emojis:
-            # Skip existing attributes
-            if hasattr(self, emoji.name):
-                continue
+        # emoji: Emoji
+        # # Add new emojis
+        # for emoji in self.BOT.emojis:
+        #     # Skip existing attributes
+        #     if hasattr(self, emoji.name):
+        #         continue
 
-            # Create new attributes
-            setattr(self, emoji.name, emoji.id)
+        #     # Create new attributes
+        #     setattr(self, emoji.name, emoji.id)
+        #     logging.info(f"Added new emoji: {emoji.name}")
+        
+        # # Remove deleted emojis
+        # for emoji_name in vars(self):
+        #     if emoji_name not in self.BOT.emojis:
+        #         delattr(self, emoji_name)
+        #         logging.info(f"Deleted emoji: {emoji_name}")
 
     def __repr__(self) -> str:
         """
