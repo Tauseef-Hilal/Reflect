@@ -61,7 +61,8 @@ class ModerationCommands(Cog):
             not await has_permissions(
                 self._bot,
                 ctx,
-                **{"manage_messages": True}
+                **{"manage_messages": True,
+                   "read_message_history": True}
             )
             or under_maintenance(self._bot, ctx)
         ):

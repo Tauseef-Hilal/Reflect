@@ -383,11 +383,12 @@ class GeneralCommands(Cog):
             features += feature.replace("_", " ").title()
             features += "\n"
 
-        card = card.add_field(
-            name="Server Features",
-            value=features,
-            inline=False
-        )
+        if features:
+            card = card.add_field(
+                name="Server Features",
+                value=features,
+                inline=False
+            )
 
         # Send embed
         await res.edit_original_message(embed=card)
@@ -445,7 +446,7 @@ class GeneralCommands(Cog):
 
         # Confirm params
         if not user:
-            user: Member = self._bot.GUILD.get_member(ctx.author.id)
+            user: Member = ctx.guild.get_member(ctx.author.id)
 
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
@@ -546,7 +547,7 @@ class GeneralCommands(Cog):
 
         # Confirm params
         if not user:
-            user: Member = self._bot.GUILD.get_member(ctx.author.id)
+            user: Member = ctx.guild.get_member(ctx.author.id)
 
         # Send embed
         await ctx.respond(
