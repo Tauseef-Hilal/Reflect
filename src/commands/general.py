@@ -72,7 +72,7 @@ async def has_permissions(
     except AttributeError:
         if not await bot.is_owner(ctx.author):
             missing.append(perm)
-            
+
     # Return true if the author has all the required permissions
     if not missing:
         return True
@@ -107,7 +107,7 @@ class GeneralCommands(Cog):
         super().__init__()
         self._bot = bot
 
-    @slash_command(name="embed" )
+    @slash_command(name="embed")
     async def _embed(self, ctx: ApplicationContext) -> None:
         """
         Build an embedded message
@@ -254,7 +254,29 @@ class GeneralCommands(Cog):
         downvote = self._bot.emoji_group.get_emoji("downvote")
 
         # Suggestions channel
-        channel: TextChannel = self._bot.get_channel(SUGGESTIONS_CHANNEL_ID)
+        try:
+            collection = self._bot.db.get_collection(str(ctx.guild.id))
+            channel = self._bot.get_channel(
+                collection.find_one()["channel_ids"]["suggestions_channel"]
+            )
+        except KeyError:
+            logging.warning("Suggestions channel not set")
+
+            emoji = self._bot.emoji_group.get_emoji("warning")
+            for channel in self._bot. \
+                    get_guild(int(collection.name)).text_channels:
+                if channel.can_send(Embed(title="1")):
+                    break
+
+            await channel.send(
+                embed=Embed(
+                    description=f"{emoji} Suggestions channel is not set up. "
+                                "Please set it up first using `/setup` "
+                                "using `/setup` command.",
+                    color=Colors.RED
+                )
+            )
+            return
 
         # Send suggestion
         msg: Message = await channel.send(

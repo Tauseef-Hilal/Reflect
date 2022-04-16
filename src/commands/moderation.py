@@ -160,12 +160,16 @@ class ModerationCommands(Cog):
         # Send log to staff channel
         emoji = self._bot.emoji_group.get_emoji("rules")
         embed = Embed(
-            title=f"Moderation log",
             description=f"{member.mention} was kicked out by "
-                        f"{ctx.author.mention}\n**Reason**: "
-                        f"{reason if reason else 'None provided'}",
+                        f"{ctx.author.mention}",
             color=Colors.RED,
             timestamp=datetime.now()
+        ).add_field(
+            name="Reason",
+            value=f"{reason if reason else 'No reason provided.'}"
+        ).set_author(
+            name="Modlogs",
+            icon_url=self._bot.user.display_avatar
         ).set_thumbnail(url=emoji.url)
 
         await ctx.respond(embed=embed, delete_after=3)
@@ -222,12 +226,16 @@ class ModerationCommands(Cog):
         # Send log to staff channel
         emoji = self._bot.emoji_group.get_emoji("rules")
         embed = Embed(
-            title=f"Moderation log",
             description=f"{member.mention} was banned by "
-                        f"{ctx.author.mention}\n**Reason**: "
-                        f"{reason if reason else 'None provided'}",
+                        f"{ctx.author.mention}",
             color=Colors.RED,
             timestamp=datetime.now()
+        ).add_field(
+            name="Reason",
+            value=f"{reason if reason else 'No reason provided.'}"
+        ).set_author(
+            name="Modlogs",
+            icon_url=self._bot.user.display_avatar
         ).set_thumbnail(url=emoji.url)
 
         await ctx.respond(embed=embed, delete_after=3)
@@ -299,12 +307,16 @@ class ModerationCommands(Cog):
         # Send log to staff channel
         emoji = self._bot.emoji_group.get_emoji("rules")
         embed = Embed(
-            title=f"Moderation log",
             description=f"{member.mention} was timed out by "
-                        f"{ctx.author.mention} for {duration} "
-                        f"minutes\n**Reason**: "
-                        f"{reason if reason else 'None provided'}",
-            color=Colors.RED
+                        f"{ctx.author.mention}",
+            color=Colors.RED,
+            timestamp=datetime.now()
+        ).add_field(
+            name="Reason",
+            value=f"{reason if reason else 'No reason provided.'}"
+        ).set_author(
+            name="Modlogs",
+            icon_url=self._bot.user.display_avatar
         ).set_thumbnail(url=emoji.url)
 
         await ctx.respond(embed=embed, delete_after=3)

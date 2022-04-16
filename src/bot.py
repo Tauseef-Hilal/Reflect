@@ -263,8 +263,9 @@ class ICodeBot(Bot):
         roles_channel: TextChannel = self.get_channel(SELF_ROLES_CHANNEL_ID)
 
         # Give iCodian role to member
-        role: Role = console.guild.get_role(ICODIAN_ROLE_ID)
+        role: Role = member.guild.get_role(ICODIAN_ROLE_ID)
         await member.add_roles(role)
+
         # Send embed to general-chat channel
         await g_chat_channel.send(
             content=member.mention,
@@ -387,25 +388,37 @@ class ICodeBot(Bot):
         """
 
         # Get staff channel
-        staff_channel: TextChannel = self.get_channel(STAFF_CHANNEL_ID)
+        try:
+            collection = self.db.get_collection(str(message.guild.id))
+            channel = self.get_channel(
+                collection.find_one()["channel_ids"]["modlogs_channel"]
+            )
+        except KeyError:
+            return
 
         embeds = message.embeds
         embeds.insert(
             0,
             Embed(
-                title=f"{message.author.display_name}'s message was deleted",
-                description="__**Message Content:**__"
-                f"{message.content}\n\_\_\_",
                 color=Colors.RED,
                 timestamp=datetime.now()
-            ).set_footer(
+            ).set_author(
+                name=(f"{message.author.display_name}'s "
+                      "message was deleted"),
+                icon_url=message.author.display_avatar
+            )
+            .set_footer(
                 text="Message embeds are listed below",
                 icon_url=self.user.display_avatar
+            ).add_field(
+                name="Message Content",
+                value=message.content if message.content else "[No content]",
+                inline=False
             )
         )
 
         # Send msg to staff channel
-        await staff_channel.send(
+        await channel.send(
             embeds=embeds
         )
 

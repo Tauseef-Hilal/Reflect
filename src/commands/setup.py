@@ -367,11 +367,11 @@ class SetupCommands(Cog):
                  }
             )
         # ---
-        emoji = self._bot.emoji_group.get_emoji("loading_dots")
+        emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
                 description=f"Set {channel.mention} for member "
-                            f"join/leave events{emoji}",
+                            f"join/leave events {emoji}",
                 color=Colors.GREEN
             ),
             delete_after=2
@@ -453,11 +453,11 @@ class SetupCommands(Cog):
                  }
             )
         # ---
-        emoji = self._bot.emoji_group.get_emoji("loading_dots")
+        emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
-                description=f"Set {channel.mention} for member "
-                            f"join/leave events{emoji}",
+                description=f"Set {channel.mention} for suggestions "
+                            f"{emoji}",
                 color=Colors.GREEN
             ),
             delete_after=2
