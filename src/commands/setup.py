@@ -133,7 +133,7 @@ class SetupCommands(Cog):
             ) = None
     ) -> None:
         """
-        Setup a channel for moderation logs
+        Setup a channel for bump reminder
 
         Args:
             ctx (ApplicationContext)
@@ -291,7 +291,7 @@ class SetupCommands(Cog):
             delete_after=2
         )
 
-    @ SETUP.command(name="console")
+    @SETUP.command(name="console")
     async def _console(
             self,
             ctx: ApplicationContext,
@@ -302,7 +302,7 @@ class SetupCommands(Cog):
             ) = None
     ) -> None:
         """
-        Setup a channel for moderation logs
+        Setup a channel for member join/leave events
 
         Args:
             ctx (ApplicationContext)
@@ -362,6 +362,92 @@ class SetupCommands(Cog):
                     {
                         "channel_ids": {
                             "console_channel": channel.id
+                        }
+                    }
+                 }
+            )
+        # ---
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
+        await res.edit_original_message(
+            embed=Embed(
+                description=f"Set {channel.mention} for member "
+                            f"join/leave events{emoji}",
+                color=Colors.GREEN
+            ),
+            delete_after=2
+        )
+
+    @SETUP.command(name="suggestions")
+    async def _suggestions(
+            self,
+            ctx: ApplicationContext,
+            channel: Option(
+                TextChannel,
+                "The channel where you want to put suggestions. "
+                "Defaults to the current channel"
+            ) = None
+    ) -> None:
+        """
+        Setup a channel for suggestions
+
+        Args:
+            ctx (ApplicationContext)
+            channel (TextChannel): The welcome channel
+        """
+
+        # Check for maintenance and permissions
+        if (
+            not await has_permissions(
+                self._bot,
+                ctx,
+                **{"administrator": True}
+            )
+            or under_maintenance(self._bot, ctx)
+        ):
+            return
+
+        # Select current channel if no channel provided
+        if not channel:
+            channel: TextChannel = ctx.channel
+
+        # ---
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
+        res: Interaction = await ctx.respond(
+            embed=Embed(
+                description=f"Setting {channel.mention} for suggestions "
+                            f"{emoji}",
+                color=Colors.GOLD
+            )
+        )
+
+        guild: Guild = ctx.guild
+        if str(guild.id) not in self._bot.db.list_collection_names():
+            collection = self._bot.db.create_collection(str(guild.id))
+            collection.insert_one(
+                {
+                    "channel_ids": {
+                        "suggestions_channel": channel.id
+                    }
+                }
+            )
+            return
+
+        collection = self._bot.db.get_collection(str(guild.id))
+        if "channel_ids" in collection.find_one():
+            channels_dict = collection.find_one()["channel_ids"]
+            channels_dict["suggestions_channel"] = channel.id
+
+            collection.update_one(
+                collection.find_one(),
+                {"$set": {"channel_ids": channels_dict}}
+            )
+        else:
+            collection.update_one(
+                collection.find_one(),
+                {"$set":
+                    {
+                        "channel_ids": {
+                            "suggestions_channel": channel.id
                         }
                     }
                  }
