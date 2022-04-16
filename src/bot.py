@@ -7,6 +7,7 @@ from re import (
     findall
 )
 
+from pymongo.collection import Collection
 from discord import (
     Bot,
     Game,
@@ -23,6 +24,8 @@ from discord import (
     RawReactionActionEvent,
 )
 
+
+from .utils.db import get_database
 from .utils.color import Colors
 from .utils.bump_timer import BumpTimer
 from .utils.emoji import EmojiGroup
@@ -47,8 +50,6 @@ from .utils.constants import (
     TYPESCRIPT_ROLE_ID,
     WELCOME_MESSAGES,
     FAREWELL_MESSAGES,
-    CONSOLE_CHANNEL_ID,
-    TERMINAL_CHANNEL_ID,
     SELF_ROLES_CHANNEL_ID,
     MAINTENANCE_CHANNEL_ID,
     INTRODUCTION_CHANNEL_ID,
@@ -89,9 +90,13 @@ class ICodeBot(Bot):
         logging.info(msg="Initializing Filter")
         self.filter = Filter()
 
+        # Get database
+        logging.info("Getting database")
+        self.db = get_database(MONGO_DB_URI)
+
         # Create BumpTimer instance
         logging.info(msg="Initializing BumpTimer")
-        self.bump_timer = BumpTimer(host=MONGO_DB_URI)
+        self.bump_timer = BumpTimer()
 
         # Set up reaction roles
         logging.info("Setting up reaction roles")
@@ -115,14 +120,23 @@ class ICodeBot(Bot):
         }
 
         # Start bump timer
-        logging.info("Getting previous bump time")
-        previous_bump_time = self.bump_timer.get_bump_time()
-        logging.info(f"Previous bump time: {previous_bump_time}")
+        for collection_name in self.db.list_collection_names():
+            collection = self.db.get_collection(collection_name)
 
-        delta = (datetime.now() - previous_bump_time).total_seconds()
-        delay = 0 if delta >= 7200 else (7200 - delta)
+            logging.info(f"Getting previous bump time for {collection_name}")
 
-        self.dispatch("bump_done", int(delay))
+            try:
+                previous_bump_time = self.bump_timer.get_bump_time(collection)
+            except (TypeError, KeyError):
+                logging.warning("No bump data found")
+                continue
+
+            logging.info(f"Previous bump time: {previous_bump_time}")
+
+            delta = (datetime.now() - previous_bump_time).total_seconds()
+            delay = 0 if delta >= 7200 else (7200 - delta)
+
+            self.dispatch("bump_done", collection, int(delay))
 
         # Set maintenance and staff channel
         self.MAINTENANCE_CHANNEL = self.get_channel(MAINTENANCE_CHANNEL_ID)
@@ -220,17 +234,15 @@ class ICodeBot(Bot):
         """
 
         # Set up required channels
-        console: TextChannel = self.get_channel(CONSOLE_CHANNEL_ID)
-        g_chat_channel: TextChannel = self.get_channel(GENERAL_CHAT_CHANNEL_ID)
-        intro_channel: TextChannel = self.get_channel(INTRODUCTION_CHANNEL_ID)
-        rules_channel: TextChannel = self.get_channel(SERVER_RULES_CHANNEL_ID)
-        roles_channel: TextChannel = self.get_channel(SELF_ROLES_CHANNEL_ID)
+        try:
+            collection = self.db.get_collection(str(member.guild.id))
+            console = self.get_channel(
+                collection.find_one()["channel_ids"]["console_channel"]
+            )
+        except KeyError:
+            return
 
-        # Give iCodian role to member
-        role: Role = console.guild.get_role(ICODIAN_ROLE_ID)
-        await member.add_roles(role)
-
-        # Send embed with random welcome msg to receiver channel
+        # Send embed with random welcome msg to console channel
         await console.send(
             embed=Embed(
                 description=choice(
@@ -242,6 +254,17 @@ class ICodeBot(Bot):
             )
         )
 
+        if member.guild.id != ICODE_GUILD_ID:
+            return
+
+        g_chat_channel: TextChannel = self.get_channel(GENERAL_CHAT_CHANNEL_ID)
+        intro_channel: TextChannel = self.get_channel(INTRODUCTION_CHANNEL_ID)
+        rules_channel: TextChannel = self.get_channel(SERVER_RULES_CHANNEL_ID)
+        roles_channel: TextChannel = self.get_channel(SELF_ROLES_CHANNEL_ID)
+
+        # Give iCodian role to member
+        role: Role = console.guild.get_role(ICODIAN_ROLE_ID)
+        await member.add_roles(role)
         # Send embed to general-chat channel
         await g_chat_channel.send(
             content=member.mention,
@@ -270,11 +293,17 @@ class ICodeBot(Bot):
             member (Member): Leaving member
         """
 
-        # Set receiver channel
-        channel: TextChannel = self.get_channel(CONSOLE_CHANNEL_ID)
+        # Set up required channels
+        try:
+            collection = self.db.get_collection(str(member.guild.id))
+            console = self.get_channel(
+                collection.find_one()["channel_ids"]["console_channel"]
+            )
+        except KeyError:
+            return
 
         # Send embed with random farewell msg to receiver channel
-        await channel.send(
+        await console.send(
             embed=Embed(
                 description=choice(
                     FAREWELL_MESSAGES
@@ -285,7 +314,7 @@ class ICodeBot(Bot):
             )
         )
 
-    async def on_bump_done(self, delay: int) -> None:
+    async def on_bump_done(self, collection: Collection, delay: int) -> None:
         """
         Called when a user bumps the server
 
@@ -300,11 +329,39 @@ class ICodeBot(Bot):
         await asyncio.sleep(delay=delay)
         logging.info("Timer complete")
 
-        # Set up receiver channel
-        channel: TextChannel = self.get_channel(TERMINAL_CHANNEL_ID)
+        # Get ids
+        bumper = None
+        try:
+            # Set up receiver channel
+            channel_ids = collection.find_one()["channel_ids"]
+            channel: TextChannel = self.get_channel(
+                channel_ids["bump_reminder_channel"]
+            )
 
-        # Get bumper role
-        bumper: Role = channel.guild.get_role(BUMPER_ROLE_ID)
+            # Get bumper role
+            role_ids = collection.find_one()["role_ids"]
+            bumper: Role = channel.guild.get_role(
+                role_ids["server_bumper_role"]
+            )
+        except KeyError:
+            logging.warning("Reminder channel or bumper role not set")
+
+            if not channel:
+                emoji = self.emoji_group.get_emoji("warning")
+                for channel in self.get_guild(int(collection.name)).text_channels:
+                    if channel.can_send(Embed(title="1")):
+                        break
+
+                await channel.send(
+                    embed=Embed(
+                        description=f"{emoji} I defaulted the reminder to "
+                                    "this channel cause it's not set up. "
+                                    "Please setup the bump timer first "
+                                    "using `/setup` command.",
+                        color=Colors.RED
+                    )
+                )
+                return
 
         # Get `reminder` emoji
         reminder: Emoji = self.emoji_group.get_emoji("reminder")
@@ -313,7 +370,7 @@ class ICodeBot(Bot):
         logging.info(f"Sending reminder to {channel} channel")
 
         await channel.send(
-            content=f"{bumper.mention}",
+            content=f"{bumper.mention if bumper else 'NO ROLE'}",
             embed=Embed(
                 title=f"Bump Reminder {reminder}",
                 description="Help grow this server. Run `/bump`",
@@ -361,12 +418,29 @@ class ICodeBot(Bot):
         """
 
         # Update bump timer
-        if message.author.id == DISBOARD_ID \
-                and message.guild == self.ICODE_GUILD:
+        if message.author.id == DISBOARD_ID:
             if "Bump done" in message.embeds[0].description:
                 logging.info("Updating bump time")
-                self.bump_timer.update_bump_time(datetime.now())
-                self.dispatch("bump_done", 7200)
+                collection = self.db.get_collection(str(message.guild.id))
+
+                try:
+                    self.bump_timer.update_bump_time(
+                        collection, datetime.now()
+                    )
+                except TypeError:
+                    logging.warning("Cant update bump time")
+
+                    emoji = self.emoji_group.get_emoji("red_cross")
+                    await message.channel.send(
+                        embed=Embed(
+                            description=f"{emoji} Cannot set bump reminder. "
+                                        "Please setup bump reminder first " "using `/setup` command",
+                            color=Colors.RED
+                        ),
+                        delete_after=5
+                    )
+                else:
+                    self.dispatch("bump_done", collection, 7200)
             return
 
         # AEWN: Animated Emojis Without Nitro
@@ -442,7 +516,7 @@ class ICodeBot(Bot):
             # Don't do anything if emoji was not found
             except AttributeError as e:
                 logging.error(e)
-                
+
         print("After:", msg)
 
         # Return for no emoji

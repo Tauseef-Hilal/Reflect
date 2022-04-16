@@ -1,37 +1,32 @@
 import datetime
-import pymongo
+
+from pymongo.database import Database
+from pymongo.collection import Collection
 
 
-class BumpTimer(pymongo.MongoClient):
+class BumpTimer:
     """
     Feature: Bump Reminder
     """
 
-    def __init__(self, host, **kwargs) -> None:
-        """
-        Initialize
-
-        Args:
-            host (str): MONGO_DB URI
-        """
-        super().__init__(host, **kwargs)
-        self.DB = self["bump_time"]
-        self.COLLECTION = self.DB["bump"]
-
-    def update_bump_time(self, timestamp: datetime.datetime) -> None:
+    def update_bump_time(
+        self,
+        collection: Collection,
+        timestamp: datetime.datetime
+    ) -> None:
         """
         Update bump time
 
         Args:
-            timestamp (datetime): Data to write to the file
+            timestamp (datetime): Bump timestamp
         """
 
-        self.COLLECTION.update_one(
-            self.COLLECTION.find_one(),
-            {"$set": {"timestamp": timestamp}}
+        collection.update_one(
+            collection.find_one(),
+            {"$set": {"bump_timestamp": timestamp}}
         )
 
-    def get_bump_time(self) -> datetime.datetime:
+    def get_bump_time(self, collection: Collection) -> datetime.datetime:
         """
         Read timestamp of previous bump 
 
@@ -39,4 +34,4 @@ class BumpTimer(pymongo.MongoClient):
             datetime.datetime: Most recent bump time
         """
 
-        return self.COLLECTION.find_one()["timestamp"]
+        return collection.find_one()["bump_timestamp"]

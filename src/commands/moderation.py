@@ -154,43 +154,41 @@ class ModerationCommands(Cog):
         ):
             return
 
-        # Kick the member if its not the owner
-        if not member == ctx.guild.owner:
-            await member.kick(reason=reason)
+        # Kick the member
+        await member.kick(reason=reason)
 
-            # Send log to staff channel
-            emoji = self._bot.emoji_group.get_emoji("rules")
-            embed = Embed(
-                title=f"Moderation log",
-                description=f"{member} was kicked out by {ctx.author}\n"
-                            f"Reason: {reason if reason else 'None provided'}",
-                color=Colors.RED
-            ).set_thumbnail(url=emoji.url)
+        # Send log to staff channel
+        emoji = self._bot.emoji_group.get_emoji("rules")
+        embed = Embed(
+            title=f"Moderation log",
+            description=f"{member.mention} was kicked out by "
+                        f"{ctx.author.mention}\n**Reason**: "
+                        f"{reason if reason else 'None provided'}",
+            color=Colors.RED,
+            timestamp=datetime.now()
+        ).set_thumbnail(url=emoji.url)
 
-            await ctx.respond(embed=embed, delete_after=4)
-            await self._bot.STAFF_CHANNEL.send(embed=embed)
+        await ctx.respond(embed=embed, delete_after=3)
 
-        # Show error message if the member to be kicked is th owner
-        else:
-            emoji = self._bot.emoji_group.get_emoji("red_cross")
-            await ctx.respond(
+        try:
+            collection = self._bot.db.get_collection(str(ctx.guild_id))
+            channel = self._bot.get_channel(
+                collection.find_one()["channel_ids"]["modlogs_channel"]
+            )
+        except KeyError:
+            emoji = self._bot.emoji_group.get_emoji("warning")
+            await ctx.channel.send(
                 embed=Embed(
-                    title=f"Permission error {emoji}",
-                    description=f"You can't kick the owner",
+                    description=f"{emoji} No channel is set for modlogs. "
+                                "Please setup a channel for modlogs "
+                                "by using `/setup` command",
                     color=Colors.RED
                 ),
-                delete_after=3
+                delete_after=5
             )
+            return
 
-            # Send log to staff channel
-            emoji = self._bot.emoji_group.get_emoji("warning")
-            await self._bot.STAFF_CHANNEL.send(
-                embed=Embed(
-                    title=f"Alert",
-                    description=f"{member} tried to kick the owner!",
-                    color=Colors.RED
-                ).set_thumbnail(url=emoji.url)
-            )
+        await channel.send(embed=embed)
 
     @slash_command(name="ban")
     async def _ban(
@@ -218,43 +216,41 @@ class ModerationCommands(Cog):
         ):
             return
 
-        # Ban the member if not owner
-        if not member == ctx.guild.owner:
-            await member.ban(delete_message_days=0, reason=reason)
+        # Ban the member
+        await member.ban(reason=reason)
 
-            # Send log to the staff channel
-            emoji = self._bot.emoji_group.get_emoji("rules")
-            embed = Embed(
-                title=f"Moderation log",
-                description=f"{member} was banned by {ctx.author}\n"
-                            f"Reason: {reason if reason else 'None provided'}",
-                color=Colors.RED
-            ).set_thumbnail(url=emoji.url)
+        # Send log to staff channel
+        emoji = self._bot.emoji_group.get_emoji("rules")
+        embed = Embed(
+            title=f"Moderation log",
+            description=f"{member.mention} was banned by "
+                        f"{ctx.author.mention}\n**Reason**: "
+                        f"{reason if reason else 'None provided'}",
+            color=Colors.RED,
+            timestamp=datetime.now()
+        ).set_thumbnail(url=emoji.url)
 
-            await ctx.respond(embed=embed, delete_after=4)
-            await self._bot.STAFF_CHANNEL.send(embed=embed)
+        await ctx.respond(embed=embed, delete_after=3)
 
-        # Otherwise show error message
-        else:
-            emoji = self._bot.emoji_group.get_emoji("red_cross")
-            await ctx.respond(
+        try:
+            collection = self._bot.db.get_collection(str(ctx.guild_id))
+            channel = self._bot.get_channel(
+                collection.find_one()["channel_ids"]["modlogs_channel"]
+            )
+        except KeyError:
+            emoji = self._bot.emoji_group.get_emoji("warning")
+            await ctx.channel.send(
                 embed=Embed(
-                    title=f"Permission error {emoji}",
-                    description=f"You can't ban the owner",
+                    description=f"{emoji} No channel is set for modlogs. "
+                                "Please setup a channel for modlogs "
+                                "by using `/setup` command",
                     color=Colors.RED
                 ),
-                delete_after=3
+                delete_after=5
             )
+            return
 
-            # Send log to staff channel
-            emoji = self._bot.emoji_group.get_emoji("warning")
-            await self._bot.STAFF_CHANNEL.send(
-                embed=Embed(
-                    title=f"Alert",
-                    description=f"{member} tried to ban the owner!",
-                    color=Colors.RED
-                ).set_thumbnail(url=emoji.url)
-            )
+        await channel.send(embed=embed)
 
     @slash_command(name="timeout")
     async def _timeout(
@@ -294,47 +290,44 @@ class ModerationCommands(Cog):
             )
             return
 
-        # Timeout the user if not owner
-        if not member == ctx.guild.owner:
-            await member.timeout_for(
-                duration=timedelta(minutes=duration),
-                reason=reason
+        # Timeout the user
+        await member.timeout_for(
+            duration=timedelta(minutes=duration),
+            reason=reason
+        )
+
+        # Send log to staff channel
+        emoji = self._bot.emoji_group.get_emoji("rules")
+        embed = Embed(
+            title=f"Moderation log",
+            description=f"{member.mention} was timed out by "
+                        f"{ctx.author.mention} for {duration} "
+                        f"minutes\n**Reason**: "
+                        f"{reason if reason else 'None provided'}",
+            color=Colors.RED
+        ).set_thumbnail(url=emoji.url)
+
+        await ctx.respond(embed=embed, delete_after=3)
+
+        try:
+            collection = self._bot.db.get_collection(str(ctx.guild_id))
+            channel = self._bot.get_channel(
+                collection.find_one()["channel_ids"]["modlogs_channel"]
             )
-
-            # Send log to staff channel
-            emoji = self._bot.emoji_group.get_emoji("rules")
-            embed = Embed(
-                title=f"Moderation log",
-                description=f"{member} was timed out by {ctx.author} for "
-                            f"{duration} minutes\n"
-                            f"Reason: {reason if reason else 'None provided'}",
-                color=Colors.RED
-            ).set_thumbnail(url=emoji.url)
-
-            await ctx.respond(embed=embed, delete_after=4)
-            await self._bot.STAFF_CHANNEL.send(embed=embed)
-
-        # Otherwise show error message
-        else:
-            emoji = self._bot.emoji_group.get_emoji("red_cross")
-            await ctx.respond(
+        except KeyError:
+            emoji = self._bot.emoji_group.get_emoji("warning")
+            await ctx.channel.send(
                 embed=Embed(
-                    title=f"Permission error {emoji}",
-                    description=f"You can't timeout the owner",
+                    description=f"{emoji} No channel is set for modlogs. "
+                                "Please setup a channel for modlogs "
+                                "by using `/setup` command",
                     color=Colors.RED
                 ),
-                delete_after=3
+                delete_after=5
             )
+            return
 
-            # Send log to staff channel
-            emoji = self._bot.emoji_group.get_emoji("warning")
-            await self._bot.STAFF_CHANNEL.send(
-                embed=Embed(
-                    title=f"Alert",
-                    description=f"{member} tried to timeout the owner!",
-                    color=Colors.RED
-                ).set_thumbnail(url=emoji.url)
-            )
+        await channel.send(embed=embed)
 
     @slash_command(name="lock")
     async def _lock(self, ctx: ApplicationContext) -> None:
