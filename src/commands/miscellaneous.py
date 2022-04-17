@@ -19,9 +19,9 @@ from discord.ext.commands import (
 
 from ..bot import ICodeBot
 from ..utils.color import Colors
-from .general import (
-    under_maintenance,
-    has_permissions
+from ..utils.checks import (
+    maintenance_check,
+    permission_check
 )
 
 
@@ -41,6 +41,7 @@ class MiscellaneousCommands(Cog):
         self._bot = bot
 
     @slash_command(name="toggle-maintenance-mode")
+    @permission_check(bot_owner=True)
     async def _toggle_maintenance_mode(self, ctx: ApplicationContext) -> None:
         """
         Turn maintenance mode on or off
@@ -48,10 +49,6 @@ class MiscellaneousCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
-
-        # Check
-        if not await has_permissions(self._bot, ctx, **{"bot_owner": True}):
-            return
 
         # Respond with an embed and toggle maintenance mode
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
@@ -98,6 +95,8 @@ class MiscellaneousCommands(Cog):
         logging.info("Toggled maintenance mode")
 
     @slash_command(name="exec")
+    @maintenance_check()
+    @permission_check(bot_owner=True)
     async def _exec(self, ctx: ApplicationContext) -> None:
         """
         Execute python code
@@ -105,17 +104,6 @@ class MiscellaneousCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
-
-        # Check for permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"bot_owner": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
 
         # Wait for the user to send a codeblock
         try:

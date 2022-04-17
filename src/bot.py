@@ -24,12 +24,12 @@ from discord import (
     RawReactionActionEvent,
 )
 
-
+from .utils.checks import maintenance_check
 from .utils.db import get_database
-from .utils.color import Colors
-from .utils.bump_timer import BumpTimer
-from .utils.emoji import EmojiGroup
 from .utils.filter import Filter
+from .utils.color import Colors
+from .utils.emoji import EmojiGroup
+from .utils.bump_timer import BumpTimer
 from .utils.env import (
     ICODE_GUILD_ID,
     MONGO_DB_URI
@@ -171,7 +171,8 @@ class ICodeBot(Bot):
             embed=Embed(
                 title=f"Maintenance Break {emoji}",
                 description="iCODE is under maintenance. Commands will work\n"
-                            f"only in {self.MAINTENANCE_CHANNEL} channel.",
+                            f"only in the {self.MAINTENANCE_CHANNEL} channel "
+                            "of iCODE server.",
                 color=Colors.GOLD
             ),
             delete_after=5
@@ -386,6 +387,9 @@ class ICodeBot(Bot):
         Args:
             message (Message): The deleted message
         """
+        # Return if its iCODE's msg
+        if message.author == self.user:
+            return
 
         # Get staff channel
         try:
@@ -487,7 +491,6 @@ class ICodeBot(Bot):
         if findall(r"(<a?:\w+:\d+>)+", message.content):
             return
 
-        print("Before:", message.content)
         # Remove codeblocks from message
         msg = message.content
         codeblocks: list = findall(r"(`{1,3}.+?`{1,3})+", msg, flags=DOTALL)
@@ -529,8 +532,6 @@ class ICodeBot(Bot):
             # Don't do anything if emoji was not found
             except AttributeError as e:
                 logging.error(e)
-
-        print("After:", msg)
 
         # Return for no emoji
         if not temp:

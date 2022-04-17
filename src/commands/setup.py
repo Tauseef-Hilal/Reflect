@@ -12,9 +12,9 @@ from discord import (
 
 from ..utils.color import Colors
 from ..bot import ICodeBot
-from .general import (
-    under_maintenance,
-    has_permissions
+from ..utils.checks import (
+    maintenance_check,
+    permission_check
 )
 
 
@@ -37,6 +37,8 @@ class SetupCommands(Cog):
         self._bot = bot
 
     @SETUP.command(name="modlogs")
+    @maintenance_check()
+    @permission_check(administrator=True)
     async def _modlogs(
             self,
             ctx: ApplicationContext,
@@ -53,17 +55,6 @@ class SetupCommands(Cog):
             ctx (ApplicationContext)
             channel (TextChannel): The log channel
         """
-
-        # Check for maintenance and permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"administrator": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
 
         # Select current channel if no channel provided
         if not channel:
@@ -123,6 +114,8 @@ class SetupCommands(Cog):
         )
 
     @SETUP.command(name="bump-reminder")
+    @maintenance_check()
+    @permission_check(administrator=True)
     async def _bump_timer(
             self,
             ctx: ApplicationContext,
@@ -139,17 +132,6 @@ class SetupCommands(Cog):
             ctx (ApplicationContext)
             channel (TextChannel): The reminder channel
         """
-
-        # Check for maintenance and permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"administrator": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
 
         # Select current channel if no channel provided
         if not channel:
@@ -210,6 +192,8 @@ class SetupCommands(Cog):
         )
 
     @SETUP.command(name="bumper-role")
+    @maintenance_check()
+    @permission_check(administrator=True)
     async def _bumper_role(
             self,
             ctx: ApplicationContext,
@@ -225,17 +209,6 @@ class SetupCommands(Cog):
             ctx (ApplicationContext)
             role (Role): The bumper role
         """
-
-        # Check for maintenance and permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"administrator": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
 
         # ---
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
@@ -292,6 +265,8 @@ class SetupCommands(Cog):
         )
 
     @SETUP.command(name="console")
+    @maintenance_check()
+    @permission_check(administrator=True)
     async def _console(
             self,
             ctx: ApplicationContext,
@@ -308,17 +283,6 @@ class SetupCommands(Cog):
             ctx (ApplicationContext)
             channel (TextChannel): The welcome channel
         """
-
-        # Check for maintenance and permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"administrator": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
 
         # Select current channel if no channel provided
         if not channel:
@@ -378,6 +342,8 @@ class SetupCommands(Cog):
         )
 
     @SETUP.command(name="suggestions")
+    @maintenance_check()
+    @permission_check(administrator=True)
     async def _suggestions(
             self,
             ctx: ApplicationContext,
@@ -394,17 +360,6 @@ class SetupCommands(Cog):
             ctx (ApplicationContext)
             channel (TextChannel): The welcome channel
         """
-
-        # Check for maintenance and permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"administrator": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
 
         # Select current channel if no channel provided
         if not channel:

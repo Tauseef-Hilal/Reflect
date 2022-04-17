@@ -10,10 +10,8 @@ from discord import (
     Member,
     Message,
     Option,
-    Permissions,
     Interaction,
     Status,
-    TextChannel,
     AllowedMentions,
     ApplicationContext
 )
@@ -22,74 +20,14 @@ from discord.ext.commands import (
     slash_command
 )
 
-
 from ..bot import ICodeBot
 from ..utils.color import Colors
 from ..utils.emoji import EmojiGroup
-from ..utils.constants import ANNOUNCEMENTS_CHANNEL_ID, SUGGESTIONS_CHANNEL_ID
-
-
-def under_maintenance(bot, ctx: ApplicationContext) -> bool:
-    """
-    Check if the bot is under maintenance
-
-    Args:
-        `channel` (TextChannel): The channel from which a cmd was run
-
-    Returns:
-        bool: True if under maintenance
-    """
-
-    if (bot.MAINTENANCE_MODE
-            and ctx.channel != bot.MAINTENANCE_CHANNEL):
-        bot.dispatch("maintenance", ctx)
-        return True
-    return False
-
-
-async def has_permissions(
-        bot: ICodeBot,
-        ctx: ApplicationContext,
-        **perms) -> bool:
-    """
-    Check whether a member has required permissions to
-    run a command
-
-    Returns:
-        bool: True if the member has all of the perms
-    """
-
-    # Get channel and permissions of the author in that channel
-    channel: TextChannel = ctx.channel
-    permissions: Permissions = channel.permissions_for(ctx.author)
-
-    # Find missing permissions
-    try:
-        missing = []
-        for perm, value in perms.items():
-            if getattr(permissions, perm) != value:
-                missing.append(perm)
-    except AttributeError:
-        if not await bot.is_owner(ctx.author):
-            missing.append(perm)
-
-    # Return true if the author has all the required permissions
-    if not missing:
-        return True
-
-    # Otherwise show error message to the member
-    emoji = bot.emoji_group.get_emoji("red_cross")
-    await ctx.respond(
-        embed=Embed(
-            title=f"Permission Error {emoji}",
-            description="You do not have the permission"
-                        " to run this command",
-            color=Colors.RED
-        ),
-        delete_after=3
-    )
-
-    return False
+from ..utils.constants import ANNOUNCEMENTS_CHANNEL_ID
+from ..utils.checks import (
+    permission_check,
+    maintenance_check
+)
 
 
 class GeneralCommands(Cog):
@@ -108,6 +46,7 @@ class GeneralCommands(Cog):
         self._bot = bot
 
     @slash_command(name="embed")
+    @maintenance_check()
     async def _embed(self, ctx: ApplicationContext) -> None:
         """
         Build an embedded message
@@ -117,11 +56,6 @@ class GeneralCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
-
-        # Fire maintenance event if under maintenance
-        # and ctx.channel is not maintenance channel
-        if under_maintenance(self._bot, ctx):
-            return
 
         def check(message: Message) -> bool:
             return (message.author == ctx.author and
@@ -182,6 +116,7 @@ class GeneralCommands(Cog):
             await desc.delete()
 
     @slash_command(name="update-emojis")
+    @maintenance_check()
     async def _update_emojis(self, ctx: ApplicationContext) -> None:
         """
         Update server emojis.
@@ -189,11 +124,6 @@ class GeneralCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
-
-        # Fire maintenance event if under maintenance
-        # and ctx.channel is not maintenance channel
-        if under_maintenance(self._bot, ctx):
-            return
 
         logging.info("Updating server emojis")
 
@@ -224,6 +154,7 @@ class GeneralCommands(Cog):
         )
 
     @slash_command(name="suggest")
+    @maintenance_check()
     async def _suggest(
         self,
         ctx: ApplicationContext,
@@ -235,10 +166,6 @@ class GeneralCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
-
-        # Maintenance check
-        if under_maintenance(self._bot, ctx):
-            return
 
         # Respond
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
@@ -305,6 +232,7 @@ class GeneralCommands(Cog):
         )
 
     @slash_command(name="serverinfo")
+    @maintenance_check()
     async def _serverinfo(self, ctx: ApplicationContext) -> None:
         """
         Get information about the server
@@ -312,10 +240,6 @@ class GeneralCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
-
-        # Check for maintenance
-        if under_maintenance(self._bot, ctx):
-            return
 
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
@@ -416,6 +340,7 @@ class GeneralCommands(Cog):
         await res.edit_original_message(embed=card)
 
     @slash_command(name="icon")
+    @maintenance_check()
     async def _icon(self, ctx: ApplicationContext) -> None:
         """
         Get the icon of the server.
@@ -423,10 +348,6 @@ class GeneralCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
-
-        # Check for maintenance
-        if under_maintenance(self._bot, ctx):
-            return
 
         # Send embed
         await ctx.respond(
@@ -445,6 +366,7 @@ class GeneralCommands(Cog):
         )
 
     @slash_command(name="userinfo")
+    @maintenance_check()
     async def _userinfo(
         self,
         ctx: ApplicationContext,
@@ -461,10 +383,6 @@ class GeneralCommands(Cog):
             ctx (ApplicationContext)
             user (Member): The user whose info is to be fetched
         """
-
-        # Check for maintenance
-        if under_maintenance(self._bot, ctx):
-            return
 
         # Confirm params
         if not user:
@@ -546,6 +464,7 @@ class GeneralCommands(Cog):
         await res.edit_original_message(embed=card)
 
     @slash_command(name="avatar")
+    @maintenance_check()
     async def _avatar(
         self,
         ctx: ApplicationContext,
@@ -562,10 +481,6 @@ class GeneralCommands(Cog):
             ctx (ApplicationContext): 
             user (Option, optional): The user whose avatar you want. Defaults to None.
         """
-
-        # Check for maintenance
-        if under_maintenance(self._bot, ctx):
-            return
 
         # Confirm params
         if not user:
@@ -588,6 +503,7 @@ class GeneralCommands(Cog):
         )
 
     @slash_command(name="membercount")
+    @maintenance_check()
     async def _membercount(self, ctx: ApplicationContext) -> None:
         """
         Get the number of members in the guild.

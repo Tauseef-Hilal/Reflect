@@ -17,12 +17,13 @@ from discord import (
 from discord.ext.commands import (
     slash_command
 )
+from discord.errors import Forbidden
 
 from ..bot import ICodeBot
 from ..utils.color import Colors
-from .general import (
-    under_maintenance,
-    has_permissions
+from ..utils.checks import (
+    maintenance_check,
+    permission_check
 )
 
 
@@ -42,6 +43,8 @@ class ModerationCommands(Cog):
         self._bot = bot
 
     @slash_command(name="purge")
+    @maintenance_check()
+    @permission_check(kick_members=True)
     async def _purge(
         self,
         ctx: ApplicationContext,
@@ -55,18 +58,6 @@ class ModerationCommands(Cog):
             ctx (ApplicationContext):
             count (MessageCountConverter): Number of messages to delete
         """
-
-        # Check if the command invoker has the required permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"manage_messages": True,
-                   "read_message_history": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
 
         # Determine the integer value of count
         if count == "all":
@@ -129,6 +120,8 @@ class ModerationCommands(Cog):
         )
 
     @slash_command(name="kick")
+    @maintenance_check()
+    @permission_check(kick_members=True)
     async def _kick(
             self,
             ctx: ApplicationContext,
@@ -143,19 +136,21 @@ class ModerationCommands(Cog):
             member (Member): Member to be kicked
         """
 
-        # Check for permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"kick_members": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
-
         # Kick the member
-        await member.kick(reason=reason)
+        try:
+            await member.kick(reason=reason)
+        except Forbidden:
+            emoji = ctx.bot.emoji_group.get_emoji("red_cross")
+            await ctx.respond(
+                embed=Embed(
+                    title=f"Permission Error {emoji}",
+                    description="I do not have the required permissions"
+                                " to run this command.",
+                    color=Colors.RED
+                ),
+                delete_after=3
+            )
+            return
 
         # Send log to staff channel
         emoji = self._bot.emoji_group.get_emoji("rules")
@@ -195,6 +190,8 @@ class ModerationCommands(Cog):
         await channel.send(embed=embed)
 
     @slash_command(name="ban")
+    @maintenance_check()
+    @permission_check(ban_members=True)
     async def _ban(
             self,
             ctx: ApplicationContext,
@@ -209,19 +206,21 @@ class ModerationCommands(Cog):
             member (Member): Member to be banned
         """
 
-        # Check for permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"ban_members": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
-
         # Ban the member
-        await member.ban(reason=reason)
+        try:
+            await member.ban(reason=reason)
+        except Forbidden:
+            emoji = ctx.bot.emoji_group.get_emoji("red_cross")
+            await ctx.respond(
+                embed=Embed(
+                    title=f"Permission Error {emoji}",
+                    description="I do not have the required permissions"
+                                " to run this command.",
+                    color=Colors.RED
+                ),
+                delete_after=3
+            )
+            return
 
         # Send log to staff channel
         emoji = self._bot.emoji_group.get_emoji("rules")
@@ -261,6 +260,8 @@ class ModerationCommands(Cog):
         await channel.send(embed=embed)
 
     @slash_command(name="timeout")
+    @maintenance_check()
+    @permission_check(kick_members=True)
     async def _timeout(
             self,
             ctx: ApplicationContext,
@@ -276,17 +277,6 @@ class ModerationCommands(Cog):
             member (Member): Member to be kicked
         """
 
-        # Check for permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"kick_members": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
-
         # Show error message if the user is already timed out
         if member.timed_out:
             emoji = self._bot.emoji_group.get_emoji("red_cross")
@@ -299,10 +289,23 @@ class ModerationCommands(Cog):
             return
 
         # Timeout the user
-        await member.timeout_for(
-            duration=timedelta(minutes=duration),
-            reason=reason
-        )
+        try:
+            await member.timeout_for(
+                duration=timedelta(minutes=duration),
+                reason=reason
+            )
+        except Forbidden:
+            emoji = ctx.bot.emoji_group.get_emoji("red_cross")
+            await ctx.respond(
+                embed=Embed(
+                    title=f"Permission Error {emoji}",
+                    description="I do not have the required permissions"
+                                " to run this command.",
+                    color=Colors.RED
+                ),
+                delete_after=3
+            )
+            return
 
         # Send log to staff channel
         emoji = self._bot.emoji_group.get_emoji("rules")
@@ -342,6 +345,8 @@ class ModerationCommands(Cog):
         await channel.send(embed=embed)
 
     @slash_command(name="lock")
+    @maintenance_check()
+    @permission_check(manage_permissions=True)
     async def _lock(self, ctx: ApplicationContext) -> None:
         """
         Lock current channel
@@ -349,17 +354,6 @@ class ModerationCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
-
-        # Check for permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"manage_permissions": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
 
         # Get the channel from which the command was invoked
         channel: TextChannel = ctx.channel
@@ -393,6 +387,8 @@ class ModerationCommands(Cog):
         )
 
     @slash_command(name="unlock")
+    @maintenance_check()
+    @permission_check(manage_permissions=True)
     async def _unlock(self, ctx: ApplicationContext) -> None:
         """
         Unlock current channel
@@ -400,17 +396,6 @@ class ModerationCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
-
-        # Check for permissions
-        if (
-            not await has_permissions(
-                self._bot,
-                ctx,
-                **{"manage_permissions": True}
-            )
-            or under_maintenance(self._bot, ctx)
-        ):
-            return
 
         # Get the channel from which the command was invoked
         channel: TextChannel = ctx.channel
