@@ -101,7 +101,7 @@ class ICodeBot(Bot):
         # Set up reaction roles
         logging.info("Setting up reaction roles")
 
-        self.ICODE_GUILD = await self.fetch_guild(ICODE_GUILD_ID)
+        self.ICODE_GUILD = self.get_guild(ICODE_GUILD_ID)
         if not self.ICODE_GUILD:
             logging.warning("Couldn't find iCODE")
 
