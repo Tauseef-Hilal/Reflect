@@ -166,6 +166,26 @@ class GeneralCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
+        
+        # Suggestions channel
+        try:
+            collection = self._bot.db.get_collection(str(ctx.guild.id))
+            channel = self._bot.get_channel(
+                collection.find_one()["channel_ids"]["suggestions_channel"]
+            )
+        except (KeyError, TypeError):
+            logging.warning("Suggestions channel not set")
+
+            emoji = self._bot.emoji_group.get_emoji("warning")
+            await ctx.respond(
+                embed=Embed(
+                    description=f"{emoji} Suggestions channel is not set up. "
+                                "Please set it up first using `/setup` "
+                                "command.",
+                    color=Colors.RED
+                )
+            )
+            return
 
         # Respond
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
@@ -179,31 +199,6 @@ class GeneralCommands(Cog):
         # Reactions to add
         upvote = self._bot.emoji_group.get_emoji("upvote")
         downvote = self._bot.emoji_group.get_emoji("downvote")
-
-        # Suggestions channel
-        try:
-            collection = self._bot.db.get_collection(str(ctx.guild.id))
-            channel = self._bot.get_channel(
-                collection.find_one()["channel_ids"]["suggestions_channel"]
-            )
-        except KeyError:
-            logging.warning("Suggestions channel not set")
-
-            emoji = self._bot.emoji_group.get_emoji("warning")
-            for channel in self._bot. \
-                    get_guild(int(collection.name)).text_channels:
-                if channel.can_send(Embed(title="1")):
-                    break
-
-            await channel.send(
-                embed=Embed(
-                    description=f"{emoji} Suggestions channel is not set up. "
-                                "Please set it up first using `/setup` "
-                                "using `/setup` command.",
-                    color=Colors.RED
-                )
-            )
-            return
 
         # Send suggestion
         msg: Message = await channel.send(

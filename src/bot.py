@@ -9,6 +9,7 @@ from re import (
 
 from pymongo.collection import Collection
 from discord import (
+    ActivityType,
     Bot,
     Game,
     Role,
@@ -152,7 +153,7 @@ class ICodeBot(Bot):
         # Otherwise
         else:
             # Set Online (activity)
-            await self.change_presence(activity=Game(name="/emojis | .py"))
+            await self.change_presence(activity=Game(name="UMF 2022"))
 
     async def on_maintenance(self, ctx: ApplicationContext) -> None:
         """
@@ -240,7 +241,7 @@ class ICodeBot(Bot):
             console = self.get_channel(
                 collection.find_one()["channel_ids"]["console_channel"]
             )
-        except KeyError:
+        except (KeyError, TypeError):
             return
 
         # Send embed with random welcome msg to console channel
@@ -301,7 +302,8 @@ class ICodeBot(Bot):
             console = self.get_channel(
                 collection.find_one()["channel_ids"]["console_channel"]
             )
-        except KeyError:
+        except (KeyError, TypeError):
+            logging.warn("Console channel not set")
             return
 
         # Send embed with random farewell msg to receiver channel
@@ -345,7 +347,7 @@ class ICodeBot(Bot):
             bumper: Role = channel.guild.get_role(
                 role_ids["server_bumper_role"]
             )
-        except KeyError:
+        except (KeyError, TypeError):
             logging.warning("Reminder channel or bumper role not set")
 
             if not channel:

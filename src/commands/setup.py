@@ -80,28 +80,27 @@ class SetupCommands(Cog):
                     }
                 }
             )
-            return
-
-        collection = self._bot.db.get_collection(str(guild.id))
-        if "channel_ids" in collection.find_one():
-            channels_dict = collection.find_one()["channel_ids"]
-            channels_dict["modlogs_channel"] = channel.id
-
-            collection.update_one(
-                collection.find_one(),
-                {"$set": {"channel_ids": channels_dict}}
-            )
         else:
-            collection.update_one(
-                collection.find_one(),
-                {"$set":
-                    {
-                        "channel_ids": {
-                            "modlogs_channel": channel.id
+            collection = self._bot.db.get_collection(str(guild.id))
+            if "channel_ids" in collection.find_one():
+                channels_dict = collection.find_one()["channel_ids"]
+                channels_dict["modlogs_channel"] = channel.id
+
+                collection.update_one(
+                    collection.find_one(),
+                    {"$set": {"channel_ids": channels_dict}}
+                )
+            else:
+                collection.update_one(
+                    collection.find_one(),
+                    {"$set":
+                        {
+                            "channel_ids": {
+                                "modlogs_channel": channel.id
+                            }
                         }
                     }
-                 }
-            )
+                )
 
         emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
@@ -157,28 +156,27 @@ class SetupCommands(Cog):
                     }
                 }
             )
-            return
-
-        collection = self._bot.db.get_collection(str(guild.id))
-        if "channel_ids" in collection.find_one():
-            channels_dict = collection.find_one()["channel_ids"]
-            channels_dict["bump_reminder_channel"] = channel.id
-
-            collection.update_one(
-                collection.find_one(),
-                {"$set": {"channel_ids": channels_dict}}
-            )
         else:
-            collection.update_one(
-                collection.find_one(),
-                {"$set":
-                    {
-                        "channel_ids": {
-                            "bump_reminder_channel": channel.id
+            collection = self._bot.db.get_collection(str(guild.id))
+            if "channel_ids" in collection.find_one():
+                channels_dict = collection.find_one()["channel_ids"]
+                channels_dict["bump_reminder_channel"] = channel.id
+
+                collection.update_one(
+                    collection.find_one(),
+                    {"$set": {"channel_ids": channels_dict}}
+                )
+            else:
+                collection.update_one(
+                    collection.find_one(),
+                    {"$set":
+                        {
+                            "channel_ids": {
+                                "bump_reminder_channel": channel.id
+                            }
                         }
                     }
-                 }
-            )
+                )
 
         # ---
         emoji = self._bot.emoji_group.get_emoji("green_tick")
@@ -230,28 +228,27 @@ class SetupCommands(Cog):
                     }
                 }
             )
-            return
-
-        collection = self._bot.db.get_collection(str(guild.id))
-        if "role_ids" in collection.find_one():
-            roles_dict = collection.find_one()["role_ids"]
-            roles_dict["server_bumper_role"] = role.id
-
-            collection.update_one(
-                collection.find_one(),
-                {"$set": {"role_ids": roles_dict}}
-            )
         else:
-            collection.update_one(
-                collection.find_one(),
-                {"$set":
-                    {
-                        "role_ids": {
-                            "server_bumper_role": role.id
+            collection = self._bot.db.get_collection(str(guild.id))
+            if "role_ids" in collection.find_one():
+                roles_dict = collection.find_one()["role_ids"]
+                roles_dict["server_bumper_role"] = role.id
+
+                collection.update_one(
+                    collection.find_one(),
+                    {"$set": {"role_ids": roles_dict}}
+                )
+            else:
+                collection.update_one(
+                    collection.find_one(),
+                    {"$set":
+                        {
+                            "role_ids": {
+                                "server_bumper_role": role.id
+                            }
                         }
                     }
-                 }
-            )
+                )
 
         # ---
         emoji = self._bot.emoji_group.get_emoji("green_tick")
@@ -308,28 +305,27 @@ class SetupCommands(Cog):
                     }
                 }
             )
-            return
-
-        collection = self._bot.db.get_collection(str(guild.id))
-        if "channel_ids" in collection.find_one():
-            channels_dict = collection.find_one()["channel_ids"]
-            channels_dict["console_channel"] = channel.id
-
-            collection.update_one(
-                collection.find_one(),
-                {"$set": {"channel_ids": channels_dict}}
-            )
         else:
-            collection.update_one(
-                collection.find_one(),
-                {"$set":
-                    {
-                        "channel_ids": {
-                            "console_channel": channel.id
+            collection = self._bot.db.get_collection(str(guild.id))
+            if "channel_ids" in collection.find_one():
+                channels_dict = collection.find_one()["channel_ids"]
+                channels_dict["console_channel"] = channel.id
+
+                collection.update_one(
+                    collection.find_one(),
+                    {"$set": {"channel_ids": channels_dict}}
+                )
+            else:
+                collection.update_one(
+                    collection.find_one(),
+                    {"$set":
+                        {
+                            "channel_ids": {
+                                "console_channel": channel.id
+                            }
                         }
                     }
-                 }
-            )
+                )
         # ---
         emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
@@ -385,28 +381,27 @@ class SetupCommands(Cog):
                     }
                 }
             )
-            return
-
-        collection = self._bot.db.get_collection(str(guild.id))
-        if "channel_ids" in collection.find_one():
-            channels_dict = collection.find_one()["channel_ids"]
-            channels_dict["suggestions_channel"] = channel.id
-
-            collection.update_one(
-                collection.find_one(),
-                {"$set": {"channel_ids": channels_dict}}
-            )
         else:
-            collection.update_one(
-                collection.find_one(),
-                {"$set":
-                    {
-                        "channel_ids": {
-                            "suggestions_channel": channel.id
+            collection = self._bot.db.get_collection(str(guild.id))
+            if "channel_ids" in collection.find_one():
+                channels_dict = collection.find_one()["channel_ids"]
+                channels_dict["suggestions_channel"] = channel.id
+
+                collection.update_one(
+                    collection.find_one(),
+                    {"$set": {"channel_ids": channels_dict}}
+                )
+            else:
+                collection.update_one(
+                    collection.find_one(),
+                    {"$set":
+                        {
+                            "channel_ids": {
+                                "suggestions_channel": channel.id
+                            }
                         }
-                    }
-                 }
-            )
+                     }
+                )
         # ---
         emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(

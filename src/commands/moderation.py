@@ -174,13 +174,12 @@ class ModerationCommands(Cog):
             channel = self._bot.get_channel(
                 collection.find_one()["channel_ids"]["modlogs_channel"]
             )
-        except KeyError:
+        except (KeyError, TypeError):
             emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
                 embed=Embed(
                     description=f"{emoji} No channel is set for modlogs. "
-                                "Please setup a channel for modlogs "
-                                "by using `/setup` command",
+                                "Use `/setup` command to set.",
                     color=Colors.RED
                 ),
                 delete_after=5
@@ -244,13 +243,12 @@ class ModerationCommands(Cog):
             channel = self._bot.get_channel(
                 collection.find_one()["channel_ids"]["modlogs_channel"]
             )
-        except KeyError:
+        except (KeyError, TypeError):
             emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
                 embed=Embed(
                     description=f"{emoji} No channel is set for modlogs. "
-                                "Please setup a channel for modlogs "
-                                "by using `/setup` command",
+                                "Use `/setup` command to set.",
                     color=Colors.RED
                 ),
                 delete_after=5
@@ -283,7 +281,8 @@ class ModerationCommands(Cog):
             await ctx.respond(
                 embed=Embed(
                     title=f"Command error {emoji}",
-                    description="The member is already timed out"
+                    description="The member is already timed out",
+                    color=Colors.RED
                 )
             )
             return
@@ -329,13 +328,12 @@ class ModerationCommands(Cog):
             channel = self._bot.get_channel(
                 collection.find_one()["channel_ids"]["modlogs_channel"]
             )
-        except KeyError:
+        except (KeyError, TypeError):
             emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
                 embed=Embed(
                     description=f"{emoji} No channel is set for modlogs. "
-                                "Please setup a channel for modlogs "
-                                "by using `/setup` command",
+                                "Use `/setup` command to set.",
                     color=Colors.RED
                 ),
                 delete_after=5
