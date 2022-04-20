@@ -241,7 +241,8 @@ class ICodeBot(Bot):
             console = self.get_channel(
                 collection.find_one()["channel_ids"]["console_channel"]
             )
-        except (KeyError, TypeError):
+            assert isinstance(console, TextChannel)
+        except (KeyError, TypeError, AssertionError):
             return
 
         # Send embed with random welcome msg to console channel
@@ -302,7 +303,8 @@ class ICodeBot(Bot):
             console = self.get_channel(
                 collection.find_one()["channel_ids"]["console_channel"]
             )
-        except (KeyError, TypeError):
+            assert isinstance(console, TextChannel)
+        except (KeyError, TypeError, AssertionError):
             logging.warn("Console channel not set")
             return
 
@@ -338,16 +340,18 @@ class ICodeBot(Bot):
         try:
             # Set up receiver channel
             channel_ids = collection.find_one()["channel_ids"]
-            channel: TextChannel = self.get_channel(
+            channel = self.get_channel(
                 channel_ids["bump_reminder_channel"]
             )
+            assert isinstance(channel, TextChannel)
 
             # Get bumper role
             role_ids = collection.find_one()["role_ids"]
-            bumper: Role = channel.guild.get_role(
+            bumper = channel.guild.get_role(
                 role_ids["server_bumper_role"]
             )
-        except (KeyError, TypeError):
+            assert isinstance(bumper, Role)
+        except (KeyError, TypeError, AssertionError):
             logging.warning("Reminder channel or bumper role not set")
 
             if not channel:

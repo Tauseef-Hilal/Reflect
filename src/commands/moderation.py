@@ -174,7 +174,8 @@ class ModerationCommands(Cog):
             channel = self._bot.get_channel(
                 collection.find_one()["channel_ids"]["modlogs_channel"]
             )
-        except (KeyError, TypeError):
+            assert isinstance(channel, TextChannel)
+        except (KeyError, TypeError, AssertionError):
             emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
                 embed=Embed(
@@ -243,7 +244,8 @@ class ModerationCommands(Cog):
             channel = self._bot.get_channel(
                 collection.find_one()["channel_ids"]["modlogs_channel"]
             )
-        except (KeyError, TypeError):
+            assert isinstance(channel, TextChannel)
+        except (KeyError, TypeError, AssertionError):
             emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
                 embed=Embed(
@@ -328,7 +330,8 @@ class ModerationCommands(Cog):
             channel = self._bot.get_channel(
                 collection.find_one()["channel_ids"]["modlogs_channel"]
             )
-        except (KeyError, TypeError):
+            assert isinstance(channel, TextChannel)
+        except (KeyError, TypeError, AssertionError):
             emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
                 embed=Embed(

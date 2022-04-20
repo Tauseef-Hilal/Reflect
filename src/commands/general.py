@@ -13,7 +13,8 @@ from discord import (
     Interaction,
     Status,
     AllowedMentions,
-    ApplicationContext
+    ApplicationContext,
+    TextChannel
 )
 from discord.ext.commands import (
     Cog,
@@ -173,7 +174,8 @@ class GeneralCommands(Cog):
             channel = self._bot.get_channel(
                 collection.find_one()["channel_ids"]["suggestions_channel"]
             )
-        except (KeyError, TypeError):
+            assert isinstance(channel, TextChannel)
+        except (KeyError, TypeError, AssertionError):
             logging.warning("Suggestions channel not set")
 
             emoji = self._bot.emoji_group.get_emoji("warning")
