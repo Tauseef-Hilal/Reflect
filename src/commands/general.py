@@ -26,7 +26,6 @@ from ..utils.color import Colors
 from ..utils.emoji import EmojiGroup
 from ..utils.constants import ANNOUNCEMENTS_CHANNEL_ID
 from ..utils.checks import (
-    permission_check,
     maintenance_check
 )
 

@@ -9,7 +9,6 @@ from re import (
 
 from pymongo.collection import Collection
 from discord import (
-    ActivityType,
     Bot,
     Game,
     Role,
@@ -25,8 +24,8 @@ from discord import (
     RawReactionActionEvent,
 )
 
-from .utils.checks import maintenance_check
 from .utils.db import get_database
+from .utils.youtube import YouTube
 from .utils.filter import Filter
 from .utils.color import Colors
 from .utils.emoji import EmojiGroup
@@ -90,6 +89,10 @@ class ICodeBot(Bot):
         # Create Filter instance
         logging.info(msg="Initializing Filter")
         self.filter = Filter()
+        
+        # Create YouTube instance
+        logging.info("Initializing YouTube API")
+        self.youtube = YouTube()
 
         # Get database
         logging.info("Getting database")
