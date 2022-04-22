@@ -1,3 +1,5 @@
+from html import unescape
+
 from discord import (
     Cog,
     Color,
@@ -73,7 +75,7 @@ class YoutubeCommands(Cog):
         youtube_logo = self._bot.emoji_group.get_emoji("youtube")
         for video in videos:
             url = f"https://www.youtube.com/watch?v={video['id']['videoId']}"
-            title = video["snippet"]["title"]
+            title = unescape(video["snippet"]["title"])
             channel_title = video["snippet"]["channelTitle"]
             description = video["snippet"]["description"]
             thumbnail = video["snippet"]["thumbnails"]["default"]["url"]
