@@ -40,11 +40,9 @@ class YouTube:
             part="id,snippet",
             type='video',
             q=query,
-            maxResults=1
+            maxResults=5
         ).execute()
 
-        url = "https://www.youtube.com/watch?v={}"
-        urls = [url.format(video["id"]["videoId"])
-                for video in response["items"]]
+        urls = [video for video in response["items"]]
 
         return urls
