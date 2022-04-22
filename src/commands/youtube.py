@@ -49,7 +49,8 @@ class YoutubeCommands(Cog):
     async def _search(
         self,
         ctx: ApplicationContext,
-        query: Option(str, "Search query")
+        query: Option(str, "Search query"),
+        single: Option(bool, "Set this to True if you want 1 result") = False
     ) -> None:
         """
         Search for a YouTube video.
@@ -63,12 +64,21 @@ class YoutubeCommands(Cog):
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
-                description=f"Searching for videos {emoji}",
+                description=f"Searching for video(s) {emoji}",
                 color=Colors.GOLD
             )
         )
 
         videos = self._bot.youtube.search(query)
+
+        if single:
+            url = ("https://www.youtube.com/watch?v="
+                   + videos[0]["id"]["videoId"])
+            await res.edit_original_message(
+                content=f"[||...||]({url})",
+                embed=None
+            )
+            return
 
         embeds = []
         urls = []
