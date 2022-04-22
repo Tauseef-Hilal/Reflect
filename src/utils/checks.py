@@ -86,8 +86,7 @@ def permission_check(**perms):
 
 def maintenance_check():
     """
-    Check whether a member has required permissions to
-    run a command
+    Check if the bot is running under maintenance
     """
     def decorator(func):
         @functools.wraps(func)

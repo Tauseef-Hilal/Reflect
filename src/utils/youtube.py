@@ -43,6 +43,4 @@ class YouTube:
             maxResults=5
         ).execute()
 
-        urls = [video for video in response["items"]]
-
-        return urls
+        return [video for video in response["items"]]

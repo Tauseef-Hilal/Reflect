@@ -142,7 +142,7 @@ class SelectOptions(View):
             interaction: InteractionResponse
     ) -> None:
         """
-        Cog selection menu
+        Video selection menu
 
         Args:
             select (SelectMenu)
