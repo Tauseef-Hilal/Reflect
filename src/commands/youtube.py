@@ -1,5 +1,6 @@
 from discord import (
     Cog,
+    Color,
     Embed,
     Interaction,
     InteractionResponse,
@@ -69,20 +70,26 @@ class YoutubeCommands(Cog):
 
         embeds = []
         urls = []
+        youtube_logo = self._bot.emoji_group.get_emoji("youtube")
         for video in videos:
             url = f"https://www.youtube.com/watch?v={video['id']['videoId']}"
             title = video["snippet"]["title"]
+            channel_title = video["snippet"]["channelTitle"]
             description = video["snippet"]["description"]
             thumbnail = video["snippet"]["thumbnails"]["default"]["url"]
 
             urls.append(url)
             embeds.append(
                 Embed(
-                    description=f"[**{len(urls)}. {title}**]({url})\n"
-                                f"{description}",
-                    color=Colors.RED
+                    title=f"{len(urls)}. {title}",
+                    description=f"{description}",
+                    url=url,
+                    color=Color(Colors.RED)
                 ).set_thumbnail(
                     url=thumbnail
+                ).set_footer(
+                    text=channel_title,
+                    icon_url=youtube_logo.url
                 )
             )
 
