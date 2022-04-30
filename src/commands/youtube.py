@@ -1,6 +1,7 @@
 from html import unescape
 
 from discord import (
+    ButtonStyle,
     Cog,
     Color,
     Embed,
@@ -14,7 +15,9 @@ from discord import (
 )
 from discord.ui import (
     View,
-    select
+    Button,
+    select,
+    button
 )
 
 from ..utils.color import Colors
@@ -69,63 +72,61 @@ class YoutubeCommands(Cog):
             )
         )
 
-        videos = self._bot.youtube.search(query)
+        search_res = self._bot.youtube.search(query)
 
         if single:
-            url = ("https://www.youtube.com/watch?v="
-                   + videos[0]["id"]["videoId"])
+            video_id = ("https://www.youtube.com/watch?v="
+                        + search_res[0]["id"]["videoId"])
             await res.edit_original_message(
-                content=f"[||...||]({url})",
+                content=f"[||...||]({video_id})",
                 embed=None
             )
             return
 
-        embeds = []
-        urls = []
+        videos: dict[str, Embed] = {}
         youtube_logo = self._bot.emoji_group.get_emoji("youtube")
-        for video in videos:
-            url = f"https://www.youtube.com/watch?v={video['id']['videoId']}"
-            title = unescape(video["snippet"]["title"])
-            channel_title = video["snippet"]["channelTitle"]
-            description = video["snippet"]["description"]
-            thumbnail = video["snippet"]["thumbnails"]["default"]["url"]
+        for video_id in search_res:
+            title = unescape(video_id["snippet"]["title"])
+            channel_title = video_id["snippet"]["channelTitle"]
+            description = video_id["snippet"]["description"]
+            thumbnail = video_id["snippet"]["thumbnails"]["default"]["url"]
+            url = ("https://www.youtube.com/watch?v="
+                   f"{video_id['id']['videoId']}")
 
-            urls.append(url)
-            embeds.append(
-                Embed(
-                    title=f"{len(urls)}. {title}",
-                    description=f"{description}",
-                    url=url,
-                    color=Color(Colors.RED)
-                ).set_thumbnail(
-                    url=thumbnail
-                ).set_footer(
-                    text=channel_title,
-                    icon_url=youtube_logo.url
-                )
+            videos[url] = Embed(
+                title=title,
+                description=f"{description}",
+                url=url,
+                color=Color(Colors.RED)
+            ).set_thumbnail(
+                url=thumbnail
+            ).set_footer(
+                text=channel_title,
+                icon_url=youtube_logo.url
             )
 
         await res.edit_original_message(
             content="Here is what I found:",
-            embeds=embeds,
-            view=SelectOptions(self._bot, ctx, urls)
+            embeds=list(videos.values())[:5],
+            view=SelectOptions(self._bot, ctx, videos)
         )
 
 
 class SelectOptions(View):
 
-    def __init__(self, bot: ICodeBot, ctx: ApplicationContext, urls: list):
+    def __init__(self, bot: ICodeBot, ctx: ApplicationContext, videos: dict):
         """
         Initialize
 
         Args:
             bot (ICodeBot)
-            urls (list): List of video urls
+            videos (dict): Video dicts
         """
         super().__init__(timeout=360)
         self._bot = bot
         self.ctx = ctx
-        self.urls = urls
+        self.videos = videos
+        self.visible_urls = list(videos)[:5]
         self.followup = None
 
     @select(
@@ -168,7 +169,7 @@ class SelectOptions(View):
             interaction (InteractionResponse)
         """
 
-        url = self.urls[int(select.values[0])]
+        url = self.visible_urls[int(select.values[0])]
 
         if not self.followup:
             self.followup = await self.ctx.send_followup(
@@ -180,4 +181,58 @@ class SelectOptions(View):
         await self.followup.edit(
             content=f"[||...||]({url})",
             embeds=[]
+        )
+
+    @button(
+        label="<",
+        style=ButtonStyle.primary
+    )
+    async def left_btn_callback(
+        self,
+        btn: Button,
+        interaction: Interaction
+    ) -> None:
+        """
+        Left button
+
+        Args:
+            btn (Button): Button
+            interaction (Interaction)
+        """
+        
+        first_idx = list(self.videos).index(self.visible_urls[0])
+
+        if not (first_idx - 4 >= 0):
+            return
+
+        self.visible_urls = list(self.videos)[first_idx - 5:first_idx]
+        await self.ctx.interaction.edit_original_message(
+            embeds=list(self.videos.values())[first_idx - 5:first_idx]
+        )
+
+    @button(
+        label=">",
+        style=ButtonStyle.primary
+    )
+    async def right_btn_callback(
+        self,
+        btn: Button,
+        interaction: Interaction
+    ) -> None:
+        """
+        Right button
+
+        Args:
+            btn (Button): Button
+            interaction (Interaction)
+        """
+
+        last_idx = list(self.videos).index(self.visible_urls[-1])
+
+        if not (last_idx + 6 <= len(self.videos)):
+            return
+
+        self.visible_urls = list(self.videos)[last_idx + 1:last_idx + 6]
+        await self.ctx.interaction.edit_original_message(
+            embeds=list(self.videos.values())[last_idx + 1:last_idx + 6]
         )

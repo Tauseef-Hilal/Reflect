@@ -40,7 +40,7 @@ class YouTube:
             part="id,snippet",
             type='video',
             q=query,
-            maxResults=5
+            maxResults=30
         ).execute()
 
         return [video for video in response["items"]]
