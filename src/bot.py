@@ -89,7 +89,7 @@ class ICodeBot(Bot):
         # Create Filter instance
         logging.info(msg="Initializing Filter")
         self.filter = Filter()
-        
+
         # Create YouTube instance
         logging.info("Initializing YouTube API")
         self.youtube = YouTube()
@@ -427,12 +427,19 @@ class ICodeBot(Bot):
                 name="Message Content",
                 value=message.content if message.content else "[No content]",
                 inline=False
+            ).add_field(
+                name="Attachments",
+                value="\n".join(
+                    [f"[{attachment.filename}]({attachment.url})"
+                     for attachment in message.attachments]
+                )
             )
         )
 
         # Send msg to staff channel
         await channel.send(
-            embeds=embeds
+            embeds=embeds,
+
         )
 
     async def on_message(self, message: Message) -> None:
