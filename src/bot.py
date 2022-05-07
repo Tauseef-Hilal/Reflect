@@ -409,6 +409,10 @@ class ICodeBot(Bot):
         except KeyError:
             return
 
+        attachments = "\n".join(
+            [f"[{attachment.filename}]({attachment.url})"
+             for attachment in message.attachments]
+        )
         embeds = message.embeds
         embeds.insert(
             0,
@@ -429,10 +433,7 @@ class ICodeBot(Bot):
                 inline=False
             ).add_field(
                 name="Attachments",
-                value="\n".join(
-                    [f"[{attachment.filename}]({attachment.url})"
-                     for attachment in message.attachments]
-                )
+                value=attachments if attachments else "[No Attachments]"
             )
         )
 
