@@ -5,4 +5,4 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return "<h1 style='text-align: center;'>COMING SOON!</h1>"
