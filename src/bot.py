@@ -503,13 +503,25 @@ class ICodeBot(Bot):
                 message.channel != self.MAINTENANCE_CHANNEL):
             return
 
-        # Check if an unanimated emoji was sent alone
-        # or the author of the message is a nitro user
-        if findall(r"(<a?:\w+:\d+>)+", message.content):
+        # Insert space between two :: and ><
+        msg = message.content
+        while "::" in msg:
+            msg = msg.replace("::", ": :")
+        
+        while "><" in msg:
+            msg = msg.replace("><", "> <")
+
+        # Search for emojis
+        emojis: list = findall(r"(:[\w\-~]*:)+", msg)
+        processed_emojis: list = findall(r"(<a?:\w+:\d+>)+", msg)
+        for i, emoji in enumerate(processed_emojis):
+            processed_emojis[i] = f":{emoji.split(':')[1]}:"
+        
+        # Return if all emojis are already processed
+        if len(emojis) - len(processed_emojis) == 0:
             return
 
         # Remove codeblocks from message
-        msg = message.content
         codeblocks: list = findall(r"(`{1,3}.+?`{1,3})+", msg, flags=DOTALL)
 
         BLOCK_ID_FORMAT = "<CodeBlock => @Index: {}>"
@@ -523,16 +535,9 @@ class ICodeBot(Bot):
                 1
             )
 
-        # Insert space between two ::
-        while "::" in msg:
-            msg = msg.replace("::", ": :")
-
-        # Search for emojis
-        emojis: list = findall(r"(:[\w\-~]*:)+", msg)
-
         for word in emojis:
             # Continue if already replaced
-            if word in temp:
+            if word in temp or word in processed_emojis:
                 continue
 
             try:
