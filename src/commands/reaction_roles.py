@@ -1,5 +1,4 @@
 from discord import (
-    ApplicationCommandInvokeError,
     Interaction,
     Message,
     Cog,
@@ -12,7 +11,7 @@ from discord import (
     ApplicationContext
 )
 
-from typing import List, Tuple
+from typing import List
 
 from ..bot import ICodeBot
 from ..utils.color import Colors
@@ -29,10 +28,8 @@ class ReactionRoleCommands(Cog):
 
     RR = SlashCommandGroup(
         "reaction-roles",
-        "Reaction role commands",
-        [963337124176879696]
+        "Reaction role commands"
     )
-
     def __init__(self, bot: ICodeBot) -> None:
         """
         Initialize
