@@ -1,5 +1,5 @@
 # Runner script
-from src.bot.main import main
+from src.main import main
 
 if __name__ == "__main__":
     main()
