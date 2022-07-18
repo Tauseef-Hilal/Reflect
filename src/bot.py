@@ -7,10 +7,10 @@ from re import (
     findall
 )
 
-from pymongo.collection import Collection
 from discord import (
     Bot,
     Game,
+    Guild,
     Role,
     Embed,
     Emoji,
@@ -35,19 +35,8 @@ from .utils.env import (
     MONGO_DB_URI
 )
 from .utils.constants import (
-    CPP_ROLE_ID,
-    RUBY_ROLE_ID,
-    JAVA_ROLE_ID,
-    DART_ROLE_ID,
-    CLANG_ROLE_ID,
-    PYTHON_ROLE_ID,
-    CSHARP_ROLE_ID,
-    CLOJURE_ROLE_ID,
-    BUMPER_ROLE_ID,
     ICODIAN_ROLE_ID,
-    JAVASCRIPT_ROLE_ID,
     STAFF_CHANNEL_ID,
-    TYPESCRIPT_ROLE_ID,
     WELCOME_MESSAGES,
     FAREWELL_MESSAGES,
     SELF_ROLES_CHANNEL_ID,
@@ -102,35 +91,18 @@ class ICodeBot(Bot):
         logging.info(msg="Initializing BumpTimer")
         self.bump_timer = BumpTimer()
 
-        # Set up reaction roles
-        logging.info("Setting up reaction roles")
-
         self.ICODE_GUILD = self.get_guild(ICODE_GUILD_ID)
         if not self.ICODE_GUILD:
             logging.warning("Couldn't find iCODE")
 
-        self.REACTION_ROLES = {
-            "cpp": self.ICODE_GUILD.get_role(CPP_ROLE_ID),
-            "java": self.ICODE_GUILD.get_role(JAVA_ROLE_ID),
-            "ruby": self.ICODE_GUILD.get_role(RUBY_ROLE_ID),
-            "clang": self.ICODE_GUILD.get_role(CLANG_ROLE_ID),
-            "python": self.ICODE_GUILD.get_role(PYTHON_ROLE_ID),
-            "csharp": self.ICODE_GUILD.get_role(CSHARP_ROLE_ID),
-            "dartlang": self.ICODE_GUILD.get_role(DART_ROLE_ID),
-            "ukraine": self.ICODE_GUILD.get_role(BUMPER_ROLE_ID),
-            "clojure": self.ICODE_GUILD.get_role(CLOJURE_ROLE_ID),
-            "javascript": self.ICODE_GUILD.get_role(JAVASCRIPT_ROLE_ID),
-            "typescript": self.ICODE_GUILD.get_role(TYPESCRIPT_ROLE_ID)
-        }
-
         # Start bump timer
-        for collection_name in self.db.list_collection_names():
-            collection = self.db.get_collection(collection_name)
-
-            logging.info(f"Getting previous bump time for {collection_name}")
+        for guild_data in self.db.find():
+            logging.info(
+                f"Getting previous bump time for {guild_data['guild_id']}"
+            )
 
             try:
-                previous_bump_time = self.bump_timer.get_bump_time(collection)
+                previous_bump_time = self.bump_timer.get_bump_time(guild_data)
             except (TypeError, KeyError):
                 logging.warning("No bump data found")
                 continue
@@ -140,7 +112,7 @@ class ICodeBot(Bot):
             delta = (datetime.now() - previous_bump_time).total_seconds()
             delay = 0 if delta >= 7200 else (7200 - delta)
 
-            self.dispatch("bump_done", collection, int(delay))
+            self.dispatch("bump_done", guild_data, int(delay))
 
         # Set maintenance and staff channel
         self.MAINTENANCE_CHANNEL = self.get_channel(MAINTENANCE_CHANNEL_ID)
@@ -193,16 +165,31 @@ class ICodeBot(Bot):
             payload (RawReactionActionEvent)
         """
 
-        if payload.message_id == 957283616541536317:
-            emoji: PartialEmoji = payload.emoji
+        try:
+            guild: Guild = self.get_guild(payload.guild_id)
+            guild_data = self.db.find_one({"guild_id": guild.id})
+            rxn_messages = guild_data["reaction_messages"]
+            
+        except (KeyError, TypeError):
+            return
+        
+        for rxn_msg in rxn_messages:
+            if int(rxn_msg) == payload.message_id:
+                break
+        else:
+            return
+        
+        emoji: PartialEmoji = payload.emoji
 
-            try:
-                role: Role = self.REACTION_ROLES[emoji.name]
-            except KeyError:
-                pass
-            else:
+        try:
+            role: Role = guild.get_role(rxn_messages[rxn_msg][emoji.name])
+        except KeyError:
+            pass
+        else:
+            if role:
                 await payload.member.add_roles(role)
                 logging.info(f"Added {role} role to {payload.member}")
+            
 
     async def on_raw_reaction_remove(
         self,
@@ -214,21 +201,32 @@ class ICodeBot(Bot):
         Args:
             payload (RawReactionActionEvent)
         """
+        try:
+            guild: Guild = self.get_guild(payload.guild_id)
+            guild_data = self.db.find_one({"guild_id": guild.id})
+            rxn_messages = guild_data["reaction_messages"]
+            
+        except (KeyError, TypeError):
+            return
+        
+        for rxn_msg in rxn_messages:
+            if int(rxn_msg) == payload.message_id:
+                break
+        else:
+            return
 
-        if payload.message_id == 957283616541536317:
-            emoji: PartialEmoji = payload.emoji
+        emoji: PartialEmoji = payload.emoji
 
-            try:
-                role: Role = self.REACTION_ROLES[emoji.name]
-            except KeyError:
-                pass
-            else:
-                member: Member = await self.ICODE_GUILD \
-                    .fetch_member(payload.user_id)
+        try:
+            role: Role = guild.get_role(rxn_messages[rxn_msg][emoji.name])
+        except KeyError:
+            pass
+        else:
+            member: Member = await guild.fetch_member(payload.user_id)
 
-                if member:
-                    await member.remove_roles(role)
-                    logging.info(f"Removed {role} role from {member}")
+            if member and role:
+                await member.remove_roles(role)
+                logging.info(f"Removed {role} role from {member}")
 
     async def on_member_join(self, member: Member) -> None:
         """
@@ -240,16 +238,16 @@ class ICodeBot(Bot):
 
         # Set up required channels
         try:
-            collection = self.db.get_collection(str(member.guild.id))
-            console = self.get_channel(
-                collection.find_one()["channel_ids"]["console_channel"]
+            guild_data = self.db.find_one({"guild_id": member.guild.id})
+            channel = self.get_channel(
+                guild_data["channel_ids"]["console_channel"]
             )
-            assert isinstance(console, TextChannel)
+            assert isinstance(channel, TextChannel)
         except (KeyError, TypeError, AssertionError):
             return
 
         # Send embed with random welcome msg to console channel
-        await console.send(
+        await channel.send(
             embed=Embed(
                 description=choice(
                     WELCOME_MESSAGES
@@ -302,17 +300,16 @@ class ICodeBot(Bot):
 
         # Set up required channels
         try:
-            collection = self.db.get_collection(str(member.guild.id))
-            console = self.get_channel(
-                collection.find_one()["channel_ids"]["console_channel"]
+            guild_data = self.db.find_one({"guild_id": member.guild.id})
+            channel = self.get_channel(
+                guild_data["channel_ids"]["console_channel"]
             )
-            assert isinstance(console, TextChannel)
+            assert isinstance(channel, TextChannel)
         except (KeyError, TypeError, AssertionError):
-            logging.warn("Console channel not set")
             return
 
         # Send embed with random farewell msg to receiver channel
-        await console.send(
+        await channel.send(
             embed=Embed(
                 description=choice(
                     FAREWELL_MESSAGES
@@ -323,7 +320,7 @@ class ICodeBot(Bot):
             )
         )
 
-    async def on_bump_done(self, collection: Collection, delay: int) -> None:
+    async def on_bump_done(self, guild_data: dict, delay: int) -> None:
         """
         Called when a user bumps the server
 
@@ -342,16 +339,14 @@ class ICodeBot(Bot):
         bumper = None
         try:
             # Set up receiver channel
-            channel_ids = collection.find_one()["channel_ids"]
             channel = self.get_channel(
-                channel_ids["bump_reminder_channel"]
+                guild_data["channel_ids"]["bump_reminder_channel"]
             )
             assert isinstance(channel, TextChannel)
 
             # Get bumper role
-            role_ids = collection.find_one()["role_ids"]
             bumper = channel.guild.get_role(
-                role_ids["server_bumper_role"]
+                guild_data["role_ids"]["server_bumper_role"]
             )
             assert isinstance(bumper, Role)
         except (KeyError, TypeError, AssertionError):
@@ -359,7 +354,7 @@ class ICodeBot(Bot):
 
             if not channel:
                 emoji = self.emoji_group.get_emoji("warning")
-                for channel in self.get_guild(int(collection.name)).text_channels:
+                for channel in self.get_guild(guild_data["guild_id"]).text_channels:
                     if channel.can_send(Embed(title="1")):
                         break
 
@@ -402,11 +397,12 @@ class ICodeBot(Bot):
 
         # Get staff channel
         try:
-            collection = self.db.get_collection(str(message.guild.id))
+            guild_data = self.db.find_one({"guild_id": message.guild.id})
             channel = self.get_channel(
-                collection.find_one()["channel_ids"]["modlogs_channel"]
+                guild_data["channel_ids"]["modlogs_channel"]
             )
-        except KeyError:
+            assert isinstance(channel, TextChannel)
+        except (KeyError, TypeError, AssertionError):
             return
 
         attachments = "\n".join(
@@ -455,11 +451,10 @@ class ICodeBot(Bot):
         if message.author.id == DISBOARD_ID:
             if "Bump done" in message.embeds[0].description:
                 logging.info("Updating bump time")
-                collection = self.db.get_collection(str(message.guild.id))
 
                 try:
                     self.bump_timer.update_bump_time(
-                        collection, datetime.now()
+                        self.db, message.guild.id, datetime.now()
                     )
                 except TypeError:
                     logging.warning("Cant update bump time")
@@ -474,7 +469,10 @@ class ICodeBot(Bot):
                         delete_after=5
                     )
                 else:
-                    self.dispatch("bump_done", collection, 7200)
+                    guild_data = self.db.find_one(
+                        {"guild_id": message.guild.id}
+                    )
+                    self.dispatch("bump_done", guild_data, 7200)
             return
 
         # AEWN: Animated Emojis Without Nitro
@@ -507,7 +505,7 @@ class ICodeBot(Bot):
         msg = message.content
         while "::" in msg:
             msg = msg.replace("::", ": :")
-        
+
         while "><" in msg:
             msg = msg.replace("><", "> <")
 
@@ -516,7 +514,7 @@ class ICodeBot(Bot):
         processed_emojis: list = findall(r"(<a?:\w+:\d+>)+", msg)
         for i, emoji in enumerate(processed_emojis):
             processed_emojis[i] = f":{emoji.split(':')[1]}:"
-        
+
         # Return if all emojis are already processed
         if len(emojis) - len(processed_emojis) == 0:
             return

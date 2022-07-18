@@ -10,6 +10,7 @@ from .commands.youtube import YoutubeCommands
 from .commands.general import GeneralCommands
 from .commands.moderation import ModerationCommands
 from .commands.miscellaneous import MiscellaneousCommands
+from .commands.reaction_roles import ReactionRoleCommands
 from .utils.env import (
     BOT_TOKEN
 )
@@ -43,6 +44,7 @@ def main() -> None:
     BOT.add_cog(GeneralCommands(BOT))
     BOT.add_cog(ModerationCommands(BOT))
     BOT.add_cog(MiscellaneousCommands(BOT))
+    BOT.add_cog(ReactionRoleCommands(BOT))
 
     # Run
     BOT.run(BOT_TOKEN)

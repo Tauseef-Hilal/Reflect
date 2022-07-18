@@ -169,9 +169,10 @@ class GeneralCommands(Cog):
         
         # Suggestions channel
         try:
-            collection = self._bot.db.get_collection(str(ctx.guild.id))
             channel = self._bot.get_channel(
-                collection.find_one()["channel_ids"]["suggestions_channel"]
+                self._bot.db.find_one(
+                    {"guild_id": ctx.guild.id}
+                )["channel_ids"]["suggestions_channel"]
             )
             assert isinstance(channel, TextChannel)
         except (KeyError, TypeError, AssertionError):

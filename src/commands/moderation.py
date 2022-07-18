@@ -170,12 +170,14 @@ class ModerationCommands(Cog):
         await ctx.respond(embed=embed, delete_after=3)
 
         try:
-            collection = self._bot.db.get_collection(str(ctx.guild_id))
             channel = self._bot.get_channel(
-                collection.find_one()["channel_ids"]["modlogs_channel"]
+                self._bot.db.find_one(
+                    {"guild_id": ctx.guild.id}
+                )["channel_ids"]["modlogs_channel"]
             )
             assert isinstance(channel, TextChannel)
-        except (KeyError, TypeError, AssertionError):
+        except (KeyError, TypeError, AssertionError) as e:
+            print(e)
             emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
                 embed=Embed(
@@ -240,9 +242,10 @@ class ModerationCommands(Cog):
         await ctx.respond(embed=embed, delete_after=3)
 
         try:
-            collection = self._bot.db.get_collection(str(ctx.guild_id))
             channel = self._bot.get_channel(
-                collection.find_one()["channel_ids"]["modlogs_channel"]
+                self._bot.db.find_one(
+                    {"guild_id": ctx.guild.id}
+                )["channel_ids"]["modlogs_channel"]
             )
             assert isinstance(channel, TextChannel)
         except (KeyError, TypeError, AssertionError):
@@ -326,9 +329,10 @@ class ModerationCommands(Cog):
         await ctx.respond(embed=embed, delete_after=3)
 
         try:
-            collection = self._bot.db.get_collection(str(ctx.guild_id))
             channel = self._bot.get_channel(
-                collection.find_one()["channel_ids"]["modlogs_channel"]
+                self._bot.db.find_one(
+                    {"guild_id": ctx.guild.id}
+                )["channel_ids"]["modlogs_channel"]
             )
             assert isinstance(channel, TextChannel)
         except (KeyError, TypeError, AssertionError):

@@ -71,30 +71,35 @@ class SetupCommands(Cog):
         )
 
         guild: Guild = ctx.guild
-        if str(guild.id) not in self._bot.db.list_collection_names():
-            collection = self._bot.db.create_collection(str(guild.id))
-            collection.insert_one(
+        if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+            self._bot.db.insert_one(
                 {
+                    "guild_id": guild.id,
                     "channel_ids": {
                         "modlogs_channel": channel.id
                     }
                 }
             )
         else:
-            collection = self._bot.db.get_collection(str(guild.id))
-            if "channel_ids" in collection.find_one():
-                channels_dict = collection.find_one()["channel_ids"]
-                channels_dict["modlogs_channel"] = channel.id
+            try:
+                channel_ids = self._bot.db.find_one(
+                    {"guild_id": guild.id}
+                )["channel_ids"]
 
-                collection.update_one(
-                    collection.find_one(),
-                    {"$set": {"channel_ids": channels_dict}}
+                channel_ids["modlogs_channel"] = channel.id
+                self._bot.db.update_one(
+                    self._bot.db.find_one(filter={"guild_id": guild.id}),
+                    {
+                        "$set": {
+                            "channel_ids": channel_ids
+                        }
+                    }
                 )
-            else:
-                collection.update_one(
-                    collection.find_one(),
-                    {"$set":
-                        {
+            except KeyError:
+                self._bot.db.update_one(
+                    self._bot.db.find_one(filter={"guild_id": guild.id}),
+                    {
+                        "$set": {
                             "channel_ids": {
                                 "modlogs_channel": channel.id
                             }
@@ -147,30 +152,35 @@ class SetupCommands(Cog):
         )
 
         guild: Guild = ctx.guild
-        if str(guild.id) not in self._bot.db.list_collection_names():
-            collection = self._bot.db.create_collection(str(guild.id))
-            collection.insert_one(
+        if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+            self._bot.db.insert_one(
                 {
+                    "guild_id": guild.id,
                     "channel_ids": {
                         "bump_reminder_channel": channel.id
                     }
                 }
             )
         else:
-            collection = self._bot.db.get_collection(str(guild.id))
-            if "channel_ids" in collection.find_one():
-                channels_dict = collection.find_one()["channel_ids"]
-                channels_dict["bump_reminder_channel"] = channel.id
+            try:
+                channel_ids = self._bot.db.find_one(
+                    {"guild_id": guild.id}
+                )["channel_ids"]
 
-                collection.update_one(
-                    collection.find_one(),
-                    {"$set": {"channel_ids": channels_dict}}
+                channel_ids["bump_reminder_channel"] = channel.id
+                self._bot.db.update_one(
+                    self._bot.db.find_one(filter={"guild_id": guild.id}),
+                    {
+                        "$set": {
+                            "channel_ids": channel_ids
+                        }
+                    }
                 )
-            else:
-                collection.update_one(
-                    collection.find_one(),
-                    {"$set":
-                        {
+            except KeyError:
+                self._bot.db.update_one(
+                    self._bot.db.find_one(filter={"guild_id": guild.id}),
+                    {
+                        "$set": {
                             "channel_ids": {
                                 "bump_reminder_channel": channel.id
                             }
@@ -219,30 +229,35 @@ class SetupCommands(Cog):
         )
 
         guild: Guild = ctx.guild
-        if str(guild.id) not in self._bot.db.list_collection_names():
-            collection = self._bot.db.create_collection(str(guild.id))
-            collection.insert_one(
+        if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+            self._bot.db.insert_one(
                 {
+                    "guild_id": guild.id,
                     "role_ids": {
                         "server_bumper_role": role.id
                     }
                 }
             )
         else:
-            collection = self._bot.db.get_collection(str(guild.id))
-            if "role_ids" in collection.find_one():
-                roles_dict = collection.find_one()["role_ids"]
-                roles_dict["server_bumper_role"] = role.id
+            try:
+                role_ids = self._bot.db.find_one(
+                    {"guild_id": guild.id}
+                )["role_ids"]
 
-                collection.update_one(
-                    collection.find_one(),
-                    {"$set": {"role_ids": roles_dict}}
+                role_ids["server_bumper_role"] = role.id
+                self._bot.db.update_one(
+                    self._bot.db.find_one(filter={"guild_id": guild.id}),
+                    {
+                        "$set": {
+                            "role_ids": role_ids
+                        }
+                    }
                 )
-            else:
-                collection.update_one(
-                    collection.find_one(),
-                    {"$set":
-                        {
+            except KeyError:
+                self._bot.db.update_one(
+                    self._bot.db.find_one(filter={"guild_id": guild.id}),
+                    {
+                        "$set": {
                             "role_ids": {
                                 "server_bumper_role": role.id
                             }
@@ -296,30 +311,35 @@ class SetupCommands(Cog):
         )
 
         guild: Guild = ctx.guild
-        if str(guild.id) not in self._bot.db.list_collection_names():
-            collection = self._bot.db.create_collection(str(guild.id))
-            collection.insert_one(
+        if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+            self._bot.db.insert_one(
                 {
+                    "guild_id": guild.id,
                     "channel_ids": {
                         "console_channel": channel.id
                     }
                 }
             )
         else:
-            collection = self._bot.db.get_collection(str(guild.id))
-            if "channel_ids" in collection.find_one():
-                channels_dict = collection.find_one()["channel_ids"]
-                channels_dict["console_channel"] = channel.id
+            try:
+                channel_ids = self._bot.db.find_one(
+                    {"guild_id": guild.id}
+                )["channel_ids"]
 
-                collection.update_one(
-                    collection.find_one(),
-                    {"$set": {"channel_ids": channels_dict}}
+                channel_ids["console_channel"] = channel.id
+                self._bot.db.update_one(
+                    self._bot.db.find_one(filter={"guild_id": guild.id}),
+                    {
+                        "$set": {
+                            "channel_ids": channel_ids
+                        }
+                    }
                 )
-            else:
-                collection.update_one(
-                    collection.find_one(),
-                    {"$set":
-                        {
+            except KeyError:
+                self._bot.db.update_one(
+                    self._bot.db.find_one(filter={"guild_id": guild.id}),
+                    {
+                        "$set": {
                             "channel_ids": {
                                 "console_channel": channel.id
                             }
@@ -372,42 +392,90 @@ class SetupCommands(Cog):
         )
 
         guild: Guild = ctx.guild
-        if str(guild.id) not in self._bot.db.list_collection_names():
-            collection = self._bot.db.create_collection(str(guild.id))
-            collection.insert_one(
+        if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+            self._bot.db.insert_one(
                 {
+                    "guild_id": guild.id,
                     "channel_ids": {
                         "suggestions_channel": channel.id
                     }
                 }
             )
         else:
-            collection = self._bot.db.get_collection(str(guild.id))
-            if "channel_ids" in collection.find_one():
-                channels_dict = collection.find_one()["channel_ids"]
-                channels_dict["suggestions_channel"] = channel.id
+            try:
+                channel_ids = self._bot.db.find_one(
+                    {"guild_id": guild.id}
+                )["channel_ids"]
 
-                collection.update_one(
-                    collection.find_one(),
-                    {"$set": {"channel_ids": channels_dict}}
+                channel_ids["suggestions_channel"] = channel.id
+                self._bot.db.update_one(
+                    self._bot.db.find_one(filter={"guild_id": guild.id}),
+                    {
+                        "$set": {
+                            "channel_ids": channel_ids
+                        }
+                    }
                 )
-            else:
-                collection.update_one(
-                    collection.find_one(),
-                    {"$set":
-                        {
+            except KeyError:
+                self._bot.db.update_one(
+                    self._bot.db.find_one(filter={"guild_id": guild.id}),
+                    {
+                        "$set": {
                             "channel_ids": {
                                 "suggestions_channel": channel.id
                             }
                         }
-                     }
+                    }
                 )
+
         # ---
         emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
                 description=f"Set {channel.mention} for suggestions "
                             f"{emoji}",
+                color=Colors.GREEN
+            ),
+            delete_after=2
+        )
+
+    @SETUP.command(name="reaction-roles")
+    @maintenance_check()
+    @permission_check(administrator=True)
+    async def _reaction_roles(
+            self,
+            ctx: ApplicationContext
+    ) -> None:
+        """
+        Setup reaction roles
+
+        Args:
+            ctx (ApplicationContext)
+        """
+
+        # ---
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
+        res: Interaction = await ctx.respond(
+            embed=Embed(
+                description=f"Setting up reaction roles {emoji}",
+                color=Colors.GOLD
+            )
+        )
+
+        guild: Guild = ctx.guild
+        if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+            self._bot.db.insert_one(
+                {
+                    "guild_id": guild.id,
+                    "reaction_messages": {}
+                }
+            )
+
+        # ---
+        emoji = self._bot.emoji_group.get_emoji("green_tick")
+        await res.edit_original_message(
+            embed=Embed(
+                description=f"Set up reaction roles {emoji}",
                 color=Colors.GREEN
             ),
             delete_after=2

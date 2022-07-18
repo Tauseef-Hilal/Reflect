@@ -1,6 +1,5 @@
 import datetime
 
-from pymongo.database import Database
 from pymongo.collection import Collection
 
 
@@ -12,6 +11,7 @@ class BumpTimer:
     def update_bump_time(
         self,
         collection: Collection,
+        guild_id: int,
         timestamp: datetime.datetime
     ) -> None:
         """
@@ -22,11 +22,11 @@ class BumpTimer:
         """
 
         collection.update_one(
-            collection.find_one(),
+            collection.find_one({"guild_id": guild_id}),
             {"$set": {"bump_timestamp": timestamp}}
         )
 
-    def get_bump_time(self, collection: Collection) -> datetime.datetime:
+    def get_bump_time(self, data: dict) -> datetime.datetime:
         """
         Read timestamp of previous bump 
 
@@ -34,4 +34,4 @@ class BumpTimer:
             datetime.datetime: Most recent bump time
         """
 
-        return collection.find_one()["bump_timestamp"]
+        return data["bump_timestamp"]

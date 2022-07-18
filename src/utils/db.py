@@ -1,10 +1,10 @@
 import datetime
 
 from pymongo import MongoClient
-from pymongo.database import Database
+from pymongo.collection import Collection
 
 
-def get_database(host: str) -> Database:
+def get_database(host: str) -> Collection:
     """
     Get guild database
 
@@ -12,12 +12,12 @@ def get_database(host: str) -> Database:
         host (str): MONGO_DB URI
 
     Returns:
-        Database: Database
+        Collection: A collection of documents
     """
     CLIENT = MongoClient(host=host)
 
     # Create the database
-    return CLIENT["guilds"]
+    return CLIENT["icode"]["guilds"]
 
 
 
