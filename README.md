@@ -1,7 +1,7 @@
 # iCODE
 #### Video Demo:  <URL HERE>
 #### Description: A Discord bot coded in Python
-#### Author: `Tauseef Hilal Tantary`
+#### Author: Tauseef Hilal Tantary
 <br>
 <br>
 
@@ -10,8 +10,8 @@
 iCODE has many features. Here are some I love:
 <br>
 - Animated Emojis Without Nitro
-- YouTube Search
 - Reaction Roles
+- YouTube Search
 - Text Filter
 <br>
 <br>
@@ -19,35 +19,38 @@ iCODE has many features. Here are some I love:
 ## Animated Emojis Without Nitro
 This one is my favourite. It lets anyone use animated emojis, whether<br>
 or not they have discord nitro subscription (a premium plan which lets<br>
-users use animated emojis and some more premium features).
+users use animated emojis and some more premium features). This one is <br>
+implemented in `src/bot.py`.
 <br>
 
 ### How this works?
 Whenever someone tries to use an animated emoji, the bot catches the msg<br>
 reads every emoji and deletes the message. Then it processes the emojis<br>
-and sends a webhook back to the same channel which shows that emoji!
+and sends a webhook back to the same channel which shows those emojis!
+<br>
+<br>
+
+## Reaction Roles
+Discord servers have **Roles**. These are like ranks in a forum or on a <br>
+subreddit. They give users different privileges within a server or make<br>
+them stand out from other users by adding a color to their name or placing<br>
+them higher than other users on the sidebar. On Discord, `reaction roles`<br>
+are roles users can assign and unassign to themselves by simply reacting to<br>
+a message with an emoji. iCODE has commands to set up messages for reaction<br>
+roles. The commands for this are defined in `/src/commands/reaction_roles.py`.
 <br>
 <br>
 
 ## YouTube Search
 This one lets users stream (search for) YouTube videos right from Discord!<br>
-<br>
-<br>
-
-## Reaction Roles
-Discord servers have `Roles`.These are like ranks in a forum or on a <br>
-subreddit. They give users different privileges within a server or make<br>
-them stand out from other users by adding a color to their name or placing<br>
-them higher than other users on the sidebar. On Discord, `reaction roles`<br>
-are roles users can assign and unassign to themselves by simply reacting to<br>
-a message with an emoji. iCODE has commands to set up messages for<br>
-reaction roles.
+For this I integrated the `YouTube Data API` in `/src/utils/youtube.py`.
 <br>
 <br>
 
 ## Text Filter
 This one keeps the chat clean and community friendly. It basically censors<br>
-bad words that come in chat.
+bad words that come in chat. For this, I used `/data/badwords.txt` (from <br>
+Google archives), implemented in `/src/utils/filter.py`.
 <br>
 <br>
 <br>
@@ -57,18 +60,19 @@ bad words that come in chat.
 iCODE has a lot of commands to work with. I've divided them into different<br>
 groups (Command groups or `Cogs`). 
 <br>
-- General Commands
-- Moderation Commands
-- ReactionRole Commands
-- YouTube Commands
-- Setup Commands
-- Miscellaneous Commands
+1. [General Commands](https://github.com/Tauseef-Hilal/Echo#general-commands)
+2. [Moderation Commands](https://github.com/Tauseef-Hilal/Echo#moderation-commands)
+3. [ReactionRole Commands](https://github.com/Tauseef-Hilal/Echo#reaction-role-commands)
+4. [YouTube Commands](https://github.com/Tauseef-Hilal/Echo#youtube-commands)
+5. [Setup Commands](https://github.com/Tauseef-Hilal/Echo#setup-commands)
+6. [Miscellaneous Commands](https://github.com/Tauseef-Hilal/Echo#miscellaneous-commands)
 <br>
 <br>
 <br>
 
 ## General Commands
-These commands can be used by anyone in the a server.
+These commands are defined in `/src/commands/general.py`.<br>
+Anyone can use these commands.
 <br>
 <br>
 
@@ -176,6 +180,7 @@ Get help menu for commands
 <br>
 
 ## Moderation Commands
+These commands are defined in `/src/commands/moderation.py`<br>
 These can be used by server moderators/admins. The usage of these commands<br>
 gets logged in the server modlogs channel.
 <br>
@@ -258,6 +263,7 @@ Timeout a server member for some time.
 <br>
 
 ## Reaction Role Commands
+These commands are defined in `/src/commands/reaction_roles.py`.<br>
 These can be used by server moderators/admins. Use these to set messages<br>
 for reaction roles.
 <br>
@@ -292,6 +298,7 @@ Remove reaction roles from a message.
 <br>
 
 ## YouTube Commands
+These commands are defined in `src/commands/youtube.py`<br>
 Anyone can use these commands.
 <br>
 <br>
@@ -311,6 +318,7 @@ Search for a YouTube video.
 <br>
 
 ## Setup Commands
+These commands are defined in `/src/commands/setup.py`<br>
 Commands for setting up iCODE. Only members with Admin perms can use<br>
 these commands.
 <br>
@@ -393,6 +401,7 @@ Configure iCODE for reaction roles in the server.
 <br>
 
 ## Miscellaneous Commands
+These commands are defined in `/src/commands/miscellaneous.py`<br>
 These commands can only be run by the owner of iCODE (Me).
 <br>
 <br>
