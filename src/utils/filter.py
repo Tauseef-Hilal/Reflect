@@ -12,9 +12,9 @@ class Filter:
         # Try to extract words from the file
         try:
             with open(BADWORDS_FILE) as FILE:
-                self._BADWORDS = tuple(
-                    word.strip() for word in FILE.readlines()
-                )
+                self._BADWORDS = {
+                    word.strip(): 1 for word in FILE.readlines()
+                }
 
         # Log error if it occurs
         except FileNotFoundError:
@@ -40,7 +40,7 @@ class Filter:
         # Iterate over the words and check if
         # any is present in _BADWORDS
         for word in text:
-            if word in self._BADWORDS:
+            if self._BADWORDS.get(word):
                 return word
 
         return ""
