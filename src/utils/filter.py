@@ -40,7 +40,7 @@ class Filter:
         # Iterate over the words and check if
         # any is present in _BADWORDS
         for word in text:
-            if self._BADWORDS.get(word):
+            if word in self._BADWORDS:
                 return word
 
         return ""
