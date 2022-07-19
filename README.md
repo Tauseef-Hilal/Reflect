@@ -35,10 +35,10 @@ This one lets users stream (search for) YouTube videos right from Discord!<br>
 <br>
 
 ## Reaction Roles
-Discord servers have **Roles**.These are like ranks in a forum or on a <br>
+Discord servers have `Roles`.These are like ranks in a forum or on a <br>
 subreddit. They give users different privileges within a server or make<br>
 them stand out from other users by adding a color to their name or placing<br>
-them higher than other users on the sidebar. On Discord, **reaction roles**<br>
+them higher than other users on the sidebar. On Discord, `reaction roles`<br>
 are roles users can assign and unassign to themselves by simply reacting to<br>
 a message with an emoji. iCODE has commands to set up messages for<br>
 reaction roles.
@@ -55,7 +55,7 @@ bad words that come in chat.
 
 # Commands
 iCODE has a lot of commands to work with. I've divided them into different<br>
-groups (Command groups or **Cogs**). 
+groups (Command groups or `Cogs`). 
 <br>
 - General Commands
 - Moderation Commands
@@ -72,96 +72,105 @@ These commands can be used by anyone in the a server.
 <br>
 <br>
 
-### The `/avatar` command
+### `/avatar`
 This command gets the avatar (profile picture) of a member in a server.
 <br>
 
 #### Command Syntax:
-> **`/avatar [member]`**<br>
-
-**member** (optional): A server member
+```html
+/avatar [member]
+```
+`member` *`[OPTIONAL]`*: A server member
 <br>
 <br>
 
-### The `/embed` command
+### `/embed`
 This is used to create an embedded message.
 <br>
 
 #### Command Syntax:
-> **`/embed`**<br>
-
+```html
+/embed
+```
 
 <br>
 
-### The `/icon` command
+### `/icon`
 It is used to get the icon of a server.
 <br>
 
 #### Command Syntax:
-> **`/icon`**<br>
-
+```
+/icon
+```
 
 <br>
 
-### The `/membercount` command
+### `/membercount`
 Get the number of members (humans and bots) in the server.
 <br>
 
 #### Command Syntax:
-> **`/membercount`**<br>
-
+```html
+/membercount
+```
 
 <br>
 
-### The `/serverinfo` command
+### `/serverinfo`
 Get server information.
 <br>
 
 #### Command Syntax:
-> **`/serverinfo`**<br>
-
+```html
+/serverinfo
+```
 
 <br>
 
-### The `/suggest` command
+### `/suggest`
 Make a suggestion.
 <br>
 
 #### Command Syntax:
-> **`/suggest <suggestion>`**<br>
-
-**suggestion**: The suggestion to be suggested.
+```html
+/suggest <suggestion>
+```
+`suggestion` *`REQUIRED`*: The suggestion to be suggested.
 <br>
 <br>
 
-### The `/userinfo` command
+### `/userinfo`
 Get information about a member.
 <br>
 
 #### Command Syntax:
-> **`/userinfo <member>`**<br>
-
-**member**: A discord member
+```html
+/userinfo <member>
+```
+`member` *`<REQUIRED>`*: A discord member
 <br>
 <br>
 
-### The `/update-emojis` command
+### `/update-emojis`
 Update server emojis. Should be run after adding emojis.
 <br>
 
 #### Command Syntax:
-> **`/update-emojis`**<br>
-
+```html
+/update-emojis
+```
 
 <br>
 
-### The `/help` command
+### `/help`
 Get help menu for commands
 <br>
 
 #### Command Syntax:
-> **`/help`**<br>
-
+```html
+/help
+```
 
 <br>
 <br>
@@ -172,72 +181,78 @@ gets logged in the server modlogs channel.
 <br>
 <br>
 
-### The `/ban` command
+### `/ban`
 Ban a member from a server.
 <br>
 
 #### Command Syntax:
-> **`/ban <member> [reason]`**<br>
-
-**member**: Member to be banned<br>
-**reason** (optional): Reason for this action
+```html
+/ban <member> [reason]
+```
+`member` *`<REQUIRED>`*: Member to be banned<br>
+`reason` *`[OPTIONAL]`*: Reason for this action
 <br>
 <br>
 
-### The `/kick` command
+### `/kick`
 Kick a member from a server.
 <br>
 
 #### Command Syntax:
-> **`/kick <member> [reason]`**<br>
-
-**member**: Member to be kicked<br>
-**reason** (optional): Reason for this action
+```html
+/kick <member> [reason]
+```
+`member` *`<REQUIRED>`*: Member to be kicked<br>
+`reason` *`[OPTIONAL]`*: Reason for this action
 <br>
 <br>
 
-### The `/lock` command
+### `/lock`
 Lock current channel.
 <br>
 
 #### Command Syntax:
-> **`/lock`**<br>
-
+```html
+/lock
+```
 
 <br>
 
-### The `/unlock` command
+### `/unlock`
 Unlock current channel if locked.
 <br>
 
 #### Command Syntax:
-> **`/unlock`**<br>
-
+```html
+/unlock
+```
 
 <br>
 
-### The `/purge` command
+### `/purge`
 Delete a number of messages.
 <br>
 
 #### Command Syntax:
-> **`/purge <count> [from_user]`**<br>
-
-**count**: Number of messages to delete. Use `all` for all messages.<br>
-**from_user** (optional): Delete messages from one member.
+```html
+/purge <count> [from_user]
+```
+`count` *`<REQUIRED>`*: Number of messages to delete. Use `all` for all messages.<br>
+`from_user` *`[OPTIONAL]`*: Delete messages from one member.
 <br>
 <br>
 
-### The `/timeout` command
+### `/timeout`
 Timeout a server member for some time.
 <br>
 
 #### Command Syntax:
-> **`/timeout <member> <duration> [reason]`**<br>
-
-**member**: Member to be timed out<br>
-**duration**: Time in minutes<br>
-**reason** (optional): Reason for this action
+```html
+/timeout <member> <duration> [reason]
+```
+`member` *`<REQUIRED>`*: Member to be timed out<br>
+`duration` *`<REQUIRED>`*: Time in minutes<br>
+`reason` *`[OPTIONAL]`*: Reason for this action
 <br>
 <br>
 <br>
@@ -248,28 +263,30 @@ for reaction roles.
 <br>
 <br>
 
-### The `/reaction roles add` command
+### `/reaction roles add`
 Set a message for reaction roles. Add reactions to the message before<br>
 using this command.
 <br>
 
 #### Command Syntax:
-> **`/reaction roles add <message_id> <roles>`**<br>
-
-**message_id**: ID of the message<br>
-**roles**: A string of role names separated by `-`. This must be in the<br>
+```html
+/reaction roles add <message_id> <roles>
+```
+`message_id` *`<REQUIRED>`*: ID of the message<br>
+`roles` *`<REQUIRED>`*: A string of role names separated by `-`. This must be in the<br>
 same order as of the reactions on the message.
 <br>
 <br>
 
-### The `/reaction roles remove` command
+### `/reaction roles remove`
 Remove reaction roles from a message.
 <br>
 
 #### Command Syntax:
-> **`/reaction roles remove <message_id>`**<br>
-
-**message_id**: ID of the message<br>
+```html
+/reaction roles remove <message_id>
+```
+`message_id` *`<REQUIRED>`*: ID of the message<br>
 <br>
 <br>
 <br>
@@ -279,15 +296,16 @@ Anyone can use these commands.
 <br>
 <br>
 
-### The `/youtube search` command
+### `/youtube search`
 Search for a YouTube video.
 <br>
 
 #### Command Syntax:
-> **`/youtube search <query> [single=False]`**<br>
-
-**query**: Search query<br>
-**single** (optional, defaults to False): Whether a single result is wanted.
+```html
+/youtube search <query> [single]
+```
+`query` *`<REQUIRED>`*: Search query<br>
+`single` *`[OPTIONAL, Default: False]`*: Whether a single result is wanted.
 <br>
 <br>
 <br>
@@ -298,72 +316,78 @@ these commands.
 <br>
 <br>
 
-### The `/setup modlogs` command
+### `/setup modlogs`
 Set up a channel for moderation logs.
 <br>
 
 #### Command Syntax:
-> **`/setup modlogs [channel=#CURRENT_CHANNEL]`**<br>
-
-**channel** (optional, defaults to the current channel): The channel<br>
+```html
+/setup modlogs [channel]
+```
+`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel<br>
 to be set for moderation logs
 <br>
 <br>
 
-### The `/setup console` command
+### `/setup console`
 Set up a channel for greeting members.
 <br>
 
 #### Command Syntax:
-> **`/setup console [channel=#CURRENT_CHANNEL]`**<br>
-
-**channel** (optional, defaults to the current channel): The channel<br>
+```html
+/setup console [channel]
+```
+`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel<br>
 to be set for greeting members.
 <br>
 <br>
 
-### The `/setup suggestions` command
+### `/setup suggestions`
 Set up a channel for suggestions.
 <br>
 
 #### Command Syntax:
-> **`/setup suggestions [channel=#CURRENT_CHANNEL]`**<br>
-
-**channel** (optional, defaults to the current channel): The channel<br>
+```html
+/setup suggestions [channel]
+```
+`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel<br>
 to be set for suggestions.
 <br>
 <br>
 
-### The `/setup bump-reminder` command
+### `/setup bump-reminder`
 Set up a channel for bump reminders logs.
 <br>
 
 #### Command Syntax:
-> **`/setup bump-reminder [channel=#CURRENT_CHANNEL]`**<br>
-
-**channel** (optional, defaults to the current channel): The channel<br>
+```html
+/setup bump-reminder [channel]
+```
+`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel<br>
 to be set for bump reminders.
 <br>
 <br>
 
-### The `/setup bumper-role` command
+### `/setup bumper-role`
 Set up a role for bump reminder mentions.
 <br>
 
 #### Command Syntax:
-> **`/setup bumper-role <role>`**<br>
-
-**role**: The role to mention in bump reminders.
+```html
+/setup bumper-role <role>
+```
+`role` *`<REQUIRED>`*: The role to mention in bump reminders.
 <br>
 <br>
 
-### The `/setup reaction-roles` command
+### `/setup reaction-roles`
 Configure iCODE for reaction roles in the server.
 <br>
 
 #### Command Syntax:
-> **`/setup reaction-roles`**<br>
-
+```html
+/setup reaction-roles
+```
 
 <br>
 <br>
@@ -373,19 +397,23 @@ These commands can only be run by the owner of iCODE (Me).
 <br>
 <br>
 
-### The `/exec` command
+### `/exec`
 Run Python code.
 <br>
 
 #### Command Syntax:
-> **`/exec`**<br>
-
+```html
+/exec
+```
 
 <br>
 
-### The `/toggle-maintenance-mode` command
+### `/toggle-maintenance-mode`
 Activate maintenance mode.
 <br>
 
 #### Command Syntax:
-> **`/toggle-maintenance-mode`**<br>
+```html
+/toggle-maintenance-mode
+```
+<br>
