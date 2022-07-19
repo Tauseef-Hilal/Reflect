@@ -12,9 +12,9 @@ class Filter:
         # Try to extract words from the file
         try:
             with open(BADWORDS_FILE) as FILE:
-                self._BADWORDS = {
-                    word.strip(): 1 for word in FILE.readlines()
-                }
+                self._BADWORDS = set(
+                    word.strip() for word in FILE.readlines()
+                )
 
         # Log error if it occurs
         except FileNotFoundError:
