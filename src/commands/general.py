@@ -14,11 +14,16 @@ from discord import (
     Status,
     AllowedMentions,
     ApplicationContext,
-    TextChannel
+    TextChannel,
+    InputTextStyle
 )
 from discord.ext.commands import (
     Cog,
     slash_command
+)
+from discord.ui import (
+    Modal,
+    InputText
 )
 
 from ..bot import ICodeBot
@@ -28,6 +33,58 @@ from ..utils.constants import ANNOUNCEMENTS_CHANNEL_ID
 from ..utils.checks import (
     maintenance_check
 )
+
+
+class EmbedBuilder(Modal):
+    """Embed Builder"""
+
+    def __init__(self, ctx: ApplicationContext, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.ctx = ctx
+
+        self.add_item(InputText(
+            style=InputTextStyle.singleline,
+            label="Embed Title",
+            placeholder="Title",
+            required=True
+        ))
+        self.add_item(InputText(
+            style=InputTextStyle.paragraph,
+            label="Embed Description",
+            placeholder="Description",
+            required=True
+        ))
+        self.add_item(InputText(
+            style=InputTextStyle.singleline,
+            label="Embed Thumbnail",
+            placeholder="Thumbnail URL",
+            required=False
+        ))
+        self.add_item(InputText(
+            style=InputTextStyle.singleline,
+            label="Embed Footer",
+            placeholder="Footer Text",
+            required=False
+        ))
+
+    async def callback(self, interaction: Interaction):
+        embed = Embed(
+            title=self.children[0].value,
+            description=self.children[1].value,
+            color=Colors.GOLD,
+            timestamp=datetime.now()
+        )
+
+        if url := self.children[2].value:
+            embed = embed.set_thumbnail(url=url)
+
+        if footer_text := self.children[3].value:
+            embed = embed.set_footer(
+                text=footer_text,
+                icon_url=self.ctx.author.display_avatar
+            )
+
+        await interaction.response.send_message(embed=embed)
 
 
 class GeneralCommands(Cog):
@@ -57,63 +114,14 @@ class GeneralCommands(Cog):
             ctx (ApplicationContext)
         """
 
-        def check(message: Message) -> bool:
-            return (message.author == ctx.author and
-                    message.channel == ctx.channel)
+        # Create instance of EmbedBuilder
+        embed_builder: EmbedBuilder = EmbedBuilder(
+            ctx,
+            title="Embed Builder"
+        )
 
-        try:
-            res: Interaction = await ctx.respond(
-                embed=Embed(
-                    title="Embed Title",
-                    description="Please provide a title for the embed",
-                    color=Colors.BLUE
-                )
-            )
-            msg1: Message = await res.original_message()
-
-            title: Message = await self._bot.wait_for("message",
-                                                      check=check,
-                                                      timeout=60.0)
-
-            msg2: Message = await ctx.send(
-                embed=Embed(
-                    title="Embed Description",
-                    description="Please provide a description for the embed",
-                    color=Colors.BLUE)
-            )
-            desc: Message = await self._bot.wait_for("message",
-                                                     check=check,
-                                                     timeout=300.0)
-
-        except asyncio.TimeoutError:
-            await ctx.send(embed=Embed(title="TIMEOUT",
-                                       description="No response in time",
-                                       color=Colors.RED))
-
-        else:
-            embed = Embed(title=title.content,
-                          description=desc.content,
-                          timestamp=datetime.now(),
-                          color=Colors.GREEN)
-
-            if ctx.channel_id == ANNOUNCEMENTS_CHANNEL_ID:
-                embed = embed.set_footer(text="iCODE Staff",
-                                         icon_url=self._bot.user.avatar)
-
-                await ctx.send(content="@everyone",
-                               embed=embed,
-                               allowed_mentions=AllowedMentions.all())
-            else:
-                embed = embed.set_footer(text=ctx.author.name,
-                                         icon_url=ctx.author.avatar)
-
-                await ctx.send(content=ctx.author.mention,
-                               embed=embed)
-
-            await msg1.delete()
-            await title.delete()
-            await msg2.delete()
-            await desc.delete()
+        # Send Embed Builder
+        await ctx.send_modal(embed_builder)
 
     @slash_command(name="update-emojis")
     @maintenance_check()
@@ -166,7 +174,7 @@ class GeneralCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
-        
+
         # Suggestions channel
         try:
             channel = self._bot.get_channel(

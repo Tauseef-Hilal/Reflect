@@ -132,6 +132,9 @@ class ReactionRoleCommands(Cog):
                 )
 
                 return
+        
+        for rxn in msg_reactions:
+            await message.add_reaction(rxn)
 
         rxn_data = {}
         for reaction, role in zip(msg_reactions, reaction_roles):
