@@ -32,6 +32,7 @@ class YoutubeCommands(Cog):
     Commands for interacting with YouTube API
     """
 
+    # Create command group
     YT = SlashCommandGroup(
         "youtube",
         "YouTube commands"
@@ -64,6 +65,7 @@ class YoutubeCommands(Cog):
             channel (Option): Name of channel/
         """
 
+        # Send animation embed
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -72,20 +74,31 @@ class YoutubeCommands(Cog):
             )
         )
 
+        # Make API call
         search_res = self._bot.youtube.search(query)
 
+        # In case the single arg is True
         if single:
+
+            # Grab video ID
             video_id = ("https://www.youtube.com/watch?v="
                         + search_res[0]["id"]["videoId"])
+
+            # Send single result
             await res.edit_original_message(
                 content=f"[||...||]({video_id})",
                 embed=None
             )
             return
 
+        # Create a dictionary of videos
         videos: dict[str, Embed] = {}
         youtube_logo = self._bot.emoji_group.get_emoji("youtube")
+
+        # Create embeds for videos
         for video_id in search_res:
+
+            # Setup video details
             title = unescape(video_id["snippet"]["title"])
             channel_title = video_id["snippet"]["channelTitle"]
             description = video_id["snippet"]["description"]
@@ -93,6 +106,7 @@ class YoutubeCommands(Cog):
             url = ("https://www.youtube.com/watch?v="
                    f"{video_id['id']['videoId']}")
 
+            # Create embed
             videos[url] = Embed(
                 title=title,
                 description=f"{description}",
@@ -105,6 +119,7 @@ class YoutubeCommands(Cog):
                 icon_url=youtube_logo.url
             )
 
+        # Send videos with a View obj
         await res.edit_original_message(
             content="Here is what I found:",
             embeds=list(videos.values())[:5],
@@ -123,6 +138,8 @@ class SelectOptions(View):
             videos (dict): Video dicts
         """
         super().__init__(timeout=360)
+
+        # Set attributes
         self._bot = bot
         self.ctx = ctx
         self.videos = videos
@@ -169,15 +186,20 @@ class SelectOptions(View):
             interaction (InteractionResponse)
         """
 
+        # Get video URL
         url = self.visible_urls[int(select.values[0])]
 
+        # If its not a followup
         if not self.followup:
+
+            # Send followup msg
             self.followup = await self.ctx.send_followup(
                 content=f"[||...||]({url})",
                 embeds=[]
             )
             return
 
+        # Otherwise edit the previously sent followup msg
         await self.followup.edit(
             content=f"[||...||]({url})",
             embeds=[]
@@ -199,13 +221,17 @@ class SelectOptions(View):
             btn (Button): Button
             interaction (Interaction)
         """
-        
+
+        # Determine the corresponding video idx
         first_idx = list(self.videos).index(self.visible_urls[0])
 
         if not (first_idx - 4 >= 0):
             return
 
+        # Get visible urls
         self.visible_urls = list(self.videos)[first_idx - 5:first_idx]
+
+        # Send video embeds
         await self.ctx.interaction.edit_original_message(
             embeds=list(self.videos.values())[first_idx - 5:first_idx]
         )
@@ -227,12 +253,16 @@ class SelectOptions(View):
             interaction (Interaction)
         """
 
+        # Get last index
         last_idx = list(self.videos).index(self.visible_urls[-1])
 
         if not (last_idx + 6 <= len(self.videos)):
             return
 
+        # Get visible urls
         self.visible_urls = list(self.videos)[last_idx + 1:last_idx + 6]
+
+        # Send video embeds
         await self.ctx.interaction.edit_original_message(
             embeds=list(self.videos.values())[last_idx + 1:last_idx + 6]
         )

@@ -45,6 +45,8 @@ class Help(Cog):
             ctx (ApplicationContext)
         """
 
+        # Create embed for showing help
+        # Set author, footer and thumbnail for the embed
         embed = Embed(
             description=f"{self._bot.description}\n"
                         "Choose a command group from the "
@@ -61,6 +63,7 @@ class Help(Cog):
             url=self._bot.user.display_avatar
         )
 
+        # Send embed with a view obj
         await ctx.respond(
             embed=embed,
             view=UsageView(self._bot, ctx)
@@ -78,9 +81,12 @@ class UsageView(View):
             ctx (ApplicationContext)
         """
         super().__init__(timeout=360)
+
+        # Set attributes for View Obj
         self._bot = bot
         self.ctx = ctx
 
+    # Create select menu for command groups
     @select(
         placeholder="Select command group",
         min_values=1,
@@ -113,9 +119,13 @@ class UsageView(View):
             interaction (InteractionResponse)
         """
 
+        # Get command group
         cog = self._bot.get_cog(select.values[0])
+
+        # Get command group description
         desc = cog.description
 
+        # Create embed for help on this group
         embed = Embed(
             description=desc,
             color=self.ctx.author.color,
@@ -129,12 +139,16 @@ class UsageView(View):
             url=self._bot.user.display_avatar
         )
 
+        # Generate command syntax
         emoji = self._bot.emoji_group.get_emoji("reply")
         for cmd in cog.get_commands():
+            # Create a string of options
             options = " ".join(
                 [f"<{option.name}>" if option.required else f"[{option.name}]"
                  for option in cmd.options]
             )
+
+            # Add field to the embed
             embed.add_field(
                 name=f"__/{cmd}__",
                 value=f"{emoji} {cmd.description}\n"
@@ -142,6 +156,7 @@ class UsageView(View):
                 inline=False
             )
 
+        # Respond to the interaction
         await interaction.response.edit_message(
             embed=embed
         )

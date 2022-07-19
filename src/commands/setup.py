@@ -23,6 +23,7 @@ class SetupCommands(Cog):
     Commands for setup
     """
 
+    # Create command group
     SETUP = SlashCommandGroup(
         "setup",
         "Commands for setting bot features."
@@ -60,7 +61,7 @@ class SetupCommands(Cog):
         if not channel:
             channel: TextChannel = ctx.channel
 
-        # ---
+        # Send animation embed
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -70,8 +71,11 @@ class SetupCommands(Cog):
             )
         )
 
+        # Check if guild document is created
         guild: Guild = ctx.guild
         if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+
+            # Create new document
             self._bot.db.insert_one(
                 {
                     "guild_id": guild.id,
@@ -80,12 +84,16 @@ class SetupCommands(Cog):
                     }
                 }
             )
+
+        # If it is
         else:
+            # Try to get channel ids
             try:
                 channel_ids = self._bot.db.find_one(
                     {"guild_id": guild.id}
                 )["channel_ids"]
 
+                # Update channel ids
                 channel_ids["modlogs_channel"] = channel.id
                 self._bot.db.update_one(
                     self._bot.db.find_one(filter={"guild_id": guild.id}),
@@ -95,6 +103,8 @@ class SetupCommands(Cog):
                         }
                     }
                 )
+
+            # Create new channel ids key if it doesnot exist
             except KeyError:
                 self._bot.db.update_one(
                     self._bot.db.find_one(filter={"guild_id": guild.id}),
@@ -107,6 +117,7 @@ class SetupCommands(Cog):
                     }
                 )
 
+        # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
@@ -141,7 +152,7 @@ class SetupCommands(Cog):
         if not channel:
             channel: TextChannel = ctx.channel
 
-        # ---
+        # Send animation msg
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -151,8 +162,11 @@ class SetupCommands(Cog):
             )
         )
 
+        # Check if guild document is created
         guild: Guild = ctx.guild
         if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+
+            # Create new document
             self._bot.db.insert_one(
                 {
                     "guild_id": guild.id,
@@ -161,12 +175,17 @@ class SetupCommands(Cog):
                     }
                 }
             )
+
+        # If it is
         else:
+
+            # Try to get channel ids
             try:
                 channel_ids = self._bot.db.find_one(
                     {"guild_id": guild.id}
                 )["channel_ids"]
 
+                # Update channel ids
                 channel_ids["bump_reminder_channel"] = channel.id
                 self._bot.db.update_one(
                     self._bot.db.find_one(filter={"guild_id": guild.id}),
@@ -176,6 +195,8 @@ class SetupCommands(Cog):
                         }
                     }
                 )
+
+            # Create new channel ids if it doesnt exist
             except KeyError:
                 self._bot.db.update_one(
                     self._bot.db.find_one(filter={"guild_id": guild.id}),
@@ -188,7 +209,7 @@ class SetupCommands(Cog):
                     }
                 )
 
-        # ---
+        # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
@@ -218,7 +239,7 @@ class SetupCommands(Cog):
             role (Role): The bumper role
         """
 
-        # ---
+        # Send animation embed
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -228,8 +249,11 @@ class SetupCommands(Cog):
             )
         )
 
+        # Check if guild document is created
         guild: Guild = ctx.guild
         if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+
+            # Create new document
             self._bot.db.insert_one(
                 {
                     "guild_id": guild.id,
@@ -238,12 +262,16 @@ class SetupCommands(Cog):
                     }
                 }
             )
+
+        # If it is
         else:
+            # Try to get role ids
             try:
                 role_ids = self._bot.db.find_one(
                     {"guild_id": guild.id}
                 )["role_ids"]
 
+                # Update role ids
                 role_ids["server_bumper_role"] = role.id
                 self._bot.db.update_one(
                     self._bot.db.find_one(filter={"guild_id": guild.id}),
@@ -253,6 +281,8 @@ class SetupCommands(Cog):
                         }
                     }
                 )
+
+            # Create new role ids key if it doesnot exist
             except KeyError:
                 self._bot.db.update_one(
                     self._bot.db.find_one(filter={"guild_id": guild.id}),
@@ -265,7 +295,7 @@ class SetupCommands(Cog):
                     }
                 )
 
-        # ---
+        # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
@@ -300,7 +330,7 @@ class SetupCommands(Cog):
         if not channel:
             channel: TextChannel = ctx.channel
 
-        # ---
+        # Send animation embed
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -310,8 +340,11 @@ class SetupCommands(Cog):
             )
         )
 
+        # Check if guild document is created
         guild: Guild = ctx.guild
         if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+
+            # Create new document
             self._bot.db.insert_one(
                 {
                     "guild_id": guild.id,
@@ -320,12 +353,16 @@ class SetupCommands(Cog):
                     }
                 }
             )
+
+        # If it is
         else:
+            # Try to get channel ids
             try:
                 channel_ids = self._bot.db.find_one(
                     {"guild_id": guild.id}
                 )["channel_ids"]
 
+                # Update channel ids
                 channel_ids["console_channel"] = channel.id
                 self._bot.db.update_one(
                     self._bot.db.find_one(filter={"guild_id": guild.id}),
@@ -335,6 +372,8 @@ class SetupCommands(Cog):
                         }
                     }
                 )
+
+            # Create new channel ids key if it doesnot exist
             except KeyError:
                 self._bot.db.update_one(
                     self._bot.db.find_one(filter={"guild_id": guild.id}),
@@ -346,7 +385,7 @@ class SetupCommands(Cog):
                         }
                     }
                 )
-        # ---
+        # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
@@ -381,7 +420,7 @@ class SetupCommands(Cog):
         if not channel:
             channel: TextChannel = ctx.channel
 
-        # ---
+        # Send animation embed
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -391,8 +430,11 @@ class SetupCommands(Cog):
             )
         )
 
+        # Check if guild document is created
         guild: Guild = ctx.guild
         if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+
+            # Create new document
             self._bot.db.insert_one(
                 {
                     "guild_id": guild.id,
@@ -401,12 +443,16 @@ class SetupCommands(Cog):
                     }
                 }
             )
+
+        # If it is
         else:
+            # Try to get channel ids
             try:
                 channel_ids = self._bot.db.find_one(
                     {"guild_id": guild.id}
                 )["channel_ids"]
 
+                # Update channel ids
                 channel_ids["suggestions_channel"] = channel.id
                 self._bot.db.update_one(
                     self._bot.db.find_one(filter={"guild_id": guild.id}),
@@ -416,6 +462,8 @@ class SetupCommands(Cog):
                         }
                     }
                 )
+
+            # Create new channel ids key if it doesnot exist
             except KeyError:
                 self._bot.db.update_one(
                     self._bot.db.find_one(filter={"guild_id": guild.id}),
@@ -428,7 +476,7 @@ class SetupCommands(Cog):
                     }
                 )
 
-        # ---
+        # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
@@ -453,7 +501,7 @@ class SetupCommands(Cog):
             ctx (ApplicationContext)
         """
 
-        # ---
+        # Send animation embed
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -462,8 +510,11 @@ class SetupCommands(Cog):
             )
         )
 
+        # Check if guild document is created
         guild: Guild = ctx.guild
         if not self._bot.db.find_one(filter={"guild_id": guild.id}):
+
+            # Create new document
             self._bot.db.insert_one(
                 {
                     "guild_id": guild.id,
@@ -471,7 +522,7 @@ class SetupCommands(Cog):
                 }
             )
 
-        # ---
+        # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(

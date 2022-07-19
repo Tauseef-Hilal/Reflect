@@ -18,6 +18,3 @@ def get_database(host: str) -> Collection:
 
     # Create the database
     return CLIENT["icode"]["guilds"]
-
-
-

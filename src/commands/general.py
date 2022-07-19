@@ -42,24 +42,31 @@ class EmbedBuilder(Modal):
         super().__init__(*args, **kwargs)
         self.ctx = ctx
 
+        # Add input field for embed title
         self.add_item(InputText(
             style=InputTextStyle.singleline,
             label="Embed Title",
             placeholder="Title",
             required=True
         ))
+
+        # Add input field for embed description
         self.add_item(InputText(
             style=InputTextStyle.paragraph,
             label="Embed Description",
             placeholder="Description",
             required=True
         ))
+
+        # Add input field for embed thumbnail url
         self.add_item(InputText(
             style=InputTextStyle.singleline,
             label="Embed Thumbnail",
             placeholder="Thumbnail URL",
             required=False
         ))
+
+        # Add input field for embed footer
         self.add_item(InputText(
             style=InputTextStyle.singleline,
             label="Embed Footer",
@@ -68,6 +75,8 @@ class EmbedBuilder(Modal):
         ))
 
     async def callback(self, interaction: Interaction):
+
+        # Create Embed object
         embed = Embed(
             title=self.children[0].value,
             description=self.children[1].value,
@@ -75,15 +84,18 @@ class EmbedBuilder(Modal):
             timestamp=datetime.now()
         )
 
+        # Set thumbnail if provided
         if url := self.children[2].value:
             embed = embed.set_thumbnail(url=url)
 
+        # Set footer if provided
         if footer_text := self.children[3].value:
             embed = embed.set_footer(
                 text=footer_text,
                 icon_url=self.ctx.author.display_avatar
             )
 
+        # Send embedded message
         await interaction.response.send_message(embed=embed)
 
 
@@ -175,7 +187,7 @@ class GeneralCommands(Cog):
             ctx (ApplicationContext)
         """
 
-        # Suggestions channel
+        # Try to get Suggestions channel
         try:
             channel = self._bot.get_channel(
                 self._bot.db.find_one(
@@ -183,6 +195,8 @@ class GeneralCommands(Cog):
                 )["channel_ids"]["suggestions_channel"]
             )
             assert isinstance(channel, TextChannel)
+
+        # Send message to set up suggestions channel if not successful
         except (KeyError, TypeError, AssertionError):
             logging.warning("Suggestions channel not set")
 
@@ -246,6 +260,7 @@ class GeneralCommands(Cog):
             ctx (ApplicationContext)
         """
 
+        # Send animation embed
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -294,11 +309,13 @@ class GeneralCommands(Cog):
 
             humans += 1
 
+        # Add field for members
         card = card.add_field(
             name=f"Members - {guild.member_count}",
             value=f":bust_in_silhouette: {humans} - :robot: {bots}"
         )
 
+        # Calculate the number of animated emojis
         normal, animated = 0, 0
         for emoji in guild.emojis:
             if emoji.animated:
@@ -307,6 +324,7 @@ class GeneralCommands(Cog):
 
             normal += 1
 
+        # Add field for emojis
         ukraine = self._bot.emoji_group.get_emoji("ukraine")
         blob = self._bot.emoji_group.get_emoji("blob_on_drugs")
         card = card.add_field(
@@ -314,6 +332,7 @@ class GeneralCommands(Cog):
             value=f"{ukraine} {normal} - {blob} {animated}"
         )
 
+        # Calculate the number of humans and bots
         human, bot = 0, 0
         for role in guild.roles:
             if role.is_bot_managed():
@@ -322,6 +341,7 @@ class GeneralCommands(Cog):
 
             human += 1
 
+        # Add field for roles
         card = card.add_field(
             name=f"Roles - {len(guild.roles)}",
             value=f":bust_in_silhouette: {human} - :robot: {bot}"
@@ -334,6 +354,7 @@ class GeneralCommands(Cog):
             features += feature.replace("_", " ").title()
             features += "\n"
 
+        # Add a field for features
         if features:
             card = card.add_field(
                 name="Server Features",
@@ -389,10 +410,11 @@ class GeneralCommands(Cog):
             user (Member): The user whose info is to be fetched
         """
 
-        # Confirm params
+        # Validate params
         if not user:
             user: Member = ctx.guild.get_member(ctx.author.id)
 
+        # Send animation embed
         emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
@@ -413,7 +435,7 @@ class GeneralCommands(Cog):
             icon_url=user.display_avatar
         ).set_thumbnail(url=user.display_avatar)
 
-        # First line
+        # Add fields for Tag, ID and Nickname
         card = card.add_field(
             name="User Tag",
             value=f"{user}",
@@ -433,12 +455,14 @@ class GeneralCommands(Cog):
             "red_cross" if user.bot else "green_tick"
         )
 
+        # Get user's status
         status: Status = user.status
         if user.is_on_mobile() and status.name == "online":
             status_emoji = self._bot.emoji_group.get_emoji("mobile")
         else:
             status_emoji = self._bot.emoji_group.get_emoji(status.name)
 
+        # Add fields more fields
         card = card.add_field(
             name="Active Status",
             value=f"{status_emoji} {status.value.upper()}",
@@ -483,7 +507,7 @@ class GeneralCommands(Cog):
         Get a user's avatar
 
         Args:
-            ctx (ApplicationContext): 
+            ctx (ApplicationContext):
             user (Option, optional): The user whose avatar you want. Defaults to None.
         """
 

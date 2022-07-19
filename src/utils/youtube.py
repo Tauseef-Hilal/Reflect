@@ -17,6 +17,7 @@ class YouTube:
             Any: The created resource
         """
 
+        # Create resource for interacting with YouTube
         self._yt = build(
             serviceName="youtube",
             version="v3",

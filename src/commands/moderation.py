@@ -63,12 +63,16 @@ class ModerationCommands(Cog):
         if count == "all":
             count = -1
         else:
+            # Try to convert `count` into an integer
             try:
                 count = int(count)
 
             # Send error message to the user if unsuccessful
             except ValueError:
+                # Get `red_cross` emoji
                 emoji = self._bot.emoji_group.get_emoji("red_cross")
+
+                # Send error msg
                 await ctx.respond(
                     embed=Embed(
                         title=f"Invalid arguments {emoji}",
@@ -92,8 +96,11 @@ class ModerationCommands(Cog):
                 color=Colors.GOLD
             )
         )
+
+        # Wait for 1 second
         await asyncio.sleep(1)
 
+        # Send animation embed
         await res.edit_original_message(
             embed=Embed(
                 description=f"Deleting message(s) {emoji}",
@@ -136,9 +143,11 @@ class ModerationCommands(Cog):
             member (Member): Member to be kicked
         """
 
-        # Kick the member
+        # Try to kick the member
         try:
             await member.kick(reason=reason)
+
+        # Send Permission Error msg if not successful
         except Forbidden:
             emoji = ctx.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
@@ -152,7 +161,7 @@ class ModerationCommands(Cog):
             )
             return
 
-        # Send log to staff channel
+        # Create embedded msg
         emoji = self._bot.emoji_group.get_emoji("rules")
         embed = Embed(
             description=f"{member.mention} was kicked out by "
@@ -167,8 +176,10 @@ class ModerationCommands(Cog):
             icon_url=self._bot.user.display_avatar
         ).set_thumbnail(url=emoji.url)
 
+        # Send message to the current channel
         await ctx.respond(embed=embed, delete_after=3)
 
+        # Try to get the modlogs channel
         try:
             channel = self._bot.get_channel(
                 self._bot.db.find_one(
@@ -176,8 +187,9 @@ class ModerationCommands(Cog):
                 )["channel_ids"]["modlogs_channel"]
             )
             assert isinstance(channel, TextChannel)
+
+        # Send message to set up modlogs channel if not successful
         except (KeyError, TypeError, AssertionError) as e:
-            print(e)
             emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
                 embed=Embed(
@@ -208,9 +220,11 @@ class ModerationCommands(Cog):
             member (Member): Member to be banned
         """
 
-        # Ban the member
+        # Try to ban the member
         try:
             await member.ban(reason=reason)
+
+        # Send Permission Error msg if not successful
         except Forbidden:
             emoji = ctx.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
@@ -224,7 +238,7 @@ class ModerationCommands(Cog):
             )
             return
 
-        # Send log to staff channel
+        # Create embedded msg
         emoji = self._bot.emoji_group.get_emoji("rules")
         embed = Embed(
             description=f"{member.mention} was banned by "
@@ -239,8 +253,10 @@ class ModerationCommands(Cog):
             icon_url=self._bot.user.display_avatar
         ).set_thumbnail(url=emoji.url)
 
+        # Send message to current channel
         await ctx.respond(embed=embed, delete_after=3)
 
+        # Try to get modlogs channel
         try:
             channel = self._bot.get_channel(
                 self._bot.db.find_one(
@@ -248,6 +264,8 @@ class ModerationCommands(Cog):
                 )["channel_ids"]["modlogs_channel"]
             )
             assert isinstance(channel, TextChannel)
+
+        # Send message to set up modlogs channel if not successful
         except (KeyError, TypeError, AssertionError):
             emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
@@ -292,12 +310,14 @@ class ModerationCommands(Cog):
             )
             return
 
-        # Timeout the user
+        # Try to timeout the user
         try:
             await member.timeout_for(
                 duration=timedelta(minutes=duration),
                 reason=reason
             )
+
+        # Send Permission Error msg if not successful
         except Forbidden:
             emoji = ctx.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
@@ -311,7 +331,7 @@ class ModerationCommands(Cog):
             )
             return
 
-        # Send log to staff channel
+        # Create embedded msg
         emoji = self._bot.emoji_group.get_emoji("rules")
         embed = Embed(
             description=f"{member.mention} was timed out by "
@@ -326,8 +346,10 @@ class ModerationCommands(Cog):
             icon_url=self._bot.user.display_avatar
         ).set_thumbnail(url=emoji.url)
 
+        # Send msg to current channel
         await ctx.respond(embed=embed, delete_after=3)
 
+        # Try to get the modlogs channel
         try:
             channel = self._bot.get_channel(
                 self._bot.db.find_one(
@@ -335,6 +357,8 @@ class ModerationCommands(Cog):
                 )["channel_ids"]["modlogs_channel"]
             )
             assert isinstance(channel, TextChannel)
+
+        # Send message to set up modlogs channel if not successful
         except (KeyError, TypeError, AssertionError):
             emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(

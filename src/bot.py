@@ -169,16 +169,16 @@ class ICodeBot(Bot):
             guild: Guild = self.get_guild(payload.guild_id)
             guild_data = self.db.find_one({"guild_id": guild.id})
             rxn_messages = guild_data["reaction_messages"]
-            
+
         except (KeyError, TypeError):
             return
-        
+
         for rxn_msg in rxn_messages:
             if int(rxn_msg) == payload.message_id:
                 break
         else:
             return
-        
+
         emoji: PartialEmoji = payload.emoji
 
         try:
@@ -189,7 +189,6 @@ class ICodeBot(Bot):
             if role:
                 await payload.member.add_roles(role)
                 logging.info(f"Added {role} role to {payload.member}")
-            
 
     async def on_raw_reaction_remove(
         self,
@@ -205,10 +204,10 @@ class ICodeBot(Bot):
             guild: Guild = self.get_guild(payload.guild_id)
             guild_data = self.db.find_one({"guild_id": guild.id})
             rxn_messages = guild_data["reaction_messages"]
-            
+
         except (KeyError, TypeError):
             return
-        
+
         for rxn_msg in rxn_messages:
             if int(rxn_msg) == payload.message_id:
                 break

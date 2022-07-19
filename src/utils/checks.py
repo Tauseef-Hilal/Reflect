@@ -20,10 +20,15 @@ def under_maintenance(ctx: ApplicationContext) -> bool:
         bool: True if under maintenance
     """
 
+    # If the bot is running under maintenance mode
+    # and the channel is not the maintenance channel
     if (ctx.bot.MAINTENANCE_MODE
             and ctx.channel != ctx.bot.MAINTENANCE_CHANNEL):
+
+        # Dispatch maintenance event
         ctx.bot.dispatch("maintenance", ctx)
         return True
+    
     return False
 
 

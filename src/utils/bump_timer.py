@@ -21,6 +21,7 @@ class BumpTimer:
             timestamp (datetime): Bump timestamp
         """
 
+        # Update bump timestamp for a server
         collection.update_one(
             collection.find_one({"guild_id": guild_id}),
             {"$set": {"bump_timestamp": timestamp}}
@@ -28,10 +29,11 @@ class BumpTimer:
 
     def get_bump_time(self, data: dict) -> datetime.datetime:
         """
-        Read timestamp of previous bump 
+        Read timestamp of previous bump
 
         Returns:
             datetime.datetime: Most recent bump time
         """
 
+        # Return last bump time
         return data["bump_timestamp"]
