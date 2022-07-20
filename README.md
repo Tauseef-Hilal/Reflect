@@ -15,39 +15,39 @@ iCODE has many features. Here are some I love:
 <br>
 
 ## Animated Emojis Without Nitro
-This one is my favourite. It lets anyone use animated emojis, whether<br>
-or not they have discord nitro subscription (a premium plan which lets<br>
-users use animated emojis and some more premium features). This one is <br>
+This one is my favourite. It lets anyone use animated emojis, whether
+or not they have discord nitro subscription (a premium plan which lets
+users use animated emojis and some more premium features). This one is
 implemented in `src/bot.py`.
 <br>
 
 ### How this works?
-Whenever someone tries to use an animated emoji, the bot catches the msg<br>
-reads every emoji and deletes the message. Then it processes the emojis<br>
+Whenever someone tries to use an animated emoji, the bot catches the msg,
+reads every emoji and deletes the message. Then it processes the emojis
 and sends a webhook back to the same channel which shows those emojis!
 <br>
 <br>
 
 ## Reaction Roles
-Discord servers have **Roles**. These are like ranks in a forum or on a <br>
-subreddit. They give users different privileges within a server or make<br>
-them stand out from other users by adding a color to their name or placing<br>
-them higher than other users on the sidebar. On Discord, `reaction roles`<br>
-are roles users can assign and unassign to themselves by simply reacting to<br>
-a message with an emoji. iCODE has commands to set up messages for reaction<br>
+Discord servers have **Roles**. These are like ranks in a forum or on a
+subreddit. They give users different privileges within a server or make
+them stand out from other users by adding a color to their name or placing
+them higher than other users on the sidebar. On Discord, `reaction roles`
+are roles users can assign and unassign to themselves by simply reacting to
+a message with an emoji. iCODE has commands to set up messages for reaction
 roles. The commands for this are defined in `/src/commands/reaction_roles.py`.
 <br>
 <br>
 
 ## YouTube Search
-This one lets users stream (search for) YouTube videos right from Discord!<br>
+This one lets users stream (search for) YouTube videos right from Discord!
 For this I integrated the `YouTube Data API` in `/src/utils/youtube.py`.
 <br>
 <br>
 
 ## Text Filter
-This one keeps the chat clean and community friendly. It basically censors<br>
-bad words that come in chat. For this, I used `/data/badwords.txt` (from <br>
+This one keeps the chat clean and community friendly. It basically censors
+bad words that come in chat. For this, I used `/data/badwords.txt` (from 
 Google archives), implemented in `/src/utils/filter.py`.
 <br>
 <br>
@@ -55,7 +55,7 @@ Google archives), implemented in `/src/utils/filter.py`.
 <br>
 
 # Commands
-iCODE has a lot of commands to work with. I've divided them into different<br>
+iCODE has a lot of commands to work with. I've divided them into different
 groups (Command groups or `Cogs`). 
 <br>
 1. [General Commands](https://github.com/Tauseef-Hilal/Echo#general-commands)
@@ -69,7 +69,7 @@ groups (Command groups or `Cogs`).
 <br>
 
 ## General Commands
-These commands are defined in `/src/commands/general.py`.<br>
+These commands are defined in `/src/commands/general.py`.
 Anyone can use these commands.
 <br>
 <br>
@@ -178,8 +178,8 @@ Get help menu for commands
 <br>
 
 ## Moderation Commands
-These commands are defined in `/src/commands/moderation.py`<br>
-These can be used by server moderators/admins. The usage of these commands<br>
+These commands are defined in `/src/commands/moderation.py`
+These can be used by server moderators/admins. The usage of these commands
 gets logged in the server modlogs channel.
 <br>
 <br>
@@ -192,7 +192,7 @@ Ban a member from a server.
 ```html
 /ban <member> [reason]
 ```
-`member` *`<REQUIRED>`*: Member to be banned<br>
+`member` *`<REQUIRED>`*: Member to be banned
 `reason` *`[OPTIONAL]`*: Reason for this action
 <br>
 <br>
@@ -205,7 +205,7 @@ Kick a member from a server.
 ```html
 /kick <member> [reason]
 ```
-`member` *`<REQUIRED>`*: Member to be kicked<br>
+`member` *`<REQUIRED>`*: Member to be kicked
 `reason` *`[OPTIONAL]`*: Reason for this action
 <br>
 <br>
@@ -240,7 +240,7 @@ Delete a number of messages.
 ```html
 /purge <count> [from_user]
 ```
-`count` *`<REQUIRED>`*: Number of messages to delete. Use `all` for all messages.<br>
+`count` *`<REQUIRED>`*: Number of messages to delete. Use `all` for all messages.
 `from_user` *`[OPTIONAL]`*: Delete messages from one member.
 <br>
 <br>
@@ -253,22 +253,22 @@ Timeout a server member for some time.
 ```html
 /timeout <member> <duration> [reason]
 ```
-`member` *`<REQUIRED>`*: Member to be timed out<br>
-`duration` *`<REQUIRED>`*: Time in minutes<br>
+`member` *`<REQUIRED>`*: Member to be timed out
+`duration` *`<REQUIRED>`*: Time in minutes
 `reason` *`[OPTIONAL]`*: Reason for this action
 <br>
 <br>
 <br>
 
 ## Reaction Role Commands
-These commands are defined in `/src/commands/reaction_roles.py`.<br>
-These can be used by server moderators/admins. Use these to set messages<br>
+These commands are defined in `/src/commands/reaction_roles.py`.
+These can be used by server moderators/admins. Use these to set messages
 for reaction roles.
 <br>
 <br>
 
 ### `/reaction roles add`
-Set a message for reaction roles. Add reactions to the message before<br>
+Set a message for reaction roles. Add reactions to the message before
 using this command.
 <br>
 
@@ -276,8 +276,8 @@ using this command.
 ```html
 /reaction roles add <message_id> <roles>
 ```
-`message_id` *`<REQUIRED>`*: ID of the message<br>
-`roles` *`<REQUIRED>`*: A string of role names separated by `-`. This must be in the<br>
+`message_id` *`<REQUIRED>`*: ID of the message
+`roles` *`<REQUIRED>`*: A string of role names separated by `-`. This must be in the
 same order as of the reactions on the message.
 <br>
 <br>
@@ -290,13 +290,13 @@ Remove reaction roles from a message.
 ```html
 /reaction roles remove <message_id>
 ```
-`message_id` *`<REQUIRED>`*: ID of the message<br>
+`message_id` *`<REQUIRED>`*: ID of the message
 <br>
 <br>
 <br>
 
 ## YouTube Commands
-These commands are defined in `src/commands/youtube.py`<br>
+These commands are defined in `src/commands/youtube.py`.
 Anyone can use these commands.
 <br>
 <br>
@@ -309,7 +309,7 @@ Search for a YouTube video.
 ```html
 /youtube search <query> [single]
 ```
-`query` *`<REQUIRED>`*: Search query<br>
+`query` *`<REQUIRED>`*: Search quer
 `single` *`[OPTIONAL, Default: False]`*: Whether a single result is wanted.
 <br>
 <br>
@@ -317,7 +317,7 @@ Search for a YouTube video.
 
 ## Setup Commands
 These commands are defined in `/src/commands/setup.py`<br>
-Commands for setting up iCODE. Only members with Admin perms can use<br>
+Commands for setting up iCODE. Only members with Admin perms can use
 these commands.
 <br>
 <br>
@@ -330,7 +330,7 @@ Set up a channel for moderation logs.
 ```html
 /setup modlogs [channel]
 ```
-`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel<br>
+`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel
 to be set for moderation logs
 <br>
 <br>
@@ -343,7 +343,7 @@ Set up a channel for greeting members.
 ```html
 /setup console [channel]
 ```
-`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel<br>
+`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel
 to be set for greeting members.
 <br>
 <br>
@@ -356,7 +356,7 @@ Set up a channel for suggestions.
 ```html
 /setup suggestions [channel]
 ```
-`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel<br>
+`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel
 to be set for suggestions.
 <br>
 <br>
@@ -369,7 +369,7 @@ Set up a channel for bump reminders logs.
 ```html
 /setup bump-reminder [channel]
 ```
-`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel<br>
+`channel` *`[OPTIONAL, Default: Current Channel]`*: The channel
 to be set for bump reminders.
 <br>
 <br>
@@ -399,7 +399,7 @@ Configure iCODE for reaction roles in the server.
 <br>
 
 ## Miscellaneous Commands
-These commands are defined in `/src/commands/miscellaneous.py`<br>
+These commands are defined in `/src/commands/miscellaneous.py`
 These commands can only be run by the owner of iCODE (Me).
 <br>
 <br>
