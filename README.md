@@ -1,7 +1,5 @@
 # iCODE
-#### Video Demo:  https://youtu.be/LRiyIXW6ukE
-#### Description: A Discord bot coded in Python
-#### Author: Tauseef Hilal Tantary
+A Discord Bot coded in Python.
 <br>
 <br>
 
