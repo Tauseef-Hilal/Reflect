@@ -3,6 +3,73 @@ A Discord Bot coded in Python.
 <br>
 <br>
 
+- [iCODE](#icode)
+- [Features](#features)
+  - [Animated Emojis Without Nitro](#animated-emojis-without-nitro)
+    - [How this works?](#how-this-works)
+  - [Reaction Roles](#reaction-roles)
+  - [YouTube Search](#youtube-search)
+  - [Text Filter](#text-filter)
+- [Commands](#commands)
+  - [General Commands](#general-commands)
+    - [`/avatar`](#avatar)
+        - [Command Syntax:](#command-syntax)
+    - [`/embed`](#embed)
+        - [Command Syntax:](#command-syntax-1)
+    - [`/icon`](#icon)
+        - [Command Syntax:](#command-syntax-2)
+    - [`/membercount`](#membercount)
+        - [Command Syntax:](#command-syntax-3)
+    - [`/serverinfo`](#serverinfo)
+        - [Command Syntax:](#command-syntax-4)
+    - [`/suggest`](#suggest)
+        - [Command Syntax:](#command-syntax-5)
+    - [`/userinfo`](#userinfo)
+        - [Command Syntax:](#command-syntax-6)
+    - [`/update-emojis`](#update-emojis)
+        - [Command Syntax:](#command-syntax-7)
+    - [`/help`](#help)
+        - [Command Syntax:](#command-syntax-8)
+  - [Moderation Commands](#moderation-commands)
+    - [`/ban`](#ban)
+        - [Command Syntax:](#command-syntax-9)
+    - [`/kick`](#kick)
+        - [Command Syntax:](#command-syntax-10)
+    - [`/lock`](#lock)
+        - [Command Syntax:](#command-syntax-11)
+    - [`/unlock`](#unlock)
+        - [Command Syntax:](#command-syntax-12)
+    - [`/purge`](#purge)
+        - [Command Syntax:](#command-syntax-13)
+    - [`/timeout`](#timeout)
+        - [Command Syntax:](#command-syntax-14)
+  - [Reaction Role Commands](#reaction-role-commands)
+    - [`/reaction roles add`](#reaction-roles-add)
+        - [Command Syntax:](#command-syntax-15)
+    - [`/reaction roles remove`](#reaction-roles-remove)
+        - [Command Syntax:](#command-syntax-16)
+  - [YouTube Commands](#youtube-commands)
+    - [`/youtube search`](#youtube-search-1)
+        - [Command Syntax:](#command-syntax-17)
+  - [Setup Commands](#setup-commands)
+    - [`/setup modlogs`](#setup-modlogs)
+        - [Command Syntax:](#command-syntax-18)
+    - [`/setup console`](#setup-console)
+        - [Command Syntax:](#command-syntax-19)
+    - [`/setup suggestions`](#setup-suggestions)
+        - [Command Syntax:](#command-syntax-20)
+    - [`/setup bump-reminder`](#setup-bump-reminder)
+        - [Command Syntax:](#command-syntax-21)
+    - [`/setup bumper-role`](#setup-bumper-role)
+        - [Command Syntax:](#command-syntax-22)
+    - [`/setup reaction-roles`](#setup-reaction-roles)
+        - [Command Syntax:](#command-syntax-23)
+  - [Miscellaneous Commands](#miscellaneous-commands)
+    - [`/exec`](#exec)
+        - [Command Syntax:](#command-syntax-24)
+    - [`/toggle-maintenance-mode`](#toggle-maintenance-mode)
+        - [Command Syntax:](#command-syntax-25)
+
 
 # Features
 iCODE has many features. Here are some I love:
@@ -58,12 +125,12 @@ Google archives), implemented in `/src/utils/filter.py`.
 iCODE has a lot of commands to work with. I've divided them into different
 groups (Command groups or `Cogs`). 
 <br>
-1. [General Commands](https://github.com/Tauseef-Hilal/Echo#general-commands)
-2. [Moderation Commands](https://github.com/Tauseef-Hilal/Echo#moderation-commands)
-3. [ReactionRole Commands](https://github.com/Tauseef-Hilal/Echo#reaction-role-commands)
-4. [YouTube Commands](https://github.com/Tauseef-Hilal/Echo#youtube-commands)
-5. [Setup Commands](https://github.com/Tauseef-Hilal/Echo#setup-commands)
-6. [Miscellaneous Commands](https://github.com/Tauseef-Hilal/Echo#miscellaneous-commands)
+1. [General Commands](#general-commands)
+2. [Moderation Commands](#moderation-commands)
+3. [ReactionRole Commands](#reaction-role-commands)
+4. [YouTube Commands](#youtube-commands)
+5. [Setup Commands](#setup-commands)
+6. [Miscellaneous Commands](#miscellaneous-commands)
 <br>
 <br>
 <br>
@@ -78,7 +145,7 @@ Anyone can use these commands.
 This command gets the avatar (profile picture) of a member in a server.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /avatar [member]
 ```
@@ -90,7 +157,7 @@ This command gets the avatar (profile picture) of a member in a server.
 This is used to create an embedded message.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /embed
 ```
@@ -101,7 +168,7 @@ This is used to create an embedded message.
 It is used to get the icon of a server.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```
 /icon
 ```
@@ -112,7 +179,7 @@ It is used to get the icon of a server.
 Get the number of members (humans and bots) in the server.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /membercount
 ```
@@ -123,7 +190,7 @@ Get the number of members (humans and bots) in the server.
 Get server information.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /serverinfo
 ```
@@ -134,7 +201,7 @@ Get server information.
 Make a suggestion.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /suggest <suggestion>
 ```
@@ -146,7 +213,7 @@ Make a suggestion.
 Get information about a member.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /userinfo <member>
 ```
@@ -158,7 +225,7 @@ Get information about a member.
 Update server emojis. Should be run after adding emojis.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /update-emojis
 ```
@@ -169,7 +236,7 @@ Update server emojis. Should be run after adding emojis.
 Get help menu for commands
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /help
 ```
@@ -188,11 +255,11 @@ gets logged in the server modlogs channel.
 Ban a member from a server.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /ban <member> [reason]
 ```
-`member` *`<REQUIRED>`*: Member to be banned
+`member` *`<REQUIRED>`*: Member to be banned<br>
 `reason` *`[OPTIONAL]`*: Reason for this action
 <br>
 <br>
@@ -201,11 +268,11 @@ Ban a member from a server.
 Kick a member from a server.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /kick <member> [reason]
 ```
-`member` *`<REQUIRED>`*: Member to be kicked
+`member` *`<REQUIRED>`*: Member to be kicked<br>
 `reason` *`[OPTIONAL]`*: Reason for this action
 <br>
 <br>
@@ -214,7 +281,7 @@ Kick a member from a server.
 Lock current channel.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /lock
 ```
@@ -225,7 +292,7 @@ Lock current channel.
 Unlock current channel if locked.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /unlock
 ```
@@ -236,11 +303,11 @@ Unlock current channel if locked.
 Delete a number of messages.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /purge <count> [from_user]
 ```
-`count` *`<REQUIRED>`*: Number of messages to delete. Use `all` for all messages.
+`count` *`<REQUIRED>`*: Number of messages to delete. Use `all` for all messages.<br>
 `from_user` *`[OPTIONAL]`*: Delete messages from one member.
 <br>
 <br>
@@ -249,12 +316,12 @@ Delete a number of messages.
 Timeout a server member for some time.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /timeout <member> <duration> [reason]
 ```
-`member` *`<REQUIRED>`*: Member to be timed out
-`duration` *`<REQUIRED>`*: Time in minutes
+`member` *`<REQUIRED>`*: Member to be timed out<br>
+`duration` *`<REQUIRED>`*: Time in minutes<br>
 `reason` *`[OPTIONAL]`*: Reason for this action
 <br>
 <br>
@@ -272,11 +339,11 @@ Set a message for reaction roles. Add reactions to the message before
 using this command.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /reaction roles add <message_id> <roles>
 ```
-`message_id` *`<REQUIRED>`*: ID of the message
+`message_id` *`<REQUIRED>`*: ID of the message<br>
 `roles` *`<REQUIRED>`*: A string of role names separated by `-`. This must be in the
 same order as of the reactions on the message.
 <br>
@@ -286,7 +353,7 @@ same order as of the reactions on the message.
 Remove reaction roles from a message.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /reaction roles remove <message_id>
 ```
@@ -305,11 +372,11 @@ Anyone can use these commands.
 Search for a YouTube video.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /youtube search <query> [single]
 ```
-`query` *`<REQUIRED>`*: Search quer
+`query` *`<REQUIRED>`*: Search query<br>
 `single` *`[OPTIONAL, Default: False]`*: Whether a single result is wanted.
 <br>
 <br>
@@ -326,7 +393,7 @@ these commands.
 Set up a channel for moderation logs.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /setup modlogs [channel]
 ```
@@ -339,7 +406,7 @@ to be set for moderation logs
 Set up a channel for greeting members.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /setup console [channel]
 ```
@@ -352,7 +419,7 @@ to be set for greeting members.
 Set up a channel for suggestions.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /setup suggestions [channel]
 ```
@@ -365,7 +432,7 @@ to be set for suggestions.
 Set up a channel for bump reminders logs.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /setup bump-reminder [channel]
 ```
@@ -378,7 +445,7 @@ to be set for bump reminders.
 Set up a role for bump reminder mentions.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /setup bumper-role <role>
 ```
@@ -390,7 +457,7 @@ Set up a role for bump reminder mentions.
 Configure iCODE for reaction roles in the server.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /setup reaction-roles
 ```
@@ -408,7 +475,7 @@ These commands can only be run by the owner of iCODE (Me).
 Run Python code.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /exec
 ```
@@ -419,7 +486,7 @@ Run Python code.
 Activate maintenance mode.
 <br>
 
-#### Command Syntax:
+##### Command Syntax:
 ```html
 /toggle-maintenance-mode
 ```
