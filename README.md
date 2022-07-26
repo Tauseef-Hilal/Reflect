@@ -44,6 +44,7 @@ A Discord Bot coded in Python.
   - [Miscellaneous Commands](#miscellaneous-commands)
     - [`/exec`](#exec)
     - [`/toggle-maintenance-mode`](#toggle-maintenance-mode)
+  - [Contribution](#contribution)
 
 
 # Features
@@ -465,4 +466,8 @@ Activate maintenance mode.
 ```html
 /toggle-maintenance-mode
 ```
+<br>
+
+## Contribution
+You are welcome to add new features! Click [here](.github/CONTRIBUTING.md) to get started.
 <br>
