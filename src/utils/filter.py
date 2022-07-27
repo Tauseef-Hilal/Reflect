@@ -1,4 +1,5 @@
 import logging
+from string import punctuation
 from .constants import BADWORDS_FILE
 
 
@@ -32,14 +33,12 @@ class Filter:
         """
 
         # Setup
-        text = text.replace("`", "").replace("*", "")
-
-        # Split the text into a list of words
-        text = text.lower().split()
+        for char in ["`", "*", ".", ",", ":", "?", "!"]:
+            text = text.replace(char, "")
 
         # Iterate over the words and check if
         # any is present in _BADWORDS
-        for word in text:
+        for word in set(text.lower().split()):
             if word in self._BADWORDS:
                 return word
 
@@ -57,30 +56,26 @@ class Filter:
         """
 
         # Setup
-        text = text.replace("`", "").replace("*", "")
-
-        # Split the text into a list of words
-        words = text.split()
+        for char in ["`", "*", ".", ",", ":", "?", "!"]:
+            text = text.replace(char, "")
 
         # Iterate over the words and check if
         # any is present in _BADWORDS
-        for word in words:
-            if word.lower() not in self._BADWORDS:
+        for word in set(text.lower().split()):
+            if word not in self._BADWORDS:
                 continue
 
             if len(word) < 6:
                 stars = "\*" * (len(word) - 2)
                 text = text.replace(
                     word,
-                    f"|| {word[0]}{stars}{word[-1]} ||",
-                    1
+                    f"|| {word[0]}{stars}{word[-1]} ||"
                 )
             else:
                 stars = "\*" * (len(word) - 4)
                 text = text.replace(
                     word,
-                    f"|| {word[:2]}{stars}{word[-2:]} ||",
-                    1
+                    f"|| {word[:2]}{stars}{word[-2:]} ||"
                 )
 
         return text

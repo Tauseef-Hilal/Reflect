@@ -71,7 +71,8 @@ class YoutubeCommands(Cog):
             embed=Embed(
                 description=f"Searching for video(s) {emoji}",
                 color=Colors.GOLD
-            )
+            ),
+            ephemeral=True
         )
 
         # Make API call
@@ -144,7 +145,7 @@ class SelectOptions(View):
         self.ctx = ctx
         self.videos = videos
         self.visible_urls = list(videos)[:5]
-        self.followup = None
+        self.result = None
 
     @select(
         placeholder="Select a video",
@@ -176,7 +177,7 @@ class SelectOptions(View):
     async def select_callback(
             self,
             select: SelectMenu,
-            interaction: InteractionResponse
+            interaction: Interaction
     ) -> None:
         """
         Video selection menu
@@ -186,24 +187,29 @@ class SelectOptions(View):
             interaction (InteractionResponse)
         """
 
+        # Defer interaction
+        await interaction.response.defer();
+
         # Get video URL
         url = self.visible_urls[int(select.values[0])]
 
         # If its not a followup
-        if not self.followup:
+        if not self.result:
 
             # Send followup msg
-            self.followup = await self.ctx.send_followup(
+            self.result = await self.ctx.send_followup(
                 content=f"[||...||]({url})",
                 embeds=[]
             )
             return
 
+        
         # Otherwise edit the previously sent followup msg
-        await self.followup.edit(
+        await self.result.edit(
             content=f"[||...||]({url})",
             embeds=[]
         )
+
 
     @button(
         label="<",
@@ -226,13 +232,14 @@ class SelectOptions(View):
         first_idx = list(self.videos).index(self.visible_urls[0])
 
         if not (first_idx - 4 >= 0):
+            await interaction.response.defer();
             return
 
         # Get visible urls
         self.visible_urls = list(self.videos)[first_idx - 5:first_idx]
 
         # Send video embeds
-        await self.ctx.interaction.edit_original_message(
+        await interaction.response.edit_message(
             embeds=list(self.videos.values())[first_idx - 5:first_idx]
         )
 
@@ -257,12 +264,13 @@ class SelectOptions(View):
         last_idx = list(self.videos).index(self.visible_urls[-1])
 
         if not (last_idx + 6 <= len(self.videos)):
+            await interaction.response.defer();
             return
 
         # Get visible urls
         self.visible_urls = list(self.videos)[last_idx + 1:last_idx + 6]
 
         # Send video embeds
-        await self.ctx.interaction.edit_original_message(
+        await interaction.response.edit_message(
             embeds=list(self.videos.values())[last_idx + 1:last_idx + 6]
         )

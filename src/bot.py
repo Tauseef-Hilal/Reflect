@@ -480,8 +480,10 @@ class ICodeBot(Bot):
 
         # Check for profanity words
         if self.filter.has_abusive_words(message.content):
-            message.content = self.filter.censor(message.content)
-            await self._send_webhook(message=message)
+            await self._send_webhook(
+                message=message, 
+                mod_msg=self.filter.censor(message.content)
+            )
             await message.delete()
 
     async def _animated_emojis(self, message: Message) -> None:
