@@ -1,10 +1,10 @@
-# iCODE
+# Reflect
 A Discord Bot coded in Python.
 <br>
 <br>
 
 **Table Of Contents**
-- [iCODE](#icode)
+- [Reflect](#reflect)
 - [Features](#features)
   - [Animated Emojis Without Nitro](#animated-emojis-without-nitro)
     - [How this works?](#how-this-works)
