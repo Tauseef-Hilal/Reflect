@@ -516,17 +516,6 @@ class ICodeBot(Bot):
         while "><" in msg:
             msg = msg.replace("><", "> <")
 
-        # Search for emojis
-        emojis: set = set(findall(r"(:[\w\-~]*:)+", msg))
-        processed_emojis: dict = {
-            f":{emoji.split(':')[1]}:":True 
-            for emoji in findall(r"(<a?:\w+:\d+>)+", msg)
-        }
-
-        # Return if all emojis are already processed
-        if len(emojis) - len(processed_emojis) == 0:
-            return
-
         # Remove codeblocks from message
         codeblocks: set = set(
             findall(r"(`{1,3}.+?`{1,3})+", msg, flags=DOTALL)
@@ -538,6 +527,18 @@ class ICodeBot(Bot):
                 continue
 
             msg = msg.replace(block, BLOCK_ID_FORMAT.format(idx))
+
+        # Search for emojis
+        emojis: set = set(findall(r"(:[\w\-~]*:)+", msg))
+        processed_emojis: dict = {
+            f":{emoji.split(':')[1]}:":True 
+            for emoji in findall(r"(<a?:\w+:\d+>)+", msg)
+        }
+
+        # Return if all emojis are already processed
+        if len(emojis) - len(processed_emojis) == 0:
+            return
+
 
         for word in emojis:
             # Skip if already processed
