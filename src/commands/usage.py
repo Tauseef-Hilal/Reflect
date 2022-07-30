@@ -140,7 +140,7 @@ class UsageView(View):
         )
 
         # Generate command syntax
-        emoji = self._bot.emoji_group.get_emoji("reply")
+        emoji = self._bot.emoji_group.get_emoji("reply", self.ctx.guild.id)
         for cmd in cog.get_commands():
             # Create a string of options
             options = " ".join(

@@ -1,4 +1,3 @@
-import logging
 from discord import Emoji, Bot
 
 
@@ -15,22 +14,20 @@ class EmojiGroup:
         Attribute value is Emoji.id
         """
 
-        self.BOT = bot
+        self._bot = bot
+        self._emojis = {}
 
         # Iterate through the server emojis
         emoji: Emoji
-        i = 0
-        for emoji in self.BOT.emojis:
-            name = emoji.name
-            # Check if the emoji.name is already taken
-            while hasattr(self, name):
-                i += 1
-                name += f"-{i}"
+        for emoji in self._bot.emojis:
+            guild_id = emoji.guild_id
+            
+            if not guild_id in self._emojis:
+                self._emojis[guild_id] = {}
+            
+            self._emojis[guild_id][emoji.name] = emoji.id
 
-            # Set attr for each emoji
-            setattr(self, name, emoji.id)
-
-    def get_emoji(self, name: str) -> Emoji:
+    def get_emoji(self, name: str, guild_id: int) -> Emoji:
         """
         Get emojis
 
@@ -40,16 +37,19 @@ class EmojiGroup:
         Returns:
             Emoji: emoji for which emoji.name = name
         """
+        
+        if guild_id in self._emojis and name in self._emojis[guild_id]:
+            return self._bot.get_emoji(self._emojis[guild_id][name])
 
-        # Raise AttributeError if param: name does not
-        # match any of the instance attributes
-        if not hasattr(self, name):
+        # Raise AttributeError if name does not exist
+        res = list(filter(lambda d: name in d, self._emojis.values()))
+        if not res:
             raise AttributeError(
                 f"Object of type EmojiGroup has no attribute {name}"
             )
 
-        # Others return the Emoji with the given name
-        return self.BOT.get_emoji(getattr(self, name))
+        # Otherwise return the emoji id
+        return self._bot.get_emoji(res[0][name])
 
     def update_emojis(self) -> None:
         """
@@ -57,28 +57,11 @@ class EmojiGroup:
         """
         
         # Delete all emojis
-        bot = self.BOT
+        bot = self._bot
         vars(self).clear()
         
         # Update emojis
         self.__init__(bot)
-
-        # emoji: Emoji
-        # # Add new emojis
-        # for emoji in self.BOT.emojis:
-        #     # Skip existing attributes
-        #     if hasattr(self, emoji.name):
-        #         continue
-
-        #     # Create new attributes
-        #     setattr(self, emoji.name, emoji.id)
-        #     logging.info(f"Added new emoji: {emoji.name}")
-        
-        # # Remove deleted emojis
-        # for emoji_name in vars(self):
-        #     if emoji_name not in self.BOT.emojis:
-        #         delattr(self, emoji_name)
-        #         logging.info(f"Deleted emoji: {emoji_name}")
 
     def __repr__(self) -> str:
         """

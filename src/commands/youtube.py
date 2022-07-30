@@ -66,7 +66,7 @@ class YoutubeCommands(Cog):
         """
 
         # Send animation embed
-        emoji = self._bot.emoji_group.get_emoji("loading_dots")
+        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Searching for video(s) {emoji}",
@@ -94,7 +94,7 @@ class YoutubeCommands(Cog):
 
         # Create a dictionary of videos
         videos: dict[str, Embed] = {}
-        youtube_logo = self._bot.emoji_group.get_emoji("youtube")
+        youtube_logo = self._bot.emoji_group.get_emoji("youtube", ctx.guild.id)
 
         # Create embeds for videos
         for video_id in search_res:

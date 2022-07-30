@@ -60,7 +60,7 @@ async def has_permissions(ctx: ApplicationContext, **perms) -> bool:
         return True
 
     # Otherwise show error message to the member
-    emoji = ctx.bot.emoji_group.get_emoji("red_cross")
+    emoji = ctx.bot.emoji_group.get_emoji("red_cross", ctx.guild_id)
     await ctx.respond(
         embed=Embed(
             title=f"Permission Error {emoji}",

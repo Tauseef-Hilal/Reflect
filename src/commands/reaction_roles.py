@@ -64,7 +64,7 @@ class ReactionRoleCommands(Cog):
         """
 
         # Send animation embed
-        emoji = self._bot.emoji_group.get_emoji("loading_dots")
+        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Setting up reaction roles for the message "
@@ -203,7 +203,7 @@ class ReactionRoleCommands(Cog):
 
         # Send msg to setup reaction roles
         except TypeError:
-            emoji = self._bot.emoji_group.get_emoji("warning")
+            emoji = self._bot.emoji_group.get_emoji("warning", ctx.guild.id)
             await res.edit_original_message(
                 embed=Embed(
                     description=f"{emoji} Reaction roles not set. Use "
@@ -215,7 +215,7 @@ class ReactionRoleCommands(Cog):
             return
 
         # Prmopt success msg
-        emoji = self._bot.emoji_group.get_emoji("green_tick")
+        emoji = self._bot.emoji_group.get_emoji("green_tick", ctx.guild.id)
         await res.edit_original_message(
             embed=Embed(
                 description=f"Reaction roles set "
@@ -242,7 +242,7 @@ class ReactionRoleCommands(Cog):
         """
 
         # Send animation embed
-        emoji = self._bot.emoji_group.get_emoji("loading_dots")
+        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Removing reaction roles from the message "
@@ -281,7 +281,7 @@ class ReactionRoleCommands(Cog):
 
         # Send msg to setup reaction roles
         except TypeError:
-            emoji = self._bot.emoji_group.get_emoji("warning")
+            emoji = self._bot.emoji_group.get_emoji("warning", ctx.guild.id)
             await res.edit_original_message(
                 embed=Embed(
                     description=f"{emoji} Reaction roles not set. Use "
@@ -293,7 +293,7 @@ class ReactionRoleCommands(Cog):
             return
 
         # Prompt success
-        emoji = self._bot.emoji_group.get_emoji("green_tick")
+        emoji = self._bot.emoji_group.get_emoji("green_tick", ctx.guild.id)
         await res.edit_original_message(
             embed=Embed(
                 description=f"Reaction roles removed "
