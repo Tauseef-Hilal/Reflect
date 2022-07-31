@@ -170,6 +170,10 @@ class MiscellaneousCommands(Cog):
             output = new_stdout.getvalue()
             sys.stdout = old_stdout
 
+            # Send output for successful execution
+            await ctx.send(content=f"{ctx.author.mention}\n"
+                           f"```py\n{output}\n```")
+
         # If error occurs, send the error message to the user
         except Exception as e:
             emoji = self._bot.emoji_group.get_emoji("red_cross")
@@ -180,8 +184,3 @@ class MiscellaneousCommands(Cog):
                     color=Colors.RED
                 )
             )
-
-        # Send output for successful execution
-        else:
-            await ctx.send(content=f"{ctx.author.mention}\n"
-                           f"```py\n{output}\n```")

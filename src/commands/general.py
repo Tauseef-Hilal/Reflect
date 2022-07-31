@@ -3,8 +3,11 @@ import logging
 from datetime import (
     datetime,
 )
+from pprint import pprint
+from typing import List
 
 from discord import (
+    ButtonStyle,
     Embed,
     Guild,
     Member,
@@ -22,7 +25,11 @@ from discord.ext.commands import (
 )
 from discord.ui import (
     Modal,
-    InputText
+    InputText,
+    View,
+    Button,
+    select,
+    button
 )
 
 from ..bot import ICodeBot
@@ -98,6 +105,85 @@ class EmbedBuilder(Modal):
         await interaction.response.send_message(embed=embed)
 
 
+class EmojiDisplay(View):
+
+    def __init__(self, bot: ICodeBot, ctx: ApplicationContext, embeds: List):
+        """
+        Initialize
+
+        Args:
+            bot (ICodeBot)
+            videos (dict): Video dicts
+        """
+        super().__init__(timeout=360)
+
+        # Set attributes
+        self._bot = bot
+        self.ctx = ctx
+        self.embeds = embeds
+        self.cursor = 0
+
+    @button(
+        label="<",
+        style=ButtonStyle.primary
+    )
+    async def left_btn_callback(
+        self,
+        btn: Button,
+        interaction: Interaction
+    ) -> None:
+        """
+        Left button
+
+        Args:
+            btn (Button): Button
+            interaction (Interaction)
+        """
+
+        # Return if the cursor is at first embed
+        if (self.cursor - 1) < 0:
+            await interaction.response.defer();
+            return
+
+        # Update cursor
+        self.cursor -= 1
+
+        # Send video embeds
+        await interaction.response.edit_message(
+            embed=self.embeds[self.cursor]
+        )
+
+    @button(
+        label=">",
+        style=ButtonStyle.primary
+    )
+    async def right_btn_callback(
+        self,
+        btn: Button,
+        interaction: Interaction
+    ) -> None:
+        """
+        Right button
+
+        Args:
+            btn (Button): Button
+            interaction (Interaction)
+        """
+
+        # Return if the cursor is at last embed
+        if (self.cursor + 1) >= len(self.embeds) - 1:
+            await interaction.response.defer();
+            return
+
+        # Update cursor
+        self.cursor += 1
+
+        # Send video embeds
+        await interaction.response.edit_message(
+            embed=self.embeds[self.cursor]
+        )
+
+
 class GeneralCommands(Cog):
     """
     General commands
@@ -133,6 +219,61 @@ class GeneralCommands(Cog):
 
         # Send Embed Builder
         await ctx.send_modal(embed_builder)
+
+    @slash_command(name="emojis")
+    @maintenance_check()
+    async def _show_emojis(self, ctx: ApplicationContext) -> None:
+        """
+        Show all available emojis
+
+        Args:
+            ctx (ApplicationContext)
+        """
+        
+        # Create a list of available emojis
+        emojis: List[str] = [
+            f"{self._bot.emoji_group.get_emoji(emoji, id)} • `:{emoji}:`"
+            for id, guild_emojis in self._bot.emoji_group._emojis.items()
+            for emoji in guild_emojis
+        ]
+
+        # To prevent IndexeError
+        emoji_count = len(emojis)
+        while emoji_count % 20 != 0:
+            emojis.append(".")
+            emoji_count += 1
+
+        # Create embeds for emojis
+        embeds: List[Embed] = []
+        for i in range(0, len(emojis), 20):
+            embed = Embed(
+                color=Colors.GOLD,
+                timestamp=datetime.now()
+            ).set_author(
+                name=f"Reflect - Emojis",
+                icon_url=ctx.guild.icon
+            ).set_footer(
+                text=ctx.author.display_name,
+                icon_url=ctx.author.display_avatar
+            ).set_thumbnail(
+                url=self._bot.user.display_avatar
+            ).add_field(
+                name="Column 1",
+                value="\n".join(emojis[i:i+10]),
+                inline=True
+            ).add_field(
+                name="Column 2",
+                value="\n".join(emojis[i+10:i+20])
+            )
+
+            embeds.append(embed)
+
+
+        # Send embed with a view obj
+        await ctx.respond(
+            embed=embeds[0],
+            view=EmojiDisplay(self._bot, ctx, embeds)
+        )
 
     @slash_command(name="update-emojis")
     @maintenance_check()
