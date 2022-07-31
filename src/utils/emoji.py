@@ -1,3 +1,4 @@
+from typing import List
 from discord import Emoji, Bot
 
 from .env import ICODE_GUILD_ID
@@ -53,17 +54,14 @@ class EmojiGroup:
         # Otherwise return the emoji id
         return self._bot.get_emoji(res[0][name])
 
-    def update_emojis(self) -> None:
+    def update_emojis(self, updated_emojis: List, guild_id: int) -> None:
         """
         Update instance attributes
         """
         
-        # Delete all emojis
-        bot = self._bot
-        vars(self).clear()
+        self._emojis[guild_id] = {
+            emoji.name:emoji.id for emoji in updated_emojis}
         
-        # Update emojis
-        self.__init__(bot)
 
     def __repr__(self) -> str:
         """

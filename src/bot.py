@@ -7,6 +7,7 @@ from re import (
     DOTALL,
     findall
 )
+from typing import List
 
 from discord import (
     Bot,
@@ -154,10 +155,27 @@ class ICodeBot(Bot):
             ),
             delete_after=5
         )
+    
+    async def on_guild_emojis_update(
+        self,
+        guild: Guild,
+        before: List[Emoji],
+        after: List[Emoji]
+    ) -> None:
+        """
+        Called when a guild adds or removes an emoji
+
+        Args:
+            guild (Guild): The guild
+            before (List[Emoji]): List of emojis before
+            after (List[Emoji]): List of emojis after
+        """
+
+        self.emoji_group.update_emojis(after, guild.id);
 
     async def on_raw_reaction_add(
-            self,
-            payload: RawReactionActionEvent
+        self,
+        payload: RawReactionActionEvent
     ) -> None:
         """
         Called when a user reacts to some msg

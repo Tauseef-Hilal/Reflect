@@ -275,44 +275,6 @@ class GeneralCommands(Cog):
             view=EmojiDisplay(self._bot, ctx, embeds)
         )
 
-    @slash_command(name="update-emojis")
-    @maintenance_check()
-    async def _update_emojis(self, ctx: ApplicationContext) -> None:
-        """
-        Update server emojis.
-
-        Args:
-            ctx (ApplicationContext)
-        """
-
-        logging.info("Updating server emojis")
-
-        # Send `loading` embed
-        emojis: EmojiGroup = self._bot.emoji_group
-        res: Interaction = await ctx.respond(
-            embed=Embed(
-                description=f"Updating emojis "
-                            f"{emojis.get_emoji('loading_dots')}",
-                color=Colors.GOLD
-            )
-        )
-        res_msg: Message = await res.original_message()
-
-        # Update emoji_group
-        self._bot.emoji_group.update_emojis()
-
-        # For fun
-        await asyncio.sleep(1)
-
-        # Send `done` embed
-        await res_msg.edit(
-            embed=Embed(
-                description=f"Emojis updated {emojis.get_emoji('done')}",
-                color=Colors.GREEN
-            ),
-            delete_after=2
-        )
-
     @slash_command(name="suggest")
     @maintenance_check()
     async def _suggest(
