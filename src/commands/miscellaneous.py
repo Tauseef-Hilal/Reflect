@@ -51,7 +51,7 @@ class MiscellaneousCommands(Cog):
         """
 
         # Respond with an embed and toggle maintenance mode
-        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
         if self._bot.MAINTENANCE_MODE:
             res: Interaction = await ctx.respond(
                 embed=Embed(
@@ -82,7 +82,7 @@ class MiscellaneousCommands(Cog):
         await asyncio.sleep(1)
 
         # Prompt completion
-        emoji = self._bot.emoji_group.get_emoji("done", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("done")
         msg: Message = await res.original_message()
 
         await msg.edit(
@@ -130,7 +130,7 @@ class MiscellaneousCommands(Cog):
 
         # Show error message if timer exceeds timeout time
         except asyncio.TimeoutError:
-            emoji = self._bot.emoji_group.get_emoji("red_cross", ctx.guild.id)
+            emoji = self._bot.emoji_group.get_emoji("red_cross")
             await ctx.send(
                 embed=Embed(
                     description=f"Timeout error {emoji}",
@@ -143,7 +143,7 @@ class MiscellaneousCommands(Cog):
         if not (codeblock.content.startswith("```py")
                 and codeblock.content.endswith("```")):
 
-            emoji = self._bot.emoji_group.get_emoji("red_cross", ctx.guild.id)
+            emoji = self._bot.emoji_group.get_emoji("red_cross")
             await ctx.send(
                 embed=Embed(
                     description=f"Invalid codeblock {emoji}",
@@ -172,7 +172,7 @@ class MiscellaneousCommands(Cog):
 
         # If error occurs, send the error message to the user
         except Exception as e:
-            emoji = self._bot.emoji_group.get_emoji("red_cross", ctx.guild.id)
+            emoji = self._bot.emoji_group.get_emoji("red_cross")
             await ctx.send(
                 embed=Embed(
                     title=f"Error executing codeblock {emoji}",

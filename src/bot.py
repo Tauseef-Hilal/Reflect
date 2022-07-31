@@ -139,7 +139,7 @@ class ICodeBot(Bot):
         """
 
         # Get `warning` emoji
-        emoji: Emoji = self.emoji_group.get_emoji("warning", ctx.guild_id)
+        emoji: Emoji = self.emoji_group.get_emoji("warning")
 
         # Send embed to maintenance channel
         await ctx.respond(
@@ -352,7 +352,7 @@ class ICodeBot(Bot):
             logging.warning("Reminder channel or bumper role not set")
 
             if not channel:
-                emoji = self.emoji_group.get_emoji("warning", channel.guild.id)
+                emoji = self.emoji_group.get_emoji("warning")
                 for channel in self.get_guild(guild_data["guild_id"]).text_channels:
                     if channel.can_send(Embed(title="1")):
                         break
@@ -369,10 +369,7 @@ class ICodeBot(Bot):
                 return
 
         # Get `reminder` emoji
-        reminder: Emoji = self.emoji_group.get_emoji(
-            "reminder", 
-            channel.guild.id
-            )
+        reminder: Emoji = self.emoji_group.get_emoji("reminder")
 
         # Send embed to the receiver channel
         logging.info(f"Sending reminder to {channel} channel")
@@ -461,10 +458,7 @@ class ICodeBot(Bot):
                 except TypeError:
                     logging.warning("Cant update bump time")
 
-                    emoji = self.emoji_group.get_emoji(
-                        "red_cross", 
-                        message.guild.id
-                        )
+                    emoji = self.emoji_group.get_emoji("red_cross")
                     await message.channel.send(
                         embed=Embed(
                             description=f"{emoji} Cannot set bump reminder. "

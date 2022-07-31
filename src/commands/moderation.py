@@ -70,7 +70,7 @@ class ModerationCommands(Cog):
             # Send error message to the user if unsuccessful
             except ValueError:
                 # Get `red_cross` emoji
-                emoji = self._bot.emoji_group.get_emoji("red_cross", ctx.guild.id)
+                emoji = self._bot.emoji_group.get_emoji("red_cross")
 
                 # Send error msg
                 await ctx.respond(
@@ -149,7 +149,7 @@ class ModerationCommands(Cog):
 
         # Send Permission Error msg if not successful
         except Forbidden:
-            emoji = ctx.bot.emoji_group.get_emoji("red_cross", ctx.guild.id)
+            emoji = ctx.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
                 embed=Embed(
                     title=f"Permission Error {emoji}",
@@ -162,7 +162,7 @@ class ModerationCommands(Cog):
             return
 
         # Create embedded msg
-        emoji = self._bot.emoji_group.get_emoji("rules", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("rules")
         embed = Embed(
             description=f"{member.mention} was kicked out by "
                         f"{ctx.author.mention}",
@@ -190,7 +190,7 @@ class ModerationCommands(Cog):
 
         # Send message to set up modlogs channel if not successful
         except (KeyError, TypeError, AssertionError) as e:
-            emoji = self._bot.emoji_group.get_emoji("warning", ctx.guild.id)
+            emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
                 embed=Embed(
                     description=f"{emoji} No channel is set for modlogs. "
@@ -226,7 +226,7 @@ class ModerationCommands(Cog):
 
         # Send Permission Error msg if not successful
         except Forbidden:
-            emoji = ctx.bot.emoji_group.get_emoji("red_cross", ctx.guild.id)
+            emoji = ctx.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
                 embed=Embed(
                     title=f"Permission Error {emoji}",
@@ -239,7 +239,7 @@ class ModerationCommands(Cog):
             return
 
         # Create embedded msg
-        emoji = self._bot.emoji_group.get_emoji("rules", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("rules")
         embed = Embed(
             description=f"{member.mention} was banned by "
                         f"{ctx.author.mention}",
@@ -267,7 +267,7 @@ class ModerationCommands(Cog):
 
         # Send message to set up modlogs channel if not successful
         except (KeyError, TypeError, AssertionError):
-            emoji = self._bot.emoji_group.get_emoji("warning", ctx.guild.id)
+            emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
                 embed=Embed(
                     description=f"{emoji} No channel is set for modlogs. "
@@ -300,7 +300,7 @@ class ModerationCommands(Cog):
 
         # Show error message if the user is already timed out
         if member.timed_out:
-            emoji = self._bot.emoji_group.get_emoji("red_cross", ctx.guild.id)
+            emoji = self._bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
                 embed=Embed(
                     title=f"Command error {emoji}",
@@ -319,7 +319,7 @@ class ModerationCommands(Cog):
 
         # Send Permission Error msg if not successful
         except Forbidden:
-            emoji = ctx.bot.emoji_group.get_emoji("red_cross", ctx.guild.id)
+            emoji = ctx.bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
                 embed=Embed(
                     title=f"Permission Error {emoji}",
@@ -332,7 +332,7 @@ class ModerationCommands(Cog):
             return
 
         # Create embedded msg
-        emoji = self._bot.emoji_group.get_emoji("rules", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("rules")
         embed = Embed(
             description=f"{member.mention} was timed out by "
                         f"{ctx.author.mention}",
@@ -360,7 +360,7 @@ class ModerationCommands(Cog):
 
         # Send message to set up modlogs channel if not successful
         except (KeyError, TypeError, AssertionError):
-            emoji = self._bot.emoji_group.get_emoji("warning", ctx.guild.id)
+            emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.channel.send(
                 embed=Embed(
                     description=f"{emoji} No channel is set for modlogs. "
@@ -389,7 +389,7 @@ class ModerationCommands(Cog):
 
         # Show error message if already locked
         if not channel.permissions_for(ctx.guild.default_role).send_messages:
-            emoji = self._bot.emoji_group.get_emoji("red_cross", ctx.guild.id)
+            emoji = self._bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
                 embed=Embed(
                     description=f"Channel is already locked {emoji}",
@@ -431,7 +431,7 @@ class ModerationCommands(Cog):
 
         # Show error message if already unlocked
         if channel.permissions_for(ctx.guild.default_role).send_messages:
-            emoji = self._bot.emoji_group.get_emoji("red_cross", ctx.guild.id)
+            emoji = self._bot.emoji_group.get_emoji("red_cross")
             await ctx.respond(
                 embed=Embed(
                     description=f"Channel is already unlocked {emoji}",

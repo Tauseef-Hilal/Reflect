@@ -62,7 +62,7 @@ class SetupCommands(Cog):
             channel: TextChannel = ctx.channel
 
         # Send animation embed
-        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Setting {channel.mention} for "
@@ -118,7 +118,7 @@ class SetupCommands(Cog):
                 )
 
         # Prompt success
-        emoji = self._bot.emoji_group.get_emoji("green_tick", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
                 description=f"Set {channel.mention} for "
@@ -153,7 +153,7 @@ class SetupCommands(Cog):
             channel: TextChannel = ctx.channel
 
         # Send animation msg
-        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Setting {channel.mention} for bump "
@@ -210,7 +210,7 @@ class SetupCommands(Cog):
                 )
 
         # Prompt success
-        emoji = self._bot.emoji_group.get_emoji("green_tick", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
                 description=f"Set {channel.mention} for bump "
@@ -240,7 +240,7 @@ class SetupCommands(Cog):
         """
 
         # Send animation embed
-        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Setting {role.mention} for bump "
@@ -296,7 +296,7 @@ class SetupCommands(Cog):
                 )
 
         # Prompt success
-        emoji = self._bot.emoji_group.get_emoji("green_tick", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
                 description=f"Set {role.mention} for bump "
@@ -331,7 +331,7 @@ class SetupCommands(Cog):
             channel: TextChannel = ctx.channel
 
         # Send animation embed
-        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Setting {channel.mention} for member "
@@ -386,7 +386,7 @@ class SetupCommands(Cog):
                     }
                 )
         # Prompt success
-        emoji = self._bot.emoji_group.get_emoji("green_tick", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
                 description=f"Set {channel.mention} for member "
@@ -421,7 +421,7 @@ class SetupCommands(Cog):
             channel: TextChannel = ctx.channel
 
         # Send animation embed
-        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Setting {channel.mention} for suggestions "
@@ -477,7 +477,7 @@ class SetupCommands(Cog):
                 )
 
         # Prompt success
-        emoji = self._bot.emoji_group.get_emoji("green_tick", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
                 description=f"Set {channel.mention} for suggestions "
@@ -502,7 +502,7 @@ class SetupCommands(Cog):
         """
 
         # Send animation embed
-        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Setting up reaction roles {emoji}",
@@ -523,7 +523,7 @@ class SetupCommands(Cog):
             )
 
         # Prompt success
-        emoji = self._bot.emoji_group.get_emoji("green_tick", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
                 description=f"Set up reaction roles {emoji}",

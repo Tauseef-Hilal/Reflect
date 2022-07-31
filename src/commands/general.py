@@ -151,7 +151,7 @@ class GeneralCommands(Cog):
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Updating emojis "
-                            f"{emojis.get_emoji('loading_dots', ctx.guild.id)}",
+                            f"{emojis.get_emoji('loading_dots')}",
                 color=Colors.GOLD
             )
         )
@@ -166,7 +166,7 @@ class GeneralCommands(Cog):
         # Send `done` embed
         await res_msg.edit(
             embed=Embed(
-                description=f"Emojis updated {emojis.get_emoji('done', ctx.guild.id)}",
+                description=f"Emojis updated {emojis.get_emoji('done')}",
                 color=Colors.GREEN
             ),
             delete_after=2
@@ -199,7 +199,7 @@ class GeneralCommands(Cog):
         except (KeyError, TypeError, AssertionError):
             logging.warning("Suggestions channel not set")
 
-            emoji = self._bot.emoji_group.get_emoji("warning", ctx.guild.id)
+            emoji = self._bot.emoji_group.get_emoji("warning")
             await ctx.respond(
                 embed=Embed(
                     description=f"{emoji} Suggestions channel is not set up. "
@@ -211,7 +211,7 @@ class GeneralCommands(Cog):
             return
 
         # Respond
-        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Sending suggestion {emoji}",
@@ -220,8 +220,8 @@ class GeneralCommands(Cog):
         )
 
         # Reactions to add
-        upvote = self._bot.emoji_group.get_emoji("upvote", ctx.guild.id)
-        downvote = self._bot.emoji_group.get_emoji("downvote", ctx.guild.id)
+        upvote = self._bot.emoji_group.get_emoji("upvote")
+        downvote = self._bot.emoji_group.get_emoji("downvote")
 
         # Send suggestion
         msg: Message = await channel.send(
@@ -240,7 +240,7 @@ class GeneralCommands(Cog):
         await msg.add_reaction(downvote)
 
         # Prompt success
-        emoji = self._bot.emoji_group.get_emoji("green_tick", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("green_tick")
         await res.edit_original_message(
             embed=Embed(
                 description=f"Suggestion sent {emoji}",
@@ -260,7 +260,7 @@ class GeneralCommands(Cog):
         """
 
         # Send animation embed
-        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Fetching server data {emoji}",
@@ -324,8 +324,8 @@ class GeneralCommands(Cog):
             normal += 1
 
         # Add field for emojis
-        ukraine = self._bot.emoji_group.get_emoji("ukraine", ctx.guild.id)
-        blob = self._bot.emoji_group.get_emoji("blob_on_drugs", ctx.guild.id)
+        ukraine = self._bot.emoji_group.get_emoji("ukraine")
+        blob = self._bot.emoji_group.get_emoji("blob_on_drugs")
         card = card.add_field(
             name=f"Emojis - {len(guild.emojis)}",
             value=f"{ukraine} {normal} - {blob} {animated}"
@@ -414,7 +414,7 @@ class GeneralCommands(Cog):
             user: Member = ctx.guild.get_member(ctx.author.id)
 
         # Send animation embed
-        emoji = self._bot.emoji_group.get_emoji("loading_dots", ctx.guild.id)
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
         res: Interaction = await ctx.respond(
             embed=Embed(
                 description=f"Fetching user data {emoji}",
@@ -451,22 +451,15 @@ class GeneralCommands(Cog):
 
         # Second line
         emoji = self._bot.emoji_group.get_emoji(
-            "red_cross" if user.bot else "green_tick",
-            ctx.guild.id
+            "red_cross" if user.bot else "green_tick"
         )
 
         # Get user's status
         status: Status = user.status
         if user.is_on_mobile() and status.name == "online":
-            status_emoji = self._bot.emoji_group.get_emoji(
-                "mobile", 
-                ctx.guild.id
-                )
+            status_emoji = self._bot.emoji_group.get_emoji("mobile")
         else:
-            status_emoji = self._bot.emoji_group.get_emoji(
-                status.name, 
-                ctx.guild.id
-            )
+            status_emoji = self._bot.emoji_group.get_emoji(status.name)
 
         # Add fields more fields
         card = card.add_field(

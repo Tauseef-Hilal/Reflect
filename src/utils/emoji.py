@@ -1,5 +1,7 @@
 from discord import Emoji, Bot
 
+from .env import ICODE_GUILD_ID
+
 
 class EmojiGroup:
     """
@@ -27,7 +29,7 @@ class EmojiGroup:
             
             self._emojis[guild_id][emoji.name] = emoji.id
 
-    def get_emoji(self, name: str, guild_id: int) -> Emoji:
+    def get_emoji(self, name: str, guild_id: int = ICODE_GUILD_ID) -> Emoji:
         """
         Get emojis
 
