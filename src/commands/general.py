@@ -1,7 +1,6 @@
 import logging
-from datetime import (
-    datetime,
-)
+from mediawiki import DisambiguationError, MediaWiki
+from datetime import datetime
 from typing import List
 
 from discord import (
@@ -290,6 +289,74 @@ class GeneralCommands(Cog):
         await ctx.respond(
             embed=embeds[0],
             view=EmojiDisplay(self._bot, ctx, embeds)
+        )
+
+    @slash_command(name="wiki")
+    @maintenance_check()
+    async def _wiki(
+        self,
+        ctx: ApplicationContext,
+        search: Option(str, "Search query")
+    ) -> None:
+        """
+        Make a wikipedia search
+
+        Args:
+            ctx (ApplicationContext)
+            search (str): Search query
+        """
+
+        # Send 'searching' embed
+        emoji = self._bot.emoji_group.get_emoji("loading_dots")
+        res = await ctx.respond(
+            embed=Embed(
+                description=f"Searching on Wikipedia {emoji}",
+                color=Colors.GOLD
+            )
+        )
+
+        # Search wikipedia
+        WIKIPEDIA = MediaWiki()
+
+        try:
+            page = WIKIPEDIA.page(search)
+            summary = page.summarize(chars=250)
+            summary += f"[Read more]({page.url})"
+
+        except Exception as summary:
+
+            # Send error msg
+            await res.edit_original_message(
+                embed=Embed(
+                    title="Ambiguous or invalid search terms",
+                    description=summary,
+                    color=Colors.RED,
+                    timestamp=datetime.now(),
+                    url="https://en.wikipedia.org/"
+                ).set_thumbnail(
+                    url="https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"
+                ).set_footer(
+                    text="Wikipedia",
+                    icon_url="https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"
+                )
+            )
+
+            return
+
+        # Send summary
+        await res.edit_original_message(
+            embed=Embed(
+                title=page.original_title,
+                description=summary,
+                color=Colors.GOLD,
+                url=page.url,
+                timestamp=datetime.now()
+            ).set_thumbnail(
+                url="https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"
+            ).set_footer(
+                text="Wikipedia",
+                icon_url="https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"
+            )
         )
 
     @slash_command(name="suggest")
