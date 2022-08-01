@@ -291,7 +291,7 @@ class GeneralCommands(Cog):
             view=EmojiDisplay(self._bot, ctx, embeds)
         )
 
-    @slash_command(name="wiki", guilds=[1003635772391444510])
+    @slash_command(name="wiki")
     @maintenance_check()
     async def _wiki(
         self,
@@ -340,7 +340,7 @@ class GeneralCommands(Cog):
                     icon_url="https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"
                 )
             )
-            
+
             return
 
         # Send summary
