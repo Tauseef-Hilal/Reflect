@@ -228,8 +228,11 @@ class GeneralCommands(Cog):
         emoji_dict = self._bot.emoji_group._emojis
         guilds: List[int] = list(emoji_dict.keys())
 
-        guilds.remove(ctx.guild_id)
-        guilds.insert(0, ctx.guild_id)
+        try:
+            guilds.remove(ctx.guild_id)
+            guilds.insert(0, ctx.guild_id)
+        except ValueError:
+            pass
 
         # Create a list of available emojis
         temp = []
