@@ -1,6 +1,4 @@
 from collections import OrderedDict
-from pprint import pprint
-from typing import List
 from discord import Emoji, Bot, Guild
 
 from .env import ICODE_GUILD_ID
@@ -27,27 +25,27 @@ class EmojiGroup:
         emoji: Emoji
         for emoji in self._bot.emojis:
             guild_id = emoji.guild_id
-            
+
             if not guild_id in self._emojis:
                 self._emojis[guild_id] = {}
-            
+
             i, alias = 2, emoji.name
             while alias in temp:
                 alias = alias.split("-")[0] + f"-{i}"
                 i += 1
-            
+
             temp[alias] = guild_id
             if alias != emoji.name and temp[alias.split("-")[0]] != guild_id:
                 original = self._emojis[temp[emoji.name]]
                 original_alias = f"{emoji.name}-1"
-                
+
                 if not original.get(original_alias):
                     original[original_alias] = original[emoji.name]
 
                 self._emojis[guild_id][emoji.name] = emoji.id
 
             self._emojis[guild_id][alias] = emoji.id
-        
+
     def get_emoji(self, name: str, guild_id: int = ICODE_GUILD_ID) -> Emoji:
         """
         Get emojis
@@ -58,7 +56,7 @@ class EmojiGroup:
         Returns:
             Emoji: emoji for which emoji.name = name
         """
-        
+
         if guild_id in self._emojis and name in self._emojis[guild_id]:
             return self._bot.get_emoji(self._emojis[guild_id][name])
 
@@ -66,7 +64,7 @@ class EmojiGroup:
         res = list(filter(
             lambda emojis: name in emojis, self._emojis.values()
         ))
-        
+
         if not res:
             raise AttributeError(
                 f"Object of type EmojiGroup has no attribute {name}"
@@ -79,13 +77,12 @@ class EmojiGroup:
         """
         Update client emojis
         """
-        
+
         if updated_emojis:
             self.__init__(self._bot)
             return
-        
+
         self._emojis[guild.id] = await guild.fetch_emojis()
-        
 
     def __repr__(self) -> str:
         """

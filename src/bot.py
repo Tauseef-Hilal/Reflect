@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from pprint import pprint
 from random import choice
 from datetime import datetime
 from re import (
@@ -155,7 +154,7 @@ class ICodeBot(Bot):
             ),
             delete_after=5
         )
-    
+
     async def on_guild_emojis_update(
         self,
         guild: Guild,
@@ -171,7 +170,7 @@ class ICodeBot(Bot):
             after (List[Emoji]): List of emojis after
         """
 
-        await self.emoji_group.update_emojis(guild, after);
+        await self.emoji_group.update_emojis(guild, after)
 
     async def on_raw_reaction_add(
         self,
@@ -510,7 +509,7 @@ class ICodeBot(Bot):
         # Check for profanity words
         if self.filter.has_abusive_words(message.content):
             await self._send_webhook(
-                message=message, 
+                message=message,
                 mod_msg=self.filter.censor(message.content)
             )
             await message.delete()
@@ -554,14 +553,13 @@ class ICodeBot(Bot):
         # Search for emojis
         emojis: set = set(findall(r"(:[\w\-~]*:)+", msg))
         processed_emojis: dict = {
-            f":{emoji.split(':')[1]}:":True 
+            f":{emoji.split(':')[1]}:": True
             for emoji in findall(r"(<a?:\w+:\d+>)+", msg)
         }
 
         # Return if all emojis are already processed
         if len(emojis) - len(processed_emojis) == 0:
             return
-
 
         for word in emojis:
             # Skip if already processed
@@ -571,7 +569,7 @@ class ICodeBot(Bot):
             try:
                 # Get emoji
                 emoji = self.emoji_group.get_emoji(
-                    word[1:-1], 
+                    word[1:-1],
                     message.guild.id
                 )
 

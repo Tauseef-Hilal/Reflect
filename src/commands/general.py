@@ -1,9 +1,7 @@
-import asyncio
 import logging
 from datetime import (
     datetime,
 )
-from pprint import pprint
 from typing import List
 
 from discord import (
@@ -28,14 +26,11 @@ from discord.ui import (
     InputText,
     View,
     Button,
-    select,
     button
 )
 
 from ..bot import ICodeBot
 from ..utils.color import Colors
-from ..utils.emoji import EmojiGroup
-from ..utils.constants import ANNOUNCEMENTS_CHANNEL_ID
 from ..utils.checks import (
     maintenance_check
 )
@@ -142,7 +137,7 @@ class EmojiDisplay(View):
 
         # Return if the cursor is at first embed
         if (self.cursor - 1) < 0:
-            await interaction.response.defer();
+            await interaction.response.defer()
             return
 
         # Update cursor
@@ -172,7 +167,7 @@ class EmojiDisplay(View):
 
         # Return if the cursor is at last embed
         if (self.cursor + 1) >= len(self.embeds):
-            await interaction.response.defer();
+            await interaction.response.defer()
             return
 
         # Update cursor
@@ -287,7 +282,6 @@ class GeneralCommands(Cog):
             )
 
             embeds.append(embed)
-
 
         # Send embed with a view obj
         await ctx.respond(
