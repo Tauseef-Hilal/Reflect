@@ -171,7 +171,7 @@ class ICodeBot(Bot):
             after (List[Emoji]): List of emojis after
         """
 
-        self.emoji_group.update_emojis(after, guild.id);
+        await self.emoji_group.update_emojis(guild, after);
 
     async def on_raw_reaction_add(
         self,
@@ -245,6 +245,16 @@ class ICodeBot(Bot):
             if member and role:
                 await member.remove_roles(role)
                 logging.info(f"Removed {role} role from {member}")
+
+    async def on_guild_join(self, guild: Guild) -> None:
+        """
+        Called when the bot joins a new guild or creates one
+
+        Args:
+            guild (Guild): New guild
+        """
+
+        await self.emoji_group.update_emojis(guild)
 
     async def on_member_join(self, member: Member) -> None:
         """

@@ -30,6 +30,7 @@ def main() -> None:
     intents.members = True
     intents.message_content = True
     intents.presences = True
+    intents.guilds = True
 
     # Instantiate ICodeBot
     BOT = ICodeBot(

@@ -171,7 +171,7 @@ class EmojiDisplay(View):
         """
 
         # Return if the cursor is at last embed
-        if (self.cursor + 1) >= len(self.embeds) - 1:
+        if (self.cursor + 1) >= len(self.embeds):
             await interaction.response.defer();
             return
 
@@ -229,13 +229,33 @@ class GeneralCommands(Cog):
         Args:
             ctx (ApplicationContext)
         """
-        
+        # Set up
+        emoji_dict = self._bot.emoji_group._emojis
+        guilds: List[int] = list(emoji_dict.keys())
+
+        guilds.remove(ctx.guild_id)
+        guilds.insert(0, ctx.guild_id)
+
         # Create a list of available emojis
-        emojis: List[str] = [
-            f"{self._bot.emoji_group.get_emoji(emoji, id)} • `:{emoji}:`"
-            for id, guild_emojis in self._bot.emoji_group._emojis.items()
-            for emoji in guild_emojis
-        ]
+        temp = []
+        emojis: List[str] = []
+
+        for guild_id in guilds:
+            guild_emojis = emoji_dict[guild_id]
+
+            for emoji in guild_emojis:
+                # Skip if emoji in temp
+                if emoji in temp:
+                    continue
+
+                # Update emojis
+                emojis.append(
+                    f"{self._bot.emoji_group.get_emoji(emoji, guild_id)} "
+                    f"• `:{emoji}:`"
+                )
+
+                # Update temp
+                temp.append(emoji)
 
         # To prevent IndexeError
         emoji_count = len(emojis)
@@ -251,7 +271,7 @@ class GeneralCommands(Cog):
                 timestamp=datetime.now()
             ).set_author(
                 name=f"Reflect - Emojis",
-                icon_url=ctx.guild.icon
+                icon_url=self._bot.user.avatar
             ).set_footer(
                 text=ctx.author.display_name,
                 icon_url=ctx.author.display_avatar

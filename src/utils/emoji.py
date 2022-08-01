@@ -1,5 +1,7 @@
+from collections import OrderedDict
+from pprint import pprint
 from typing import List
-from discord import Emoji, Bot
+from discord import Emoji, Bot, Guild
 
 from .env import ICODE_GUILD_ID
 
@@ -18,9 +20,10 @@ class EmojiGroup:
         """
 
         self._bot = bot
-        self._emojis = {}
+        self._emojis = OrderedDict()
 
         # Iterate through the server emojis
+        temp = {}
         emoji: Emoji
         for emoji in self._bot.emojis:
             guild_id = emoji.guild_id
@@ -28,8 +31,23 @@ class EmojiGroup:
             if not guild_id in self._emojis:
                 self._emojis[guild_id] = {}
             
-            self._emojis[guild_id][emoji.name] = emoji.id
+            i, alias = 2, emoji.name
+            while alias in temp:
+                alias = alias.split("-")[0] + f"-{i}"
+                i += 1
+            
+            temp[alias] = guild_id
+            if alias != emoji.name and temp[alias.split("-")[0]] != guild_id:
+                original = self._emojis[temp[emoji.name]]
+                original_alias = f"{emoji.name}-1"
+                
+                if not original.get(original_alias):
+                    original[original_alias] = original[emoji.name]
 
+                self._emojis[guild_id][emoji.name] = emoji.id
+
+            self._emojis[guild_id][alias] = emoji.id
+        
     def get_emoji(self, name: str, guild_id: int = ICODE_GUILD_ID) -> Emoji:
         """
         Get emojis
@@ -45,7 +63,10 @@ class EmojiGroup:
             return self._bot.get_emoji(self._emojis[guild_id][name])
 
         # Raise AttributeError if name does not exist
-        res = list(filter(lambda d: name in d, self._emojis.values()))
+        res = list(filter(
+            lambda emojis: name in emojis, self._emojis.values()
+        ))
+        
         if not res:
             raise AttributeError(
                 f"Object of type EmojiGroup has no attribute {name}"
@@ -54,13 +75,16 @@ class EmojiGroup:
         # Otherwise return the emoji id
         return self._bot.get_emoji(res[0][name])
 
-    def update_emojis(self, updated_emojis: List, guild_id: int) -> None:
+    async def update_emojis(self, guild: Guild, updated_emojis=None) -> None:
         """
-        Update instance attributes
+        Update client emojis
         """
         
-        self._emojis[guild_id] = {
-            emoji.name:emoji.id for emoji in updated_emojis}
+        if updated_emojis:
+            self.__init__(self._bot)
+            return
+        
+        self._emojis[guild.id] = await guild.fetch_emojis()
         
 
     def __repr__(self) -> str:
@@ -68,4 +92,4 @@ class EmojiGroup:
         String representation
         """
 
-        return f"<EmojiGroup => EmojiCount: {len(vars(self)) - 1}>"
+        return f"<EmojiGroup => EmojiCount: {len(self._emojis)}>"
