@@ -5,7 +5,6 @@ from datetime import (
 )
 
 from discord import (
-    Cog,
     Embed,
     Option,
     Member,
@@ -15,6 +14,7 @@ from discord import (
     ApplicationContext
 )
 from discord.ext.commands import (
+    Cog,
     slash_command
 )
 from discord.errors import Forbidden

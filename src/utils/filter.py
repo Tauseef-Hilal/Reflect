@@ -1,5 +1,4 @@
 import logging
-from string import punctuation
 from .constants import BADWORDS_FILE
 
 

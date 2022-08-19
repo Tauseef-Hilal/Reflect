@@ -4,7 +4,6 @@ import logging
 from io import StringIO
 
 from discord import (
-    Cog,
     Game,
     Embed,
     Status,
@@ -13,6 +12,7 @@ from discord import (
     ApplicationContext
 )
 from discord.ext.commands import (
+    Cog,
     slash_command
 )
 

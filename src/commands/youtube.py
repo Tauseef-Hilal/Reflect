@@ -6,7 +6,6 @@ from discord import (
     Color,
     Embed,
     Interaction,
-    InteractionResponse,
     Option,
     SelectMenu,
     SelectOption,

@@ -1,7 +1,3 @@
-from datetime import (
-    datetime,
-)
-
 from discord import (
     Embed,
     InteractionResponse,
@@ -45,23 +41,40 @@ class Help(Cog):
             ctx (ApplicationContext)
         """
 
-        # Create embed for showing help
-        # Set author, footer and thumbnail for the embed
+        general_cog = self._bot.get_cog("GeneralCommands")
+        desc = general_cog.description
+
+        # Create embed for help on this group
         embed = Embed(
-            description=f"{self._bot.description}\n"
-                        "Choose a command group from the "
-                        "below select menu to get help",
+            description=desc,
             color=ctx.author.color,
-            timestamp=datetime.now()
         ).set_author(
             name="iCODE Usage Help",
             icon_url=self._bot.user.display_avatar
         ).set_footer(
-            text=ctx.author.display_name,
+            text="<Required> - [Optional]",
             icon_url=ctx.author.display_avatar
         ).set_thumbnail(
             url=self._bot.user.display_avatar
         )
+
+        # Generate command syntax
+        emoji = self._bot.emoji_group.get_emoji("reply")
+
+        for cmd in general_cog.walk_commands():
+            # Create a string of options
+            options_str = " ".join(
+                [f"<{option.name}>" if option.required else f"[{option.name}]"
+                 for option in cmd.options]
+            )
+
+            # Add field to the embed
+            embed.add_field(
+                name=f"__/{cmd}__",
+                value=f"{emoji} {cmd.description}\n"
+                f"{emoji} Usage: `/{cmd} {options_str}`",
+                inline=False
+            )
 
         # Send embed with a view obj
         await ctx.respond(
@@ -99,6 +112,18 @@ class UsageView(View):
             SelectOption(
                 label="Moderation Commands",
                 value="ModerationCommands"
+            ),
+            SelectOption(
+                label="Reaction Role Commands",
+                value="ReactionRoleCommands"
+            ),
+            SelectOption(
+                label="YouTube Commands",
+                value="YoutubeCommands"
+            ),
+            SelectOption(
+                label="Setup Commands",
+                value="SetupCommands"
             ),
             SelectOption(
                 label="Miscellaneous Commands",
@@ -141,9 +166,10 @@ class UsageView(View):
 
         # Generate command syntax
         emoji = self._bot.emoji_group.get_emoji("reply")
-        for cmd in cog.get_commands():
+
+        for cmd in cog.walk_commands():
             # Create a string of options
-            options = " ".join(
+            options_str = " ".join(
                 [f"<{option.name}>" if option.required else f"[{option.name}]"
                  for option in cmd.options]
             )
@@ -152,7 +178,7 @@ class UsageView(View):
             embed.add_field(
                 name=f"__/{cmd}__",
                 value=f"{emoji} {cmd.description}\n"
-                f"{emoji} Usage: `/{cmd} {options}`",
+                f"{emoji} Usage: `/{cmd} {options_str}`",
                 inline=False
             )
 
