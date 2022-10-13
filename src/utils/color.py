@@ -7,3 +7,4 @@ class Colors:
     GREEN = 0x2ECC71
     BLUE = 0x3498DB
     GOLD = 0xF1C40F
+    BLACK = 0x110F0F

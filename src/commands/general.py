@@ -1,9 +1,10 @@
 import logging
-from mediawiki import DisambiguationError, MediaWiki
+from mediawiki import MediaWiki
 from datetime import datetime
 from typing import List
 
 from discord import (
+    AllowedMentions,
     ButtonStyle,
     Embed,
     Guild,
@@ -11,6 +12,7 @@ from discord import (
     Message,
     Option,
     Interaction,
+    Role,
     Status,
     ApplicationContext,
     TextChannel,
@@ -28,9 +30,9 @@ from discord.ui import (
     button
 )
 
-from ..bot import ICodeBot
-from ..utils.color import Colors
-from ..utils.checks import (
+from src.bot import ICodeBot
+from src.utils.color import Colors
+from src.utils.checks import (
     maintenance_check
 )
 
@@ -38,9 +40,16 @@ from ..utils.checks import (
 class EmbedBuilder(Modal):
     """Embed Builder"""
 
-    def __init__(self, ctx: ApplicationContext, *args, **kwargs) -> None:
+    def __init__(
+        self,
+        ctx: ApplicationContext,
+        mentions: List[str],
+        *args,
+        **kwargs
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.ctx = ctx
+        self.mentions = mentions
 
         # Add input field for embed title
         self.add_item(InputText(
@@ -56,6 +65,14 @@ class EmbedBuilder(Modal):
             label="Embed Description",
             placeholder="Description",
             required=True
+        ))
+
+        # Add input field for embed color
+        self.add_item(InputText(
+            style=InputTextStyle.singleline,
+            label="Embed Color",
+            placeholder="Color",
+            required=False
         ))
 
         # Add input field for embed thumbnail url
@@ -84,19 +101,40 @@ class EmbedBuilder(Modal):
             timestamp=datetime.now()
         )
 
+        # Mentions
+        content = ""
+        if self.mentions:
+            content = " ".join(self.mentions)
+
+        # Set embed color if provided
+        COLORS = {
+            "green": Colors.GREEN,
+            "red": Colors.RED,
+            "blue": Colors.BLUE,
+            "black": Colors.BLACK,
+            "gold": Colors.GOLD
+        }
+
+        if color := COLORS.get(self.children[2].value.lower()):
+            embed.color = color
+
         # Set thumbnail if provided
-        if url := self.children[2].value:
+        if url := self.children[3].value:
             embed = embed.set_thumbnail(url=url)
 
         # Set footer if provided
-        if footer_text := self.children[3].value:
+        if footer_text := self.children[4].value:
             embed = embed.set_footer(
                 text=footer_text,
                 icon_url=self.ctx.author.display_avatar
             )
 
         # Send embedded message
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(
+            content=content,
+            embed=embed,
+            allowed_mentions=AllowedMentions.all()
+        )
 
 
 class EmojiDisplay(View):
@@ -195,7 +233,11 @@ class GeneralCommands(Cog):
 
     @slash_command(name="embed")
     @maintenance_check()
-    async def _embed(self, ctx: ApplicationContext) -> None:
+    async def _embed(
+        self,
+        ctx: ApplicationContext,
+        mention_str: Option(str, "Mentions separated by `-`")
+    ) -> None:
         """
         Build an embedded message
 
@@ -203,11 +245,35 @@ class GeneralCommands(Cog):
 
         Args:
             ctx (ApplicationContext)
+            mentions (str)
         """
+
+        # Validate mentions
+        mentions = mention_str.split("-")
+        for i, mention in enumerate(mentions):
+            for role in ctx.guild.roles:
+                if role.name.lower() == mention.lower():
+                    mentions[i] = role.mention
+                    break
+            else:
+                for member in ctx.guild.members:
+                    if member.display_name.lower() == mention.lower():
+                        mentions[i] = member.mention
+                        break
+                else:
+                    emoji = self._bot.emoji_group.get_emoji("red_cross")
+                    await ctx.respond(
+                        embed=Embed(
+                            description=f"{emoji} Invalid mention {mention}",
+                            color=Colors.RED
+                        )
+                    )
+                    return
 
         # Create instance of EmbedBuilder
         embed_builder: EmbedBuilder = EmbedBuilder(
             ctx,
+            mentions,
             title="Embed Builder"
         )
 

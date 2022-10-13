@@ -364,6 +364,7 @@ class ICodeBot(Bot):
 
         # Get ids
         bumper = None
+        channel = None
         try:
             # Set up receiver channel
             channel = self.get_channel(
