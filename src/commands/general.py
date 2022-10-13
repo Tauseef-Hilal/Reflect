@@ -43,7 +43,7 @@ class EmbedBuilder(Modal):
     def __init__(
         self,
         ctx: ApplicationContext,
-        mentions: List[str],
+        mentions: List[str] = None,
         *args,
         **kwargs
     ) -> None:
@@ -126,6 +126,11 @@ class EmbedBuilder(Modal):
         if footer_text := self.children[4].value:
             embed = embed.set_footer(
                 text=footer_text,
+                icon_url=self.ctx.author.display_avatar
+            )
+        else:
+            embed = embed.set_footer(
+                text=self.ctx.author.display_name,
                 icon_url=self.ctx.author.display_avatar
             )
 
@@ -236,7 +241,7 @@ class GeneralCommands(Cog):
     async def _embed(
         self,
         ctx: ApplicationContext,
-        mention_str: Option(str, "Mentions separated by `-`")
+        mention_str: Option(str, "Mentions separated by `-`",) = ""
     ) -> None:
         """
         Build an embedded message
@@ -249,31 +254,32 @@ class GeneralCommands(Cog):
         """
 
         # Validate mentions
-        mentions = mention_str.split("-")
-        for i, mention in enumerate(mentions):
-            for role in ctx.guild.roles:
-                if role.name.lower() == mention.lower():
-                    mentions[i] = role.mention
-                    break
-            else:
-                for member in ctx.guild.members:
-                    if member.display_name.lower() == mention.lower():
-                        mentions[i] = member.mention
+        if mention_str:
+            mentions = mention_str.split("-")
+            for i, mention in enumerate(mentions):
+                for role in ctx.guild.roles:
+                    if role.name.lower() == mention.lower():
+                        mentions[i] = role.mention
                         break
                 else:
-                    emoji = self._bot.emoji_group.get_emoji("red_cross")
-                    await ctx.respond(
-                        embed=Embed(
-                            description=f"{emoji} Invalid mention {mention}",
-                            color=Colors.RED
+                    for member in ctx.guild.members:
+                        if member.display_name.lower() == mention.lower():
+                            mentions[i] = member.mention
+                            break
+                    else:
+                        emoji = self._bot.emoji_group.get_emoji("red_cross")
+                        await ctx.respond(
+                            embed=Embed(
+                                description=f"{emoji} Invalid mention {mention}",
+                                color=Colors.RED
+                            )
                         )
-                    )
-                    return
+                        return
 
         # Create instance of EmbedBuilder
         embed_builder: EmbedBuilder = EmbedBuilder(
             ctx,
-            mentions,
+            mentions if mention_str else None,
             title="Embed Builder"
         )
 
