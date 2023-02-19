@@ -3,7 +3,7 @@ import logging
 from discord import Intents
 
 
-from .bot import ICodeBot
+from .bot import Reflect
 from .commands.usage import Help
 from .commands.setup import SetupCommands
 from .commands.youtube import YoutubeCommands
@@ -33,7 +33,7 @@ def main() -> None:
     intents.guilds = True
 
     # Instantiate ICodeBot
-    BOT = ICodeBot(
+    BOT = Reflect(
         description="Hi! I'm a bot under development.",
         intents=intents
     )

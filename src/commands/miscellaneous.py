@@ -17,7 +17,7 @@ from discord.ext.commands import (
 )
 
 
-from ..bot import ICodeBot
+from ..bot import Reflect
 from ..utils.color import Colors
 from ..utils.checks import (
     maintenance_check,
@@ -30,7 +30,7 @@ class MiscellaneousCommands(Cog):
     Miscellaneous commands    
     """
 
-    def __init__(self, bot: ICodeBot) -> None:
+    def __init__(self, bot: Reflect) -> None:
         """
         Initialize
 

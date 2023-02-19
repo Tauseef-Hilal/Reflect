@@ -14,7 +14,7 @@ from discord.ext.commands import (
     slash_command
 )
 
-from ..bot import ICodeBot
+from ..bot import Reflect
 
 
 class Help(Cog):
@@ -22,7 +22,7 @@ class Help(Cog):
     Help command
     """
 
-    def __init__(self, bot: ICodeBot) -> None:
+    def __init__(self, bot: Reflect) -> None:
         """
         Initialize
 
@@ -85,7 +85,7 @@ class Help(Cog):
 
 class UsageView(View):
 
-    def __init__(self, bot: ICodeBot, ctx: ApplicationContext):
+    def __init__(self, bot: Reflect, ctx: ApplicationContext):
         """
         Initialize
 

@@ -11,7 +11,7 @@ from discord import (
 )
 
 from ..utils.color import Colors
-from ..bot import ICodeBot
+from ..bot import Reflect
 from ..utils.checks import (
     maintenance_check,
     permission_check
@@ -29,7 +29,7 @@ class SetupCommands(Cog):
         "Commands for setting bot features."
     )
 
-    def __init__(self, bot: ICodeBot) -> None:
+    def __init__(self, bot: Reflect) -> None:
         """
         Initialize
         """
@@ -119,7 +119,7 @@ class SetupCommands(Cog):
 
         # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 description=f"Set {channel.mention} for "
                             f"moderation logs {emoji}",
@@ -211,7 +211,7 @@ class SetupCommands(Cog):
 
         # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 description=f"Set {channel.mention} for bump "
                             f"reminders {emoji}",
@@ -297,7 +297,7 @@ class SetupCommands(Cog):
 
         # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 description=f"Set {role.mention} for bump "
                             f"reminder pings {emoji}",
@@ -387,7 +387,7 @@ class SetupCommands(Cog):
                 )
         # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 description=f"Set {channel.mention} for member "
                             f"join/leave events {emoji}",
@@ -478,7 +478,7 @@ class SetupCommands(Cog):
 
         # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 description=f"Set {channel.mention} for suggestions "
                             f"{emoji}",
@@ -524,7 +524,7 @@ class SetupCommands(Cog):
 
         # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 description=f"Set up reaction roles {emoji}",
                 color=Colors.GREEN

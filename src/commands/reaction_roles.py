@@ -13,7 +13,7 @@ from discord import (
 
 from typing import List
 
-from ..bot import ICodeBot
+from ..bot import Reflect
 from ..utils.color import Colors
 from ..utils.checks import (
     maintenance_check,
@@ -32,7 +32,7 @@ class ReactionRoleCommands(Cog):
         "Reaction role commands"
     )
 
-    def __init__(self, bot: ICodeBot) -> None:
+    def __init__(self, bot: Reflect) -> None:
         """
         Initialize
 
@@ -89,7 +89,7 @@ class ReactionRoleCommands(Cog):
                 emoji = self._bot.emoji_group.get_emoji("red_cross")
 
                 # Send Error msg to the channel
-                await res.edit_original_message(
+                await res.edit_original_response(
                     embed=Embed(
                         title=f"Error fetching message {emoji}",
                         description="Please try again from the same "
@@ -121,7 +121,7 @@ class ReactionRoleCommands(Cog):
                        "by `-` corresponding to the reaction order.")
 
                 # Send error msg
-                await res.edit_original_message(
+                await res.edit_original_response(
                     embed=Embed(
                         title=f"Error setting reaction roles {emoji}",
                         description=msg,
@@ -146,7 +146,7 @@ class ReactionRoleCommands(Cog):
 
             # Send error msg in case of invalid role
             else:
-                await res.edit_original_message(
+                await res.edit_original_response(
                     embed=Embed(
                         description=f"{emoji} Role `{role}` does not exist",
                         color=Colors.RED
@@ -204,7 +204,7 @@ class ReactionRoleCommands(Cog):
         # Send msg to setup reaction roles
         except TypeError:
             emoji = self._bot.emoji_group.get_emoji("warning")
-            await res.edit_original_message(
+            await res.edit_original_response(
                 embed=Embed(
                     description=f"{emoji} Reaction roles not set. Use "
                                 "`/setup` command to set up reaction roles.",
@@ -216,7 +216,7 @@ class ReactionRoleCommands(Cog):
 
         # Prmopt success msg
         emoji = self._bot.emoji_group.get_emoji("green_tick")
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 description=f"Reaction roles set "
                             f"{emoji}",
@@ -282,7 +282,7 @@ class ReactionRoleCommands(Cog):
         # Send msg to setup reaction roles
         except TypeError:
             emoji = self._bot.emoji_group.get_emoji("warning")
-            await res.edit_original_message(
+            await res.edit_original_response(
                 embed=Embed(
                     description=f"{emoji} Reaction roles not set. Use "
                                 "`/setup` command to set up reaction roles.",
@@ -294,7 +294,7 @@ class ReactionRoleCommands(Cog):
 
         # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 description=f"Reaction roles removed "
                             f"{emoji}",

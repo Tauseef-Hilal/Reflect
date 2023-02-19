@@ -1,7 +1,7 @@
 import logging
 from mediawiki import MediaWiki
 from datetime import datetime
-from typing import List
+from typing import List, Union
 
 from discord import (
     AllowedMentions,
@@ -30,7 +30,7 @@ from discord.ui import (
     button
 )
 
-from src.bot import ICodeBot
+from src.bot import Reflect
 from src.utils.color import Colors
 from src.utils.checks import (
     maintenance_check
@@ -144,7 +144,7 @@ class EmbedBuilder(Modal):
 
 class EmojiDisplay(View):
 
-    def __init__(self, bot: ICodeBot, ctx: ApplicationContext, embeds: List):
+    def __init__(self, bot: Reflect, ctx: ApplicationContext, embeds: List):
         """
         Initialize
 
@@ -226,7 +226,7 @@ class GeneralCommands(Cog):
     General commands
     """
 
-    def __init__(self, bot: ICodeBot) -> None:
+    def __init__(self, bot: Reflect) -> None:
         """
         Initialize
 
@@ -241,7 +241,7 @@ class GeneralCommands(Cog):
     async def _embed(
         self,
         ctx: ApplicationContext,
-        mention_str: Option(str, "Mentions separated by `-`",) = ""
+        mention_str: Option(str, "Mentions separated by `-`") = ""
     ) -> None:
         """
         Build an embedded message
@@ -257,6 +257,9 @@ class GeneralCommands(Cog):
         if mention_str:
             mentions = mention_str.split("-")
             for i, mention in enumerate(mentions):
+                if mention.lower() == "everyone":
+                    mention = "@everyone"
+                    
                 for role in ctx.guild.roles:
                     if role.name.lower() == mention.lower():
                         mentions[i] = role.mention
@@ -398,7 +401,7 @@ class GeneralCommands(Cog):
         except Exception as summary:
 
             # Send error msg
-            await res.edit_original_message(
+            await res.edit_original_response(
                 embed=Embed(
                     title="Ambiguous or invalid search terms",
                     description=summary,
@@ -416,7 +419,7 @@ class GeneralCommands(Cog):
             return
 
         # Send summary
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 title=page.original_title,
                 description=summary,
@@ -500,7 +503,7 @@ class GeneralCommands(Cog):
 
         # Prompt success
         emoji = self._bot.emoji_group.get_emoji("green_tick")
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 description=f"Suggestion sent {emoji}",
                 color=Colors.GREEN
@@ -621,7 +624,7 @@ class GeneralCommands(Cog):
             )
 
         # Send embed
-        await res.edit_original_message(embed=card)
+        await res.edit_original_response(embed=card)
 
     @slash_command(name="icon")
     @maintenance_check()
@@ -748,7 +751,7 @@ class GeneralCommands(Cog):
             value=user.joined_at.strftime("%d %B, %Y"),
         )
 
-        await res.edit_original_message(embed=card)
+        await res.edit_original_response(embed=card)
 
     @slash_command(name="avatar")
     @maintenance_check()

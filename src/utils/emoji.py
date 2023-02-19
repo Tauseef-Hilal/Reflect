@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from discord import Emoji, Bot, Guild
 
-from .env import ICODE_GUILD_ID
+from .env import REFLECT_GUILD_ID
 
 
 class EmojiGroup:
@@ -46,7 +46,7 @@ class EmojiGroup:
 
             self._emojis[guild_id][alias] = emoji.id
 
-    def get_emoji(self, name: str, guild_id: int = ICODE_GUILD_ID) -> Emoji:
+    def get_emoji(self, name: str, guild_id: int = REFLECT_GUILD_ID) -> Emoji:
         """
         Get emojis
 

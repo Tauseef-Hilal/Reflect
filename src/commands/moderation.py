@@ -19,7 +19,7 @@ from discord.ext.commands import (
 )
 from discord.errors import Forbidden
 
-from ..bot import ICodeBot
+from ..bot import Reflect
 from ..utils.color import Colors
 from ..utils.checks import (
     maintenance_check,
@@ -32,7 +32,7 @@ class ModerationCommands(Cog):
     Moderation commands
     """
 
-    def __init__(self, bot: ICodeBot) -> None:
+    def __init__(self, bot: Reflect) -> None:
         """
         Initialize
 
@@ -101,7 +101,7 @@ class ModerationCommands(Cog):
         await asyncio.sleep(1)
 
         # Send animation embed
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 description=f"Deleting message(s) {emoji}",
                 color=Colors.GOLD
@@ -118,7 +118,7 @@ class ModerationCommands(Cog):
 
         # Show success msg to user
         emoji = self._bot.emoji_group.get_emoji("done")
-        await res.edit_original_message(
+        await res.edit_original_response(
             embed=Embed(
                 description=f"{len(deleted)} message(s) deleted {emoji}",
                 color=Colors.GREEN

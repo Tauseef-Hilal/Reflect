@@ -32,12 +32,11 @@ from .utils.color import Colors
 from .utils.emoji import EmojiGroup
 from .utils.bump_timer import BumpTimer
 from .utils.env import (
-    ICODE_GUILD_ID,
+    REFLECT_GUILD_ID,
     MONGO_DB_URI
 )
 from .utils.constants import (
     ICODIAN_ROLE_ID,
-    STAFF_CHANNEL_ID,
     WELCOME_MESSAGES,
     FAREWELL_MESSAGES,
     SELF_ROLES_CHANNEL_ID,
@@ -49,7 +48,7 @@ from .utils.constants import (
 )
 
 
-class ICodeBot(Bot):
+class Reflect(Bot):
     """
     The BOT made for 'iCODE' Discord server.
     """
@@ -92,7 +91,7 @@ class ICodeBot(Bot):
         logging.info(msg="Initializing BumpTimer")
         self.bump_timer = BumpTimer()
 
-        self.ICODE_GUILD = self.get_guild(ICODE_GUILD_ID)
+        self.ICODE_GUILD = self.get_guild(REFLECT_GUILD_ID)
         if not self.ICODE_GUILD:
             logging.warning("Couldn't find iCODE")
 
@@ -117,7 +116,6 @@ class ICodeBot(Bot):
 
         # Set maintenance and staff channel
         self.MAINTENANCE_CHANNEL = self.get_channel(MAINTENANCE_CHANNEL_ID)
-        self.STAFF_CHANNEL = self.get_channel(STAFF_CHANNEL_ID)
 
         # Set DND if the bot is running in maintenance mode,
         if self.MAINTENANCE_MODE:
@@ -158,7 +156,7 @@ class ICodeBot(Bot):
     async def on_guild_emojis_update(
         self,
         guild: Guild,
-        before: List[Emoji],
+        _: List[Emoji],
         after: List[Emoji]
     ) -> None:
         """
@@ -285,7 +283,7 @@ class ICodeBot(Bot):
             )
         )
 
-        if member.guild.id != ICODE_GUILD_ID:
+        if member.guild.id != REFLECT_GUILD_ID:
             return
 
         g_chat_channel: TextChannel = self.get_channel(GENERAL_CHAT_CHANNEL_ID)

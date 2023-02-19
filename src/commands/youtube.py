@@ -20,7 +20,7 @@ from discord.ui import (
 )
 
 from ..utils.color import Colors
-from ..bot import ICodeBot
+from ..bot import Reflect
 from ..utils.checks import (
     maintenance_check,
 )
@@ -37,7 +37,7 @@ class YoutubeCommands(Cog):
         "YouTube commands"
     )
 
-    def __init__(self, bot: ICodeBot) -> None:
+    def __init__(self, bot: Reflect) -> None:
         """
         Initialize
 
@@ -85,7 +85,7 @@ class YoutubeCommands(Cog):
                         + search_res[0]["id"]["videoId"])
 
             # Send single result
-            await res.edit_original_message(
+            await res.edit_original_response(
                 content=f"[||...||]({video_id})",
                 embed=None
             )
@@ -120,7 +120,7 @@ class YoutubeCommands(Cog):
             )
 
         # Send videos with a View obj
-        await res.edit_original_message(
+        await res.edit_original_response(
             content="Here is what I found:",
             embeds=list(videos.values())[:5],
             view=SelectOptions(self._bot, ctx, videos)
@@ -129,7 +129,7 @@ class YoutubeCommands(Cog):
 
 class SelectOptions(View):
 
-    def __init__(self, bot: ICodeBot, ctx: ApplicationContext, videos: dict):
+    def __init__(self, bot: Reflect, ctx: ApplicationContext, videos: dict):
         """
         Initialize
 
@@ -187,7 +187,7 @@ class SelectOptions(View):
         """
 
         # Defer interaction
-        await interaction.response.defer();
+        await interaction.response.defer()
 
         # Get video URL
         url = self.visible_urls[int(select.values[0])]
@@ -202,13 +202,11 @@ class SelectOptions(View):
             )
             return
 
-        
         # Otherwise edit the previously sent followup msg
         await self.result.edit(
             content=f"[||...||]({url})",
             embeds=[]
         )
-
 
     @button(
         label="<",
@@ -231,7 +229,7 @@ class SelectOptions(View):
         first_idx = list(self.videos).index(self.visible_urls[0])
 
         if not (first_idx - 4 >= 0):
-            await interaction.response.defer();
+            await interaction.response.defer()
             return
 
         # Get visible urls
@@ -263,7 +261,7 @@ class SelectOptions(View):
         last_idx = list(self.videos).index(self.visible_urls[-1])
 
         if not (last_idx + 6 <= len(self.videos)):
-            await interaction.response.defer();
+            await interaction.response.defer()
             return
 
         # Get visible urls
