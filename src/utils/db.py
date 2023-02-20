@@ -17,4 +17,4 @@ def get_database(host: str) -> Collection:
     CLIENT = MongoClient(host=host)
 
     # Create the database
-    return CLIENT["icode"]["guilds"]
+    return CLIENT["reflect"]["guilds"]
