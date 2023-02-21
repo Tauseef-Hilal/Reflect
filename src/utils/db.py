@@ -1,5 +1,3 @@
-import datetime
-
 from pymongo import MongoClient
 from pymongo.collection import Collection
 

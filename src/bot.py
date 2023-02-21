@@ -25,6 +25,8 @@ from discord import (
     RawReactionActionEvent,
 )
 
+from src.utils.chat import openai_request
+
 from .utils.db import get_database
 from .utils.youtube import YouTube
 from .utils.filter import Filter
@@ -64,6 +66,7 @@ class Reflect(Bot):
 
         super().__init__(description, *args, **options)
         self.MAINTENANCE_MODE = maintenance
+        self.deleted_for_aewn = set()
 
     async def on_ready(self) -> None:
         """
@@ -421,6 +424,10 @@ class Reflect(Bot):
         if message.author == self.user:
             return
 
+        if message in self.deleted_for_aewn:
+            self.deleted_for_aewn.remove(message)
+            return
+
         # Get staff channel
         try:
             guild_data = self.db.find_one({"guild_id": message.guild.id})
@@ -472,6 +479,11 @@ class Reflect(Bot):
         Args:
             message (Message): Message sent by a user
         """
+
+        if message.content.startswith(".ai"):
+            res = openai_request(prompt=message.content.split(" ", 1)[-1])
+            await self._send_webhook(
+                message=message, mod_msg=res, emoji=False)
 
         # Update bump timer
         if message.author.id == DISBOARD_ID:
@@ -596,9 +608,15 @@ class Reflect(Bot):
         await self._send_webhook(message=message, mod_msg=msg)
 
         # Delete the original msg
-        await message.delete()
+        self.deleted_for_aewn.add(message)
+        await message.delete(reason="For AEWN")
 
-    async def _send_webhook(self, message: Message, mod_msg: str = "") -> None:
+    async def _send_webhook(
+        self,
+        message: Message,
+        mod_msg: str = "",
+        emoji: bool = True
+    ) -> None:
         """
         Send a webhook
 
@@ -617,18 +635,20 @@ class Reflect(Bot):
 
         # Otherwise
         else:
-            # Get msg author's avatar
-            avatar: bytes = await message.author.display_avatar.read()
+            avatar: bytes = await self._bot.user.display_avatar.read()
 
             # and create a new webhook for the channel
             webhook: Webhook = await message.channel.create_webhook(
-                name="iCODE-BOT",
+                name="Reflect",
                 avatar=avatar,
-                reason="Animated Emoji Usage"
+                reason="No Reason Provided"
             )
 
-        # Send webhook to the channel with username as the name
-        # of msg author and avatar as msg author's avatar
-        await webhook.send(content=mod_msg if mod_msg else message.content,
-                           username=message.author.display_name,
-                           avatar_url=message.author.display_avatar)
+        if emoji:
+            await webhook.send(content=mod_msg if mod_msg else message.content,
+                               username=message.author.display_name,
+                               avatar_url=message.author.display_avatar)
+        else:
+            await webhook.send(content=mod_msg if mod_msg else message.content,
+                               username="ChatAI",
+                               avatar_url=self._bot.user.display_avatar)
