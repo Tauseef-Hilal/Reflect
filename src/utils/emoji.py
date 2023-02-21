@@ -1,3 +1,5 @@
+import logging
+from re import DOTALL, findall
 from collections import OrderedDict
 from discord import Emoji, Bot, Guild
 
@@ -83,6 +85,79 @@ class EmojiGroup:
             return
 
         self._emojis[guild.id] = await guild.fetch_emojis()
+
+    async def process_emojis(
+        self,
+        content: str,
+        guild_id: int = REFLECT_GUILD_ID
+    ) -> str:
+        emoji = None
+        processedCount = 0
+
+        # Insert space between two :: and ><
+        msg_copy = content
+        while "::" in msg_copy:
+            msg_copy = msg_copy.replace("::", ": :")
+
+        while "><" in msg_copy:
+            msg_copy = msg_copy.replace("><", "> <")
+
+        # Remove codeblocks from message
+        codeblocks: set = set(
+            findall(r"(`{1,3}.+?`{1,3})+", msg_copy, flags=DOTALL)
+        )
+
+        BLOCK_ID_FORMAT = "<CodeBlock => @Index: {}>"
+        for idx, block in enumerate(codeblocks):
+            if block.split("`").count("") % 2 != 0:
+                continue
+
+            msg_copy = msg_copy.replace(block, BLOCK_ID_FORMAT.format(idx))
+
+        # Search for emojis
+        emojis: set = set(findall(r"(:[\w\-~]*:)+", msg_copy))
+        processed_emojis: dict = {
+            f":{emoji.split(':')[1]}:": True
+            for emoji in findall(r"(<a?:\w+:\d+>)+", msg_copy)
+        }
+
+        # Return if all emojis are already processed
+        if len(emojis) - len(processed_emojis) == 0:
+            return content
+
+        for word in emojis:
+            # Skip if already processed
+            if word in processed_emojis:
+                continue
+
+            try:
+                # Get emoji
+                emoji = self.get_emoji(
+                    word[1:-1],
+                    guild_id
+                )
+
+                # Skip if not a valid emoji
+                if not emoji:
+                    continue
+
+                # Replace the word by its emoji
+                msg_copy = msg_copy.replace(word, str(emoji))
+                processedCount += 1
+
+            # Don't do anything if emoji was not found
+            except AttributeError as e:
+                logging.error(e)
+
+        # Return for no emoji
+        if processedCount == 0:
+            return content
+
+        # Add codeblocks back to the message
+        for idx, block in enumerate(codeblocks):
+            msg_copy = msg_copy.replace(BLOCK_ID_FORMAT.format(idx), block)
+
+        return msg_copy
 
     def __repr__(self) -> str:
         """

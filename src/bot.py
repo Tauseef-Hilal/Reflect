@@ -533,79 +533,22 @@ class Reflect(Bot):
             message (Message): Message with emojis
         """
 
-        emoji = None
-        processedCount = 0
-
         # Return if under maintenance
         if (self.MAINTENANCE_MODE and
                 message.channel != self.MAINTENANCE_CHANNEL):
             return
-
-        # Insert space between two :: and ><
-        msg = message.content
-        while "::" in msg:
-            msg = msg.replace("::", ": :")
-
-        while "><" in msg:
-            msg = msg.replace("><", "> <")
-
-        # Remove codeblocks from message
-        codeblocks: set = set(
-            findall(r"(`{1,3}.+?`{1,3})+", msg, flags=DOTALL)
+        
+        # Process emojis
+        processed = await self.emoji_group.process_emojis(
+            message.content,
+            message.guild.id
         )
 
-        BLOCK_ID_FORMAT = "<CodeBlock => @Index: {}>"
-        for idx, block in enumerate(codeblocks):
-            if block.split("`").count("") % 2 != 0:
-                continue
-
-            msg = msg.replace(block, BLOCK_ID_FORMAT.format(idx))
-
-        # Search for emojis
-        emojis: set = set(findall(r"(:[\w\-~]*:)+", msg))
-        processed_emojis: dict = {
-            f":{emoji.split(':')[1]}:": True
-            for emoji in findall(r"(<a?:\w+:\d+>)+", msg)
-        }
-
-        # Return if all emojis are already processed
-        if len(emojis) - len(processed_emojis) == 0:
+        if processed == message.content:
             return
-
-        for word in emojis:
-            # Skip if already processed
-            if word in processed_emojis:
-                continue
-
-            try:
-                # Get emoji
-                emoji = self.emoji_group.get_emoji(
-                    word[1:-1],
-                    message.guild.id
-                )
-
-                # Skip if not a valid emoji
-                if not emoji:
-                    continue
-
-                # Replace the word by its emoji
-                msg = msg.replace(word, str(emoji))
-                processedCount += 1
-
-            # Don't do anything if emoji was not found
-            except AttributeError as e:
-                logging.error(e)
-
-        # Return for no emoji
-        if processedCount == 0:
-            return
-
-        # Add codeblocks back to the message
-        for idx, block in enumerate(codeblocks):
-            msg = msg.replace(BLOCK_ID_FORMAT.format(idx), block)
 
         # Send webhook
-        await self._send_webhook(message=message, mod_msg=msg)
+        await self._send_webhook(message=message, mod_msg=processed)
 
         # Delete the original msg
         self.deleted_for_aewn.add(message)

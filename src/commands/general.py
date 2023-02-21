@@ -1,7 +1,7 @@
 import logging
 from mediawiki import MediaWiki
 from datetime import datetime
-from typing import List, Union
+from typing import List
 
 from discord import (
     AllowedMentions,
@@ -12,7 +12,6 @@ from discord import (
     Message,
     Option,
     Interaction,
-    Role,
     Status,
     ApplicationContext,
     TextChannel,
@@ -43,12 +42,14 @@ class EmbedBuilder(Modal):
     def __init__(
         self,
         ctx: ApplicationContext,
+        bot: Reflect,
         mentions: List[str] = None,
         *args,
         **kwargs
     ) -> None:
         super().__init__(*args, **kwargs)
         self.ctx = ctx
+        self.bot = bot
         self.mentions = mentions
 
         # Add input field for embed title
@@ -93,10 +94,18 @@ class EmbedBuilder(Modal):
 
     async def callback(self, interaction: Interaction):
 
+        title = await self.bot.emoji_group.process_emojis(
+            self.children[0].value
+        )
+
+        description = await self.bot.emoji_group.process_emojis(
+            self.children[1].value
+        )
+
         # Create Embed object
         embed = Embed(
-            title=self.children[0].value,
-            description=self.children[1].value,
+            title=title,
+            description=description,
             color=Colors.GOLD,
             timestamp=datetime.now()
         )
@@ -259,7 +268,7 @@ class GeneralCommands(Cog):
             for i, mention in enumerate(mentions):
                 if mention.lower() == "everyone":
                     mention = "@everyone"
-                    
+
                 for role in ctx.guild.roles:
                     if role.name.lower() == mention.lower():
                         mentions[i] = role.mention
@@ -282,6 +291,7 @@ class GeneralCommands(Cog):
         # Create instance of EmbedBuilder
         embed_builder: EmbedBuilder = EmbedBuilder(
             ctx,
+            self._bot,
             mentions if mention_str else None,
             title="Embed Builder"
         )
