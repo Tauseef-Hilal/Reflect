@@ -18,7 +18,6 @@ httplib2==0.21.0
 idna==3.4
 multidict==6.0.4
 oauthlib==3.2.2
-openai==0.26.5
 protobuf==4.22.0
 py-cord==2.4.0
 pyasn1==0.4.8

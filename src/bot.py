@@ -2,10 +2,6 @@ import asyncio
 import logging
 from random import choice
 from datetime import datetime
-from re import (
-    DOTALL,
-    findall
-)
 from typing import List
 
 from discord import (
@@ -24,8 +20,6 @@ from discord import (
     ApplicationContext,
     RawReactionActionEvent,
 )
-
-from src.utils.chat import openai_request
 
 from .utils.db import get_database
 from .utils.youtube import YouTube
@@ -480,11 +474,6 @@ class Reflect(Bot):
             message (Message): Message sent by a user
         """
 
-        if message.content.startswith(".ai"):
-            res = openai_request(prompt=message.content.split(" ", 1)[-1])
-            await self._send_webhook(
-                message=message, mod_msg=res, emoji=False)
-
         # Update bump timer
         if message.author.id == DISBOARD_ID:
             if "Bump done" in message.embeds[0].description:
@@ -537,7 +526,7 @@ class Reflect(Bot):
         if (self.MAINTENANCE_MODE and
                 message.channel != self.MAINTENANCE_CHANNEL):
             return
-        
+
         # Process emojis
         processed = await self.emoji_group.process_emojis(
             message.content,
@@ -592,6 +581,12 @@ class Reflect(Bot):
                                username=message.author.display_name,
                                avatar_url=message.author.display_avatar)
         else:
-            await webhook.send(content=mod_msg if mod_msg else message.content,
-                               username="ChatAI",
-                               avatar_url=self._bot.user.display_avatar)
+            await webhook.send(
+                embed=Embed(
+                    description=mod_msg,
+                    color=Colors.GREEN if not mod_msg.startswith(
+                        "OOPS") else Colors.RED
+                ),
+                username="ChatAI",
+                avatar_url=self._bot.user.display_avatar
+            )
