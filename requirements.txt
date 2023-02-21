@@ -18,6 +18,7 @@ httplib2==0.21.0
 idna==3.4
 multidict==6.0.4
 oauthlib==3.2.2
+openai==0.26.5
 protobuf==4.22.0
 py-cord==2.4.0
 pyasn1==0.4.8
@@ -31,6 +32,7 @@ requests-oauthlib==1.3.1
 rsa==4.9
 six==1.16.0
 soupsieve==2.4
+tqdm==4.64.1
 typing_extensions==4.5.0
 uritemplate==4.1.1
 urllib3==1.26.14
