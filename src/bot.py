@@ -510,7 +510,7 @@ class Reflect(Bot):
         if self.filter.has_abusive_words(message.content):
             await self._send_webhook(
                 message=message,
-                mod_msg=self.filter.censor(message.content)
+                mod_msg=self.filter.censor(message.content),
             )
             await message.delete()
 
@@ -547,7 +547,6 @@ class Reflect(Bot):
         self,
         message: Message,
         mod_msg: str = "",
-        emoji: bool = True
     ) -> None:
         """
         Send a webhook
@@ -555,6 +554,7 @@ class Reflect(Bot):
         Args:
             message (Message): Message of a user
         """
+        print(mod_msg)
         # Get all webhooks currently in the msg channel
         webhooks = await message.channel.webhooks()
 
@@ -576,17 +576,6 @@ class Reflect(Bot):
                 reason="No Reason Provided"
             )
 
-        if emoji:
-            await webhook.send(content=mod_msg if mod_msg else message.content,
-                               username=message.author.display_name,
-                               avatar_url=message.author.display_avatar)
-        else:
-            await webhook.send(
-                embed=Embed(
-                    description=mod_msg,
-                    color=Colors.GREEN if not mod_msg.startswith(
-                        "OOPS") else Colors.RED
-                ),
-                username="ChatAI",
-                avatar_url=self._bot.user.display_avatar
-            )
+        await webhook.send(content=mod_msg if mod_msg else message.content,
+                           username=message.author.display_name,
+                           avatar_url=message.author.display_avatar)

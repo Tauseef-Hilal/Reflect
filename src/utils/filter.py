@@ -7,7 +7,7 @@ class Filter:
         """
         Initialize filter
         """
-        self._BADWORDS = ""
+        self._BADWORDS = set()
 
         # Try to extract words from the file
         try:
@@ -60,8 +60,8 @@ class Filter:
 
         # Iterate over the words and check if
         # any is present in _BADWORDS
-        for word in set(text.lower().split()):
-            if word not in self._BADWORDS:
+        for word in set(text.split()):
+            if word.lower() not in self._BADWORDS:
                 continue
 
             if len(word) < 6:
