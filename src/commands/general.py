@@ -267,7 +267,8 @@ class GeneralCommands(Cog):
             mentions = mention_str.split("-")
             for i, mention in enumerate(mentions):
                 if mention.lower() == "everyone":
-                    mention = "@everyone"
+                    mentions[i] = "@everyone"
+                    continue
 
                 for role in ctx.guild.roles:
                     if role.name.lower() == mention.lower():
