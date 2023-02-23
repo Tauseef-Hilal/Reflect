@@ -109,26 +109,20 @@ class ReactionRoleCommands(Cog):
 
         # Send error msg if the number of roles is not equal to the number
         # of reactions on the message
-        if len(roles) != len(msg_reactions):
+        if len(roles) > len(msg_reactions):
             emoji = self._bot.emoji_group.get_emoji("red_cross")
+            msg = ("Target message must have added reactions and "
+                   "`reactionCount` must be equal to `roleCount`")
 
-            # Determine the error msg to send
-            if not len(msg_reactions):
-                msg = ("Target message must have added reactions and\n "
-                       "`reactionCount` must be equal to `roleCount`")
-            else:
-                msg = ("`roles` must be a string of roles separated "
-                       "by `-` corresponding to the reaction order.")
-
-                # Send error msg
-                await res.edit_original_response(
-                    embed=Embed(
-                        title=f"Error setting reaction roles {emoji}",
-                        description=msg,
-                        color=Colors.RED
-                    ),
-                    delete_after=3
-                )
+            # Send error msg
+            await res.edit_original_response(
+                embed=Embed(
+                    title=f"Error setting reaction roles {emoji}",
+                    description=msg,
+                    color=Colors.RED
+                ),
+                delete_after=3
+            )
             return
 
         # Create an empty list of reaction roles
@@ -146,6 +140,7 @@ class ReactionRoleCommands(Cog):
 
             # Send error msg in case of invalid role
             else:
+                emoji = self._bot.emoji_group.get_emoji("red_cross")
                 await res.edit_original_response(
                     embed=Embed(
                         description=f"{emoji} Role `{role}` does not exist",

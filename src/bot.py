@@ -1,11 +1,13 @@
 import asyncio
 import logging
+import pprint
 from random import choice
 from datetime import datetime
 from typing import List
 
 from discord import (
     Bot,
+    Colour,
     Game,
     Guild,
     Role,
@@ -124,7 +126,7 @@ class Reflect(Bot):
         # Otherwise
         else:
             # Set Online (activity)
-            await self.change_presence(activity=Game(name="UMF 2022"))
+            await self.change_presence(activity=Game(name="UMF 2023"))
 
     async def on_maintenance(self, ctx: ApplicationContext) -> None:
         """
@@ -142,10 +144,10 @@ class Reflect(Bot):
             content=ctx.author.mention,
             embed=Embed(
                 title=f"Maintenance Break {emoji}",
-                description="iCODE is under maintenance. Commands will work\n"
-                            f"only in the {self.MAINTENANCE_CHANNEL} channel "
-                            "of iCODE server.",
-                color=Colors.GOLD
+                description="Reflect is under maintenance. Commands will only "
+                            f"work in the {self.MAINTENANCE_CHANNEL} channel "
+                            "of Unnamed server.",
+                color=Colors.GOLD,
             ),
             delete_after=5
         )
@@ -474,6 +476,26 @@ class Reflect(Bot):
             message (Message): Message sent by a user
         """
 
+        # if message.content.startswith("!create-reaction-roles"):
+        #     roles = [':trophy: • Challenge Pings',]
+        #     roles = [await self.emoji_group.process_emojis(role) for role in roles]
+        #     embed = Embed(
+        #         title="Reaction Roles",
+        #         description="React to get the corresponding roles",
+        #         color=Colors.GOLD,
+        #         timestamp=datetime.now(),
+        #     ).add_field(
+        #         name="Pings",
+        #         value=roles[0]
+        #     ).set_footer(
+        #         text="STAFF",
+        #         icon_url=message.guild.icon.url
+        #     ).set_thumbnail(
+        #         url=self._bot.user.display_avatar
+        #     )
+
+        #     await message.channel.send(embed=embed)
+
         # Update bump timer
         if message.author.id == DISBOARD_ID:
             if "Bump done" in message.embeds[0].description:
@@ -554,7 +576,6 @@ class Reflect(Bot):
         Args:
             message (Message): Message of a user
         """
-        print(mod_msg)
         # Get all webhooks currently in the msg channel
         webhooks = await message.channel.webhooks()
 

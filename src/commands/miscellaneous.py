@@ -61,7 +61,10 @@ class MiscellaneousCommands(Cog):
             )
 
             # Change presence
-            await self._bot.change_presence(activity=Game(name="/emojis | .py"))
+            await self._bot.change_presence(
+                status=Status.online,
+                activity=Game(name="/emojis | .py")
+            )
 
         else:
             res: Interaction = await ctx.respond(
@@ -83,7 +86,7 @@ class MiscellaneousCommands(Cog):
 
         # Prompt completion
         emoji = self._bot.emoji_group.get_emoji("done")
-        msg: Message = await res.original_message()
+        msg: Message = await res.original_response()
 
         await msg.edit(
             embed=Embed(

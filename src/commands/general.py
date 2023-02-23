@@ -320,25 +320,31 @@ class GeneralCommands(Cog):
             pass
 
         # Create a list of available emojis
-        temp = []
+        temp = set()
         emojis: List[str] = []
 
         for guild_id in guilds:
             guild_emojis = emoji_dict[guild_id]
 
-            for emoji in guild_emojis:
-                # Skip if emoji in temp
-                if emoji in temp:
+            for emoji_str in guild_emojis:
+                emoji = self._bot.emoji_group.get_emoji(emoji_str, guild_id)
+
+                if not emoji.is_usable():
+                    continue
+
+                if emoji_str in temp or \
+                        (emoji_str[-2] == "-" and emoji.id in temp):
                     continue
 
                 # Update emojis
                 emojis.append(
-                    f"{self._bot.emoji_group.get_emoji(emoji, guild_id)} "
-                    f"• `:{emoji}:`"
+                    f"{emoji} "
+                    f"• `:{emoji_str}:`"
                 )
 
                 # Update temp
-                temp.append(emoji)
+                temp.add(emoji_str)
+                temp.add(emoji.id)
 
         # To prevent IndexeError
         emoji_count = len(emojis)
