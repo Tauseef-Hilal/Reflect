@@ -111,7 +111,7 @@ class Reflect(Bot):
             delta = (datetime.now() - previous_bump_time).total_seconds()
             delay = 0 if delta >= 7200 else (7200 - delta)
 
-            self.dispatch("bump_done", guild_data, int(delay))
+            self.dispatch("bump_timer_done", guild_data, int(delay))
 
         # Set maintenance and staff channel
         self.MAINTENANCE_CHANNEL = self.get_channel(MAINTENANCE_CHANNEL_ID)
@@ -344,7 +344,7 @@ class Reflect(Bot):
             )
         )
 
-    async def on_bump_done(self, guild_data: dict, delay: int) -> None:
+    async def on_bump_timer_done(self, guild_data: dict, delay: int) -> None:
         """
         Called when a user bumps the server
 
@@ -521,7 +521,7 @@ class Reflect(Bot):
                     guild_data = self.db.find_one(
                         {"guild_id": message.guild.id}
                     )
-                    self.dispatch("bump_done", guild_data, 7200)
+                    self.dispatch("bump_timer_done", guild_data, 7200)
             return
 
         # AEWN: Animated Emojis Without Nitro
