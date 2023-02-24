@@ -106,9 +106,9 @@ class Reflect(Bot):
                 logging.warning("No bump data found")
                 continue
 
-            logging.info(f"Previous bump time: {previous_bump_time}")
+            logging.info(f"Previous bump time: {previous_bump_time} UTC")
 
-            delta = (datetime.now() - previous_bump_time).total_seconds()
+            delta = (datetime.utcnow() - previous_bump_time).total_seconds()
             delay = 0 if delta >= 7200 else (7200 - delta)
 
             self.dispatch("bump_timer_done", guild_data, int(delay))
@@ -503,7 +503,7 @@ class Reflect(Bot):
 
                 try:
                     self.bump_timer.update_bump_time(
-                        self.db, message.guild.id, datetime.now()
+                        self.db, message.guild.id, datetime.utcnow()
                     )
                 except TypeError:
                     logging.warning("Cant update bump time")

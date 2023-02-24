@@ -1,7 +1,5 @@
-import sys
 import asyncio
 import logging
-from io import StringIO
 
 from discord import (
     Game,
@@ -15,6 +13,8 @@ from discord.ext.commands import (
     Cog,
     slash_command
 )
+
+from src.utils.code_runner import run_code
 
 
 from ..bot import Reflect
@@ -161,17 +161,7 @@ class MiscellaneousCommands(Cog):
 
         # Try to execute the codeblock
         try:
-            # Set output stream
-            old_stdout = sys.stdout
-            new_stdout = StringIO()
-            sys.stdout = new_stdout
-
-            # Execute the codeblock
-            exec(codeblock)
-
-            # Get output from the new_stdout
-            output = new_stdout.getvalue()
-            sys.stdout = old_stdout
+            output = run_code(code=codeblock)
 
             # Send output for successful execution
             await ctx.send(content=f"{ctx.author.mention}\n"
