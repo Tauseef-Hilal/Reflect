@@ -1,8 +1,11 @@
 import asyncio
+from io import StringIO
 import logging
 import pprint
 from random import choice
 from datetime import datetime
+import re
+import sys
 from typing import List
 
 from discord import (
@@ -23,6 +26,7 @@ from discord import (
     RawReactionActionEvent,
 )
 
+
 from .utils.db import get_database
 from .utils.youtube import YouTube
 from .utils.filter import Filter
@@ -35,6 +39,7 @@ from .utils.env import (
 )
 from .utils.constants import (
     ICODIAN_ROLE_ID,
+    OWNER_ID,
     WELCOME_MESSAGES,
     FAREWELL_MESSAGES,
     SELF_ROLES_CHANNEL_ID,
@@ -69,6 +74,7 @@ class Reflect(Bot):
         Called when the bot has finished logging in and setting things up
         """
         logging.info(msg=f"Logged in as {self.user}")
+        self.owner_id = OWNER_ID
 
         # Create EmojiGroup instance
         logging.info(msg="Initializing EmojiGroup")
@@ -409,6 +415,30 @@ class Reflect(Bot):
             )
         )
 
+    async def on_message_edit(self, before: Message, after: Message) -> None:
+        """Handle message edit events
+
+        Args:
+            before (Message): Message before edit
+            after (Message): Message after edit
+        """
+        if before.author.id == self.owner_id \
+                and before.content.startswith(".exec"):
+            msgs = await before.channel.history(
+                limit=3,
+                after=before.created_at
+            ).flatten()
+
+            for msg in msgs:
+                if not msg.reference:
+                    continue
+                
+                if msg.reference.channel_id == before.channel.id \
+                        and msg.author.id == self.user.id:
+
+                    await self._run_code(after, prev=msg)
+                    return
+
     async def on_message_delete(self, message: Message) -> None:
         """
         Called when a message gets deleted
@@ -475,26 +505,30 @@ class Reflect(Bot):
         Args:
             message (Message): Message sent by a user
         """
+        if message.author.id == self.owner_id:
+            if message.content.startswith(".exec"):
+                await self._run_code(message)
+                return
 
-        # if message.content.startswith("!create-reaction-roles"):
-        #     roles = [':trophy: • Challenge Pings',]
-        #     roles = [await self.emoji_group.process_emojis(role) for role in roles]
-        #     embed = Embed(
-        #         title="Reaction Roles",
-        #         description="React to get the corresponding roles",
-        #         color=Colors.GOLD,
-        #         timestamp=datetime.now(),
-        #     ).add_field(
-        #         name="Pings",
-        #         value=roles[0]
-        #     ).set_footer(
-        #         text="STAFF",
-        #         icon_url=message.guild.icon.url
-        #     ).set_thumbnail(
-        #         url=self._bot.user.display_avatar
-        #     )
+            # if message.content.startswith("!create-reaction-roles"):
+            #     roles = [':trophy: • Challenge Pings',]
+            #     roles = [await self.emoji_group.process_emojis(role) for role in roles]
+            #     embed = Embed(
+            #         title="Reaction Roles",
+            #         description="React to get the corresponding roles",
+            #         color=Colors.GOLD,
+            #         timestamp=datetime.now(),
+            #     ).add_field(
+            #         name="Pings",
+            #         value=roles[0]
+            #     ).set_footer(
+            #         text="STAFF",
+            #         icon_url=message.guild.icon.url
+            #     ).set_thumbnail(
+            #         url=self._bot.user.display_avatar
+            #     )
 
-        #     await message.channel.send(embed=embed)
+            #     await message.channel.send(embed=embed)
 
         # Update bump timer
         if message.author.id == DISBOARD_ID:
@@ -535,6 +569,56 @@ class Reflect(Bot):
                 mod_msg=self.filter.censor(message.content),
             )
             await message.delete()
+
+    async def _run_code(self, message: Message, prev: Message = None) -> None:
+        """Run code
+
+        Args:
+            message (Message): Message
+        """
+        codeblock = re.search(r"(```.+?```)+",
+                              message.content,
+                              re.DOTALL)
+        if not codeblock:
+            return
+
+        codeblock = codeblock.group()
+        codeblock = codeblock.replace("```py", "").replace("```", "")
+
+        # Try to execute the codeblock
+        try:
+            # Set output stream
+            old_stdout = sys.stdout
+            new_stdout = StringIO()
+            sys.stdout = new_stdout
+
+            # Execute the codeblock
+            exec(codeblock)
+
+            # Get output from the new_stdout
+            output = new_stdout.getvalue()
+            sys.stdout = old_stdout
+
+            # Send output for successful execution
+            if prev:
+                await prev.edit(
+                    content=f"```py\n{output}\n```"
+                )
+            else:
+                await message.reply(
+                    content=f"```py\n{output}\n```"
+                )
+
+        # If error occurs, send the error message to the user
+        except Exception as e:
+            if prev:
+                await prev.edit(
+                    content=f"```py\n{e}\n```",
+                )
+            else:
+                await message.channel.send(
+                    content=f"```py\n{e}\n```",
+                )
 
     async def _animated_emojis(self, message: Message) -> None:
         """

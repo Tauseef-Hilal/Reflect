@@ -14,7 +14,6 @@ from discord.ext.commands import (
     slash_command
 )
 
-from src.utils.code_runner import run_code
 
 
 from ..bot import Reflect
@@ -96,84 +95,3 @@ class MiscellaneousCommands(Cog):
             delete_after=2
         )
         logging.info("Toggled maintenance mode")
-
-    @slash_command(name="exec")
-    @maintenance_check()
-    @permission_check(bot_owner=True)
-    async def _exec(self, ctx: ApplicationContext) -> None:
-        """
-        Execute python code
-
-        Args:
-            ctx (ApplicationContext)
-        """
-
-        # Wait for the user to send a codeblock
-        try:
-            # Send an example
-            await ctx.respond(
-                embed=Embed(
-                    description="Type the code you want to execute"
-                                " below inside a codeblock\n\n"
-                                "__**Example**__: \n"
-                                "\t\`\`\`py\n"
-                                "\tYour code here\n"
-                                "\t\`\`\`",
-                    color=Colors.GOLD
-                )
-            )
-
-            # Wait for the response
-            codeblock: Message = await self._bot.wait_for(
-                "message",
-                check=lambda msg: (msg.author == ctx.author
-                                   and msg.channel == ctx.channel),
-                timeout=300.0
-            )
-
-        # Show error message if timer exceeds timeout time
-        except asyncio.TimeoutError:
-            emoji = self._bot.emoji_group.get_emoji("red_cross")
-            await ctx.send(
-                embed=Embed(
-                    description=f"Timeout error {emoji}",
-                    color=Colors.RED
-                )
-            )
-            return
-
-        # Show error if its not a valid codeblock
-        if not (codeblock.content.startswith("```py")
-                and codeblock.content.endswith("```")):
-
-            emoji = self._bot.emoji_group.get_emoji("red_cross")
-            await ctx.send(
-                embed=Embed(
-                    description=f"Invalid codeblock {emoji}",
-                    color=Colors.RED
-                )
-            )
-            return
-
-        # Prepare the codeblock for execution
-        codeblock = codeblock.content.replace("```py", "")
-        codeblock = codeblock.replace("```", "")
-
-        # Try to execute the codeblock
-        try:
-            output = run_code(code=codeblock)
-
-            # Send output for successful execution
-            await ctx.send(content=f"{ctx.author.mention}\n"
-                           f"```py\n{output}\n```")
-
-        # If error occurs, send the error message to the user
-        except Exception as e:
-            emoji = self._bot.emoji_group.get_emoji("red_cross")
-            await ctx.send(
-                embed=Embed(
-                    title=f"Error executing codeblock {emoji}",
-                    description=f"```py\n{e}\n```",
-                    color=Colors.RED
-                )
-            )
