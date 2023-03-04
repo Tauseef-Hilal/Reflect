@@ -616,7 +616,7 @@ class Reflect(Bot):
                     content=f"```py\n{e}\n```",
                 )
             else:
-                await message.channel.send(
+                await message.reply(
                     content=f"```py\n{e}\n```",
                 )
 
